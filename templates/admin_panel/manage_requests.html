@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Manage Requests | Admin Panel</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        body { margin: 0; font-family: Arial, sans-serif; background: #f9f9f9; }
+        .navbar {
+            background: #e74c3c;
+            color: #fff;
+            padding: 1rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .navbar .logo { font-size: 1.5rem; font-weight: bold; }
+        .navbar nav a {
+            color: #fff;
+            text-decoration: none;
+            margin-left: 2rem;
+            font-weight: 500;
+        }
+        .container {
+            max-width: 1400px;
+            margin: 2rem auto;
+            background: #fff;
+            border-radius: 10px;
+            box-shadow: 0 4px 16px rgba(0,0,0,0.07);
+            padding: 2rem;
+        }
+        .filter-form {
+            margin-bottom: 2rem;
+            display: flex;
+            gap: 1rem;
+            align-items: center;
+        }
+        .filter-form select {
+            padding: 0.5rem;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+        }
+        .table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 1rem;
+        }
+        .table th, .table td {
+            padding: 1rem;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+        .table th {
+            background: #f8f9fa;
+            font-weight: 600;
+        }
+        .btn {
+            display: inline-block;
+            padding: 0.5rem 1rem;
+            background: #e74c3c;
+            color: white;
+            text-decoration: none;
+            border-radius: 5px;
+            margin: 0.25rem;
+            border: none;
+            cursor: pointer;
+            font-size: 0.8rem;
+        }
+        .btn:hover { background: #c0392b; }
+        .btn-success { background: #28a745; }
+        .btn-success:hover { background: #218838; }
+        .btn-warning { background: #ffc107; color: black; }
+        .btn-warning:hover { background: #e0a800; }
+        .badge {
+            padding: 0.25rem 0.5rem;
+            border-radius: 3px;
+            font-size: 0.8rem;
+        }
+        .badge-warning { background: #ffc107; color: black; }
+        .badge-success { background: #28a745; color: white; }
+        .badge-danger { background: #dc3545; color: white; }
+        .badge-secondary { background: #6c757d; color: white; }
+    </style>
+</head>
+<body>
+    <div class="navbar">
+        <div class="logo">Admin Panel</div>
+        <nav>
+            <a href="{% url 'admin_panel:dashboard' %}">Dashboard</a>
+            <a href="{% url 'admin_panel:manage_donors' %}">Donors</a>
+            <a href="{% url 'accounts:logout' %}">Logout</a>
+        </nav>
+    </div>
+    <div class="container">
+        <h1><i class="fas fa-calendar-check"></i> Manage Donation Requests</h1>
+        
+        <form method="GET" class="filter-form">
+            <select name="status">
+                <option value="">All Statuses</option>
+                {% for value, display in status_choices %}
+                <option value="{{ value }}" {% if value == status_filter %}selected{% endif %}>{{ display }}</option>
+                {% endfor %}
+            </select>
+            <button type="submit" class="btn">Filter</button>
+        </form>
+        
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>Donor</th>
+                    <th>Blood Group</th>
+                    <th>Requested Date</th>
+                    <th>Preferred Time</th>
+                    <th>Status</th>
+                    <th>Created</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for request in requests %}
+                <tr>
+                    <td>{{ request.donor.name }}</td>
+                    <td><strong>{{ request.donor.blood_group }}</strong></td>
+                    <td>{{ request.requested_date }}</td>
+                    <td>{{ request.preferred_time }}</td>
+                    <td>
+                        {% if request.status == 'pending' %}
+                            <span class="badge badge-warning">Pending</span>
+                        {% elif request.status == 'approved' %}
+                            <span class="badge badge-success">Approved</span>
+                        {% elif request.status == 'completed' %}
+                            <span class="badge badge-success">Completed</span>
+                        {% else %}
+                            <span class="badge badge-secondary">{{ request.get_status_display }}</span>
+                        {% endif %}
+                    </td>
+                    <td>{{ request.created_at|date:"M d, Y" }}</td>
+                    <td>
+                        {% if request.status == 'pending' %}
+                            <form method="POST" action="{% url 'admin_panel:approve_request' request.id %}" style="display: inline;">
+                                {% csrf_token %}
+                                <input type="hidden" name="action" value="approve">
+                                <button type="submit" class="btn btn-success">Approve</button>
+                            </form>
+                            <form method="POST" action="{% url 'admin_panel:approve_request' request.id %}" style="display: inline;">
+                                {% csrf_token %}
+                                <input type="hidden" name="action" value="reject">
+                                <button type="submit" class="btn btn-warning">Reject</button>
+                            </form>
+                        {% else %}
+                            <span class="badge badge-secondary">{{ request.get_status_display }}</span>
+                        {% endif %}
+                    </td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="7">No donation requests found.</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</body>
+</html>

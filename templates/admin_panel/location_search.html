@@ -1,0 +1,464 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Location-Based Donor Search | Admin Panel</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        body { margin: 0; font-family: Arial, sans-serif; background: #f9f9f9; }
+        .navbar {
+            background: #e74c3c;
+            color: #fff;
+            padding: 1rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .navbar .logo { font-size: 1.5rem; font-weight: bold; }
+        .navbar nav a {
+            color: #fff;
+            text-decoration: none;
+            margin-left: 2rem;
+            font-weight: 500;
+        }
+        .container { max-width: 1200px; margin: 2rem auto; padding: 0 1rem; }
+        h1 { color: #333; margin-bottom: 2rem; }
+        .search-form {
+            background: white;
+            padding: 2rem;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            margin-bottom: 2rem;
+        }
+        .form-row {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 1rem;
+        }
+        .form-group {
+            flex: 1;
+        }
+        label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: bold;
+            color: #333;
+        }
+        input, select {
+            width: 100%;
+            padding: 0.75rem;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 1rem;
+        }
+        .btn {
+            background: #e74c3c;
+            color: white;
+            padding: 0.75rem 1.5rem;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            text-decoration: none;
+            display: inline-block;
+            margin-right: 0.5rem;
+        }
+        .btn:hover { background: #c0392b; }
+        .btn-secondary { background: #6c757d; }
+        .btn-secondary:hover { background: #5a6268; }
+        .results {
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+        .results-header {
+            background: #f8f9fa;
+            padding: 1rem;
+            border-bottom: 1px solid #dee2e6;
+        }
+        .table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        .table th, .table td {
+            padding: 1rem;
+            text-align: left;
+            border-bottom: 1px solid #dee2e6;
+        }
+        .table th {
+            background: #f8f9fa;
+            font-weight: bold;
+        }
+        .badge {
+            padding: 0.25rem 0.5rem;
+            border-radius: 3px;
+            font-size: 0.8rem;
+        }
+        .badge-success { background: #28a745; color: white; }
+        .badge-danger { background: #dc3545; color: white; }
+        .badge-warning { background: #ffc107; color: #212529; }
+        .loading {
+            text-align: center;
+            padding: 2rem;
+            color: #666;
+        }
+        .error {
+            background: #f8d7da;
+            color: #721c24;
+            padding: 1rem;
+            border-radius: 4px;
+            margin-bottom: 1rem;
+        }
+        .location-info {
+            background: #d1ecf1;
+            color: #0c5460;
+            padding: 1rem;
+            border-radius: 4px;
+            margin-bottom: 1rem;
+        }
+        .suggestions-dropdown {
+            position: absolute;
+            top: 100%;
+            left: 0;
+            right: 0;
+            background: white;
+            border: 1px solid #ddd;
+            border-top: none;
+            border-radius: 0 0 4px 4px;
+            max-height: 200px;
+            overflow-y: auto;
+            z-index: 1000;
+            display: none;
+        }
+        .suggestion-item {
+            padding: 0.75rem;
+            cursor: pointer;
+            border-bottom: 1px solid #eee;
+        }
+        .suggestion-item:hover {
+            background: #f8f9fa;
+        }
+        .suggestion-item:last-child {
+            border-bottom: none;
+        }
+        .form-group {
+            position: relative;
+        }
+    </style>
+</head>
+<body>
+    <div class="navbar">
+        <div class="logo">Admin Panel</div>
+        <nav>
+            <a href="{% url 'admin_panel:dashboard' %}">Dashboard</a>
+            <a href="{% url 'admin_panel:manage_donors' %}">Donors</a>
+            <a href="{% url 'accounts:logout' %}">Logout</a>
+        </nav>
+    </div>
+    
+    <div class="container">
+        <h1><i class="fas fa-map-marker-alt"></i> Location-Based Donor Search</h1>
+        
+        <div class="search-form">
+            <h3>Search Parameters</h3>
+            <form id="locationSearchForm">
+                <div class="form-group">
+                    <label for="location_name">Location Name</label>
+                    <input type="text" id="location_name" placeholder="e.g., Kathmandu, Thamel, Patan" required autocomplete="off">
+                    <div id="suggestions" class="suggestions-dropdown"></div>
+                    <small style="color: #666; font-size: 0.9em;">
+                        Enter any place name like "Kathmandu", "Thamel", "Patan", "Bhaktapur", etc.
+                    </small>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="max_distance">Maximum Distance (km)</label>
+                        <input type="number" id="max_distance" value="50" min="1" max="500" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="blood_group">Blood Group (Optional)</label>
+                        <select id="blood_group">
+                            <option value="">All Blood Groups</option>
+                            {% for bg, display in blood_groups %}
+                            <option value="{{ bg }}">{{ display }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="country">Country</label>
+                        <select id="country">
+                            <option value="Nepal" selected>Nepal</option>
+                            <option value="India">India</option>
+                            <option value="China">China</option>
+                            <option value="Bangladesh">Bangladesh</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <!-- Empty for spacing -->
+                    </div>
+                </div>
+                <button type="submit" class="btn">
+                    <i class="fas fa-search"></i> Search Nearby Donors
+                </button>
+                <button type="button" class="btn btn-secondary" onclick="useCurrentLocation()">
+                    <i class="fas fa-crosshairs"></i> Use My Current Location
+                </button>
+            </form>
+        </div>
+        
+        <div id="error-message" class="error" style="display: none;"></div>
+        <div id="location-info" class="location-info" style="display: none;"></div>
+        
+        <div id="results" class="results" style="display: none;">
+            <div class="results-header">
+                <h3 id="results-title">Search Results</h3>
+            </div>
+            <div id="loading" class="loading" style="display: none;">
+                <i class="fas fa-spinner fa-spin"></i> Searching for donors...
+            </div>
+            <table class="table" id="results-table" style="display: none;">
+                <thead>
+                    <tr>
+                        <th>Name</th>
+                        <th>Blood Group</th>
+                        <th>Phone</th>
+                        <th>Location</th>
+                        <th>Distance (km)</th>
+                        <th>Status</th>
+                        <th>Can Donate</th>
+                    </tr>
+                </thead>
+                <tbody id="results-body">
+                </tbody>
+            </table>
+            <div id="no-results" style="display: none; padding: 2rem; text-align: center; color: #666;">
+                No donors found within the specified distance.
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let suggestionTimeout;
+        let selectedSuggestion = null;
+
+        // Address autocomplete functionality
+        document.getElementById('location_name').addEventListener('input', function(e) {
+            const query = e.target.value.trim();
+
+            clearTimeout(suggestionTimeout);
+
+            if (query.length < 3) {
+                hideSuggestions();
+                return;
+            }
+
+            suggestionTimeout = setTimeout(() => {
+                fetchSuggestions(query);
+            }, 300);
+        });
+
+        // Hide suggestions when clicking outside
+        document.addEventListener('click', function(e) {
+            if (!e.target.closest('.form-group')) {
+                hideSuggestions();
+            }
+        });
+
+        function fetchSuggestions(query) {
+            const country = document.getElementById('country').value;
+
+            fetch(`{% url "admin_panel:address_suggestions" %}?q=${encodeURIComponent(query)}&country=${encodeURIComponent(country)}`)
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success && data.suggestions.length > 0) {
+                        showSuggestions(data.suggestions);
+                    } else {
+                        hideSuggestions();
+                    }
+                })
+                .catch(error => {
+                    console.error('Error fetching suggestions:', error);
+                    hideSuggestions();
+                });
+        }
+
+        function showSuggestions(suggestions) {
+            const dropdown = document.getElementById('suggestions');
+            dropdown.innerHTML = '';
+
+            suggestions.forEach(suggestion => {
+                const item = document.createElement('div');
+                item.className = 'suggestion-item';
+                item.textContent = suggestion.display_name;
+                item.addEventListener('click', () => {
+                    selectSuggestion(suggestion);
+                });
+                dropdown.appendChild(item);
+            });
+
+            dropdown.style.display = 'block';
+        }
+
+        function hideSuggestions() {
+            document.getElementById('suggestions').style.display = 'none';
+        }
+
+        function selectSuggestion(suggestion) {
+            document.getElementById('location_name').value = suggestion.display_name;
+            selectedSuggestion = suggestion;
+            hideSuggestions();
+        }
+
+        function useCurrentLocation() {
+            if (navigator.geolocation) {
+                document.getElementById('location-info').style.display = 'block';
+                document.getElementById('location-info').innerHTML = '<i class="fas fa-spinner fa-spin"></i> Getting your location...';
+
+                navigator.geolocation.getCurrentPosition(
+                    function(position) {
+                        // Reverse geocode to get place name
+                        reverseGeocode(position.coords.latitude, position.coords.longitude);
+                    },
+                    function(error) {
+                        document.getElementById('location-info').style.display = 'none';
+                        showError('Unable to get your location: ' + error.message);
+                    }
+                );
+            } else {
+                showError('Geolocation is not supported by this browser.');
+            }
+        }
+
+        function reverseGeocode(lat, lng) {
+            // For simplicity, we'll just set a generic location name
+            // In a real app, you'd call a reverse geocoding service
+            document.getElementById('location_name').value = `Current Location (${lat.toFixed(4)}, ${lng.toFixed(4)})`;
+            selectedSuggestion = {
+                display_name: `Current Location`,
+                lat: lat,
+                lng: lng
+            };
+            document.getElementById('location-info').innerHTML = '<i class="fas fa-check"></i> Current location detected!';
+            setTimeout(() => {
+                document.getElementById('location-info').style.display = 'none';
+            }, 3000);
+        }
+
+        function showError(message) {
+            const errorDiv = document.getElementById('error-message');
+            errorDiv.textContent = message;
+            errorDiv.style.display = 'block';
+            setTimeout(() => {
+                errorDiv.style.display = 'none';
+            }, 5000);
+        }
+
+        document.getElementById('locationSearchForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+
+            const locationName = document.getElementById('location_name').value.trim();
+            const maxDistance = parseFloat(document.getElementById('max_distance').value);
+            const bloodGroup = document.getElementById('blood_group').value;
+            const country = document.getElementById('country').value;
+
+            if (!locationName) {
+                showError('Please enter a location name.');
+                return;
+            }
+
+            if (isNaN(maxDistance)) {
+                showError('Please enter a valid distance.');
+                return;
+            }
+
+            // Show loading
+            document.getElementById('results').style.display = 'block';
+            document.getElementById('loading').style.display = 'block';
+            document.getElementById('results-table').style.display = 'none';
+            document.getElementById('no-results').style.display = 'none';
+
+            // Make API call
+            fetch('{% url "admin_panel:location_search_by_name" %}', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': '{{ csrf_token }}'
+                },
+                body: JSON.stringify({
+                    location_name: locationName,
+                    max_distance: maxDistance,
+                    blood_group: bloodGroup,
+                    country: country
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                document.getElementById('loading').style.display = 'none';
+
+                if (data.success) {
+                    displayResults(data.donors, data.total_found, data.search_location);
+                } else {
+                    showError(data.error || 'An error occurred during search.');
+                }
+            })
+            .catch(error => {
+                document.getElementById('loading').style.display = 'none';
+                showError('Network error: ' + error.message);
+            });
+        });
+
+        function displayResults(donors, totalFound, searchLocation) {
+            const resultsTitle = document.getElementById('results-title');
+            let titleText = `Found ${totalFound} donor(s)`;
+            if (searchLocation) {
+                titleText += ` near "${searchLocation.name}"`;
+            }
+            resultsTitle.textContent = titleText;
+
+            // Show search location info if available
+            if (searchLocation) {
+                document.getElementById('location-info').style.display = 'block';
+                document.getElementById('location-info').innerHTML =
+                    `<i class="fas fa-map-marker-alt"></i> Searching near: ${searchLocation.display_name}`;
+            }
+
+            if (donors.length === 0) {
+                document.getElementById('no-results').style.display = 'block';
+                return;
+            }
+            
+            const tbody = document.getElementById('results-body');
+            tbody.innerHTML = '';
+            
+            donors.forEach(donor => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${donor.name}</td>
+                    <td><strong>${donor.blood_group}</strong></td>
+                    <td>${donor.phone_number}</td>
+                    <td>${donor.full_location}</td>
+                    <td>${donor.distance}</td>
+                    <td>
+                        ${donor.is_eligible ? 
+                            '<span class="badge badge-success">Eligible</span>' : 
+                            '<span class="badge badge-danger">Not Eligible</span>'
+                        }
+                    </td>
+                    <td>
+                        ${donor.can_donate ? 
+                            '<span class="badge badge-success">Yes</span>' : 
+                            '<span class="badge badge-warning">No</span>'
+                        }
+                    </td>
+                `;
+                tbody.appendChild(row);
+            });
+            
+            document.getElementById('results-table').style.display = 'table';
+        }
+    </script>
+</body>
+</html>

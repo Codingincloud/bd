@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Blood Inventory | Admin Panel</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        body { margin: 0; font-family: Arial, sans-serif; background: #f9f9f9; }
+        .navbar {
+            background: #e74c3c;
+            color: #fff;
+            padding: 1rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .navbar .logo { font-size: 1.5rem; font-weight: bold; }
+        .navbar nav a {
+            color: #fff;
+            text-decoration: none;
+            margin-left: 2rem;
+            font-weight: 500;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 2rem auto;
+            background: #fff;
+            border-radius: 10px;
+            box-shadow: 0 4px 16px rgba(0,0,0,0.07);
+            padding: 2rem;
+        }
+        .inventory-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            margin-top: 2rem;
+        }
+        .blood-card {
+            text-align: center;
+            padding: 2rem;
+            border: 2px solid #ddd;
+            border-radius: 10px;
+            background: #f8f9fa;
+        }
+        .blood-card.low-stock {
+            border-color: #dc3545;
+            background: #fff5f5;
+        }
+        .blood-type {
+            font-size: 2rem;
+            font-weight: bold;
+            color: #e74c3c;
+            margin-bottom: 1rem;
+        }
+        .units-count {
+            font-size: 3rem;
+            font-weight: bold;
+            color: #333;
+            margin-bottom: 0.5rem;
+        }
+        .units-label {
+            color: #666;
+            font-size: 0.9rem;
+        }
+        .recent-donations {
+            color: #666;
+            font-size: 0.8rem;
+            margin-top: 0.5rem;
+        }
+        .btn {
+            display: inline-block;
+            padding: 0.5rem 1rem;
+            background: #e74c3c;
+            color: white;
+            text-decoration: none;
+            border-radius: 5px;
+            margin: 0.25rem;
+        }
+        .btn:hover { background: #c0392b; }
+    </style>
+</head>
+<body>
+    <div class="navbar">
+        <div class="logo">Admin Panel</div>
+        <nav>
+            <a href="{% url 'admin_panel:dashboard' %}">Dashboard</a>
+            <a href="{% url 'admin_panel:manage_donors' %}">Donors</a>
+            <a href="{% url 'admin_panel:manage_requests' %}">Requests</a>
+            <a href="{% url 'accounts:logout' %}">Logout</a>
+        </nav>
+    </div>
+    <div class="container">
+        <h1><i class="fas fa-boxes"></i> Blood Inventory Management</h1>
+        <p>Current blood stock levels (based on recent donations)</p>
+        
+        <div class="inventory-grid">
+            {% for item in inventory_data %}
+            <div class="blood-card {% if item.units_available < 5 %}low-stock{% endif %}">
+                <div class="blood-type">{{ item.blood_group }}</div>
+                <div class="units-count">{{ item.units_available }}</div>
+                <div class="units-label">units available</div>
+                <div class="recent-donations">{{ item.recent_donations }} recent donations</div>
+                {% if item.units_available < 5 %}
+                <div style="color: #dc3545; font-weight: bold; margin-top: 0.5rem;">
+                    <i class="fas fa-exclamation-triangle"></i> Low Stock
+                </div>
+                {% endif %}
+            </div>
+            {% endfor %}
+        </div>
+        
+        <div style="margin-top: 2rem;">
+            <p><strong>Note:</strong> Inventory is calculated based on donations from the last 35 days (blood expiry period).</p>
+        </div>
+        
+        <a href="{% url 'admin_panel:dashboard' %}" class="btn">Back to Dashboard</a>
+    </div>
+</body>
+</html>

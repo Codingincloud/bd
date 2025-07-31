@@ -1,0 +1,350 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Nepal Location Search | Admin Panel</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        body { margin: 0; font-family: Arial, sans-serif; background: #f9f9f9; }
+        .navbar {
+            background: #e74c3c;
+            color: #fff;
+            padding: 1rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .navbar .logo { font-size: 1.5rem; font-weight: bold; }
+        .navbar nav a {
+            color: #fff;
+            text-decoration: none;
+            margin-left: 2rem;
+            font-weight: 500;
+        }
+        .container { max-width: 1200px; margin: 2rem auto; padding: 0 1rem; }
+        h1 { color: #333; margin-bottom: 2rem; }
+        .search-form {
+            background: white;
+            padding: 2rem;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            margin-bottom: 2rem;
+        }
+        .form-row {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 1rem;
+        }
+        .form-group {
+            flex: 1;
+            position: relative;
+        }
+        label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: bold;
+            color: #333;
+        }
+        input, select {
+            width: 100%;
+            padding: 0.75rem;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 1rem;
+        }
+        .btn {
+            background: #e74c3c;
+            color: white;
+            padding: 0.75rem 1.5rem;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            text-decoration: none;
+            display: inline-block;
+            margin-right: 0.5rem;
+        }
+        .btn:hover { background: #c0392b; }
+        .btn-secondary { background: #6c757d; }
+        .btn-secondary:hover { background: #5a6268; }
+        .results {
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+        .results-header {
+            background: #f8f9fa;
+            padding: 1rem;
+            border-bottom: 1px solid #dee2e6;
+        }
+        .table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        .table th, .table td {
+            padding: 1rem;
+            text-align: left;
+            border-bottom: 1px solid #dee2e6;
+        }
+        .table th {
+            background: #f8f9fa;
+            font-weight: bold;
+        }
+        .badge {
+            padding: 0.25rem 0.5rem;
+            border-radius: 3px;
+            font-size: 0.8rem;
+        }
+        .badge-success { background: #28a745; color: white; }
+        .badge-danger { background: #dc3545; color: white; }
+        .badge-warning { background: #ffc107; color: #212529; }
+        .alert {
+            padding: 1rem;
+            margin-bottom: 1rem;
+            border-radius: 4px;
+        }
+        .alert-success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        .alert-error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+        .suggestions-dropdown {
+            position: absolute;
+            top: 100%;
+            left: 0;
+            right: 0;
+            background: white;
+            border: 1px solid #ddd;
+            border-top: none;
+            border-radius: 0 0 4px 4px;
+            max-height: 200px;
+            overflow-y: auto;
+            z-index: 1000;
+            display: none;
+        }
+        .suggestion-item {
+            padding: 0.75rem;
+            cursor: pointer;
+            border-bottom: 1px solid #eee;
+        }
+        .suggestion-item:hover {
+            background: #f8f9fa;
+        }
+        .suggestion-item:last-child {
+            border-bottom: none;
+        }
+        .location-info {
+            background: #d1ecf1;
+            color: #0c5460;
+            padding: 1rem;
+            border-radius: 4px;
+            margin-bottom: 1rem;
+        }
+    </style>
+</head>
+<body>
+    <div class="navbar">
+        <div class="logo">Admin Panel</div>
+        <nav>
+            <a href="{% url 'admin_panel:dashboard' %}">Dashboard</a>
+            <a href="{% url 'admin_panel:manage_donors' %}">Donors</a>
+            <a href="{% url 'accounts:logout' %}">Logout</a>
+        </nav>
+    </div>
+    
+    <div class="container">
+        <h1><i class="fas fa-map-marker-alt"></i> Nepal Location Search</h1>
+        
+        {% if messages %}
+            {% for message in messages %}
+                <div class="alert alert-{% if message.tags == 'error' %}error{% else %}{{ message.tags }}{% endif %}">
+                    {{ message }}
+                </div>
+            {% endfor %}
+        {% endif %}
+        
+        <div class="search-form">
+            <h3>Find Donors Near a Location in Nepal</h3>
+            <form method="POST">
+                {% csrf_token %}
+                <div class="form-group">
+                    <label for="location_name">Location Name</label>
+                    <input type="text" id="location_name" name="location_name" 
+                           placeholder="e.g., Kathmandu, Pokhara, Thamel" 
+                           value="{{ location_name|default:'' }}" required autocomplete="off">
+                    <div id="suggestions" class="suggestions-dropdown"></div>
+                    <small style="color: #666; font-size: 0.9em;">
+                        Enter any place in Nepal like "Kathmandu", "Pokhara", "Thamel", "Patan", etc.
+                    </small>
+                </div>
+                
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="max_distance">Maximum Distance (km)</label>
+                        <input type="number" id="max_distance" name="max_distance" 
+                               value="{{ max_distance|default:50 }}" min="1" max="500" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="blood_group">Blood Group (Optional)</label>
+                        <select id="blood_group" name="blood_group">
+                            <option value="">All Blood Groups</option>
+                            {% for bg, display in blood_groups %}
+                            <option value="{{ bg }}" {% if bg == blood_group %}selected{% endif %}>{{ display }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                </div>
+                
+                <button type="submit" class="btn">
+                    <i class="fas fa-search"></i> Search Nearby Donors
+                </button>
+                <a href="{% url 'admin_panel:manage_donors' %}" class="btn btn-secondary">
+                    <i class="fas fa-arrow-left"></i> Back to Donors
+                </a>
+            </form>
+        </div>
+        
+        {% if search_performed %}
+            {% if search_location %}
+                <div class="location-info">
+                    <i class="fas fa-map-marker-alt"></i> 
+                    Searching near: <strong>{{ search_location.name }}</strong>
+                    ({{ search_location.lat|floatformat:4 }}, {{ search_location.lng|floatformat:4 }})
+                </div>
+            {% endif %}
+            
+            <div class="results">
+                <div class="results-header">
+                    <h3>Search Results: {{ total_found }} donor(s) found within {{ max_distance }} km</h3>
+                </div>
+                
+                {% if nearby_donors %}
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>Name</th>
+                                <th>Blood Group</th>
+                                <th>Phone</th>
+                                <th>Location</th>
+                                <th>Distance (km)</th>
+                                <th>Status</th>
+                                <th>Can Donate</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for item in nearby_donors %}
+                            <tr>
+                                <td>{{ item.donor.name }}</td>
+                                <td><strong>{{ item.donor.blood_group }}</strong></td>
+                                <td>{{ item.donor.phone_number }}</td>
+                                <td>{{ item.donor.full_location }}</td>
+                                <td>{{ item.distance }}</td>
+                                <td>
+                                    {% if item.donor.is_eligible %}
+                                        <span class="badge badge-success">Eligible</span>
+                                    {% else %}
+                                        <span class="badge badge-danger">Not Eligible</span>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    {% if item.donor.can_donate %}
+                                        <span class="badge badge-success">Yes</span>
+                                    {% else %}
+                                        <span class="badge badge-warning">No</span>
+                                    {% endif %}
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                {% else %}
+                    <div style="padding: 2rem; text-align: center; color: #666;">
+                        No donors found within {{ max_distance }} km of {{ location_name }}.
+                        <br><br>
+                        Try:
+                        <ul style="text-align: left; display: inline-block;">
+                            <li>Increasing the search distance</li>
+                            <li>Searching for a larger city nearby</li>
+                            <li>Removing blood group filter</li>
+                        </ul>
+                    </div>
+                {% endif %}
+            </div>
+        {% endif %}
+    </div>
+
+    <script>
+        // Simple autocomplete for Nepal locations
+        let suggestionTimeout;
+        
+        document.getElementById('location_name').addEventListener('input', function(e) {
+            const query = e.target.value.trim();
+            
+            clearTimeout(suggestionTimeout);
+            
+            if (query.length < 2) {
+                hideSuggestions();
+                return;
+            }
+            
+            suggestionTimeout = setTimeout(() => {
+                fetchSuggestions(query);
+            }, 300);
+        });
+        
+        document.addEventListener('click', function(e) {
+            if (!e.target.closest('.form-group')) {
+                hideSuggestions();
+            }
+        });
+        
+        function fetchSuggestions(query) {
+            fetch(`{% url "admin_panel:nepal_suggestions" %}?q=${encodeURIComponent(query)}`)
+                .then(response => response.json())
+                .then(data => {
+                    if (data.suggestions && data.suggestions.length > 0) {
+                        showSuggestions(data.suggestions);
+                    } else {
+                        hideSuggestions();
+                    }
+                })
+                .catch(error => {
+                    console.error('Error fetching suggestions:', error);
+                    hideSuggestions();
+                });
+        }
+        
+        function showSuggestions(suggestions) {
+            const dropdown = document.getElementById('suggestions');
+            dropdown.innerHTML = '';
+            
+            suggestions.forEach(suggestion => {
+                const item = document.createElement('div');
+                item.className = 'suggestion-item';
+                item.textContent = suggestion.name;
+                item.addEventListener('click', () => {
+                    selectSuggestion(suggestion.name);
+                });
+                dropdown.appendChild(item);
+            });
+            
+            dropdown.style.display = 'block';
+        }
+        
+        function hideSuggestions() {
+            document.getElementById('suggestions').style.display = 'none';
+        }
+        
+        function selectSuggestion(name) {
+            document.getElementById('location_name').value = name;
+            hideSuggestions();
+        }
+    </script>
+</body>
+</html>

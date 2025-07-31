@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Donor Dashboard | Blood Donor Information Management System</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            background-color: #f4f4f4;
+        }
+
+        .header {
+            background-color: #d32f2f;
+            color: white;
+            padding: 1rem;
+            text-align: center;
+        }
+
+        .nav {
+            background-color: white;
+            padding: 1rem;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+
+        .nav-list {
+            list-style: none;
+            display: flex;
+            justify-content: center;
+            gap: 2rem;
+        }
+
+        .nav-list a {
+            color: #333;
+            text-decoration: none;
+            padding: 0.5rem 1rem;
+            border-radius: 4px;
+            transition: background-color 0.3s;
+        }
+
+        .nav-list a:hover {
+            background-color: #f0f0f0;
+            color: #d32f2f;
+        }
+
+        .main-content {
+            max-width: 1200px;
+            margin: 2rem auto;
+            padding: 0 1rem;
+        }
+
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 1.5rem;
+            margin-top: 2rem;
+        }
+
+        .dashboard-card {
+            background: white;
+            padding: 1.5rem;
+            border-radius: 8px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+
+        .card-header {
+            color: #d32f2f;
+            margin-bottom: 1rem;
+            font-size: 1.2rem;
+            font-weight: bold;
+        }
+
+        .card-content {
+            color: #333;
+        }
+
+        .stat {
+            display: flex;
+            align-items: center;
+            margin-bottom: 0.5rem;
+        }
+
+        .stat i {
+            margin-right: 0.5rem;
+            color: #d32f2f;
+        }
+
+        .logout-section {
+            text-align: right;
+            padding: 1rem;
+        }
+
+        .logout-btn {
+            background-color: #d32f2f;
+            color: white;
+            border: none;
+            padding: 0.5rem 1rem;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+
+        .logout-btn:hover {
+            background-color: #b71c1c;
+        }
+    </style>
+</head>
+<body>
+    <header class="header">
+        <h1>Welcome, {{ user.first_name }}</h1>
+        <p>Your Blood Donor Dashboard</p>
+    </header>
+
+    <div class="logout-section">
+        <form action="{% url 'accounts:logout' %}" method="POST" style="display: inline;">
+            {% csrf_token %}
+            <button type="submit" class="logout-btn">
+                <i class="fas fa-sign-out-alt"></i> Logout
+            </button>
+        </form>
+    </div>
+
+    <nav class="nav">
+        <ul class="nav-list">
+            <li><a href="{% url 'donor:donor_dashboard' %}"><i class="fas fa-home"></i> Dashboard</a></li>
+            <li><a href="{% url 'donor:schedule_donation' %}"><i class="fas fa-calendar-plus"></i> Schedule Donation</a></li>
+            <li><a href="{% url 'donor:donation_history' %}"><i class="fas fa-history"></i> History</a></li>
+            <li><a href="{% url 'donor:edit_profile' %}"><i class="fas fa-user"></i> Profile</a></li>
+            <li><a href="{% url 'donor:update_location' %}"><i class="fas fa-map-marker-alt"></i> Update Location</a></li>
+            <li><a href="{% url 'donor:compatibility_check' %}"><i class="fas fa-heart"></i> Compatibility</a></li>
+            <li><a href="{% url 'donor:blood_inventory' %}"><i class="fas fa-tint"></i> Blood Stock</a></li>
+            <li><a href="{% url 'donor:donation_centers' %}"><i class="fas fa-hospital"></i> Centers</a></li>
+            <li><a href="{% url 'donor:medical_reports' %}"><i class="fas fa-file-medical"></i> Medical Reports</a></li>
+            <li><a href="{% url 'donor:emergency_requests' %}"><i class="fas fa-bell"></i> Emergency Requests</a></li>
+            <li><a href="{% url 'accounts:logout' %}"><i class="fas fa-sign-out-alt"></i> Logout</a></li>
+        </ul>
+    </nav>
+
+    <main class="main-content">
+        <div class="dashboard-grid">
+            <div class="dashboard-card">
+                <div class="card-header">
+                    <i class="fas fa-user-circle"></i> Profile Overview
+                </div>
+                <div class="card-content">
+                    <div class="stat">
+                        <i class="fas fa-tint"></i>
+                        <span>Blood Type: {{ donor.blood_group|default:"Not Set" }}</span>
+                    </div>
+                    <div class="stat">
+                        <i class="fas fa-calendar-check"></i>
+                        <span>Last Donation: {{ donor.last_donation_date|default:"No donations yet" }}</span>
+                    </div>
+                    <div class="stat">
+                        <i class="fas fa-award"></i>
+                        <span>Total Donations: {{ donation_history.count|default:"0" }}</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="dashboard-card">
+                <div class="card-header">
+                    <i class="fas fa-calendar-alt"></i> Next Eligible Donation
+                </div>
+                <div class="card-content">
+                    <div class="stat">
+                        <i class="fas fa-clock"></i>
+                        <span>Eligible Date: {{ next_eligible_date|default:"You can donate now!" }}</span>
+                    </div>
+                    <div class="stat">
+                        <i class="fas fa-hospital"></i>
+                        <span>Status: {% if can_donate %}Ready to Donate{% else %}Not Eligible Yet{% endif %}</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="dashboard-card">
+                <div class="card-header">
+                    <i class="fas fa-bell"></i> Recent Notifications
+                </div>
+                <div class="card-content">
+                    {% if notifications %}
+                        {% for notification in notifications %}
+                            <div class="stat">
+                                <i class="fas fa-info-circle"></i>
+                                <span>{{ notification.message }}</span>
+                            </div>
+                        {% endfor %}
+                    {% else %}
+                        <div class="stat">
+                            <i class="fas fa-info-circle"></i>
+                            <span>No new notifications</span>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+
+            <div class="dashboard-card">
+                <div class="card-header">
+                    <i class="fas fa-exclamation-circle"></i> Emergency Requests
+                </div>
+                <div class="card-content">
+                    {% if emergency_requests %}
+                        {% for request in emergency_requests %}
+                            <div class="stat">
+                                <i class="fas fa-exclamation-triangle"></i>
+                                <span>{{ request.message }}</span>
+                            </div>
+                        {% endfor %}
+                    {% else %}
+                        <div class="stat">
+                            <i class="fas fa-check-circle"></i>
+                            <span>No emergency requests for your blood type</span>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </main>
+</body>
+</html>

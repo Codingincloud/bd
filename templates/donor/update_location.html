@@ -1,0 +1,373 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Update Location | Blood Donor System</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .header {
+            background: rgba(255, 255, 255, 0.95);
+            padding: 20px;
+            border-radius: 15px;
+            margin-bottom: 30px;
+            text-align: center;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+        }
+
+        .header h1 {
+            color: #d32f2f;
+            margin-bottom: 10px;
+        }
+
+        .form-container {
+            background: rgba(255, 255, 255, 0.95);
+            padding: 40px;
+            border-radius: 15px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+            margin-bottom: 20px;
+        }
+
+        .form-section {
+            margin-bottom: 30px;
+        }
+
+        .form-section h3 {
+            color: #d32f2f;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #f0f0f0;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            color: #333;
+            font-weight: 600;
+        }
+
+        .form-control {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 16px;
+            transition: border-color 0.3s;
+        }
+
+        .form-control:focus {
+            outline: none;
+            border-color: #d32f2f;
+        }
+
+        .btn {
+            background: linear-gradient(135deg, #d32f2f, #b71c1c);
+            color: white;
+            padding: 15px 30px;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.3s;
+            margin-right: 10px;
+            margin-bottom: 10px;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+        }
+
+        .btn-secondary {
+            background: #6c757d;
+        }
+
+        .btn-success {
+            background: #28a745;
+        }
+
+        .alert {
+            padding: 15px;
+            margin-bottom: 20px;
+            border-radius: 8px;
+        }
+
+        .alert-success {
+            background-color: #d4edda;
+            border: 1px solid #c3e6cb;
+            color: #155724;
+        }
+
+        .alert-error {
+            background-color: #f8d7da;
+            border: 1px solid #f5c6cb;
+            color: #721c24;
+        }
+
+        .current-location {
+            background: #e3f2fd;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+
+        .location-info {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+
+        .nav-link {
+            display: inline-block;
+            color: #d32f2f;
+            text-decoration: none;
+            margin-bottom: 20px;
+        }
+
+        .nav-link:hover {
+            text-decoration: underline;
+        }
+
+        .form-row {
+            display: flex;
+            gap: 15px;
+        }
+
+        .form-row .form-group {
+            flex: 1;
+        }
+
+        @media (max-width: 768px) {
+            .form-row {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1><i class="fas fa-map-marker-alt"></i> Update Your Location</h1>
+            <p>Help us find you during emergencies by updating your location</p>
+        </div>
+
+        <a href="{% url 'donor:donor_dashboard' %}" class="nav-link">
+            <i class="fas fa-arrow-left"></i> Back to Dashboard
+        </a>
+
+        {% if messages %}
+            {% for message in messages %}
+                <div class="alert alert-{% if message.tags == 'error' %}error{% else %}{{ message.tags }}{% endif %}">
+                    {{ message }}
+                </div>
+            {% endfor %}
+        {% endif %}
+
+        {% if donor.latitude and donor.longitude %}
+            <div class="current-location">
+                <h4><i class="fas fa-check-circle"></i> Current Location Saved</h4>
+                <p><strong>Address:</strong> {{ donor.full_location }}</p>
+                <p><strong>Coordinates:</strong> {{ donor.latitude|floatformat:4 }}, {{ donor.longitude|floatformat:4 }}</p>
+            </div>
+        {% else %}
+            <div class="location-info">
+                <h4><i class="fas fa-exclamation-triangle"></i> No Location Set</h4>
+                <p>Please set your location to help us find you during blood emergencies.</p>
+            </div>
+        {% endif %}
+
+        <!-- Quick Location Selection -->
+        <div class="form-container">
+            <div class="form-section">
+                <h3><i class="fas fa-bolt"></i> Quick Location Update</h3>
+                <p>Choose your city from the list below for instant location update:</p>
+                
+                <form method="POST">
+                    {% csrf_token %}
+                    <input type="hidden" name="form_type" value="simple">
+                    
+                    <div class="form-group">
+                        {{ simple_form.location_choice.label_tag }}
+                        {{ simple_form.location_choice }}
+                    </div>
+                    
+                    <div class="form-group" id="custom-fields" style="display: none;">
+                        {{ simple_form.custom_city.label_tag }}
+                        {{ simple_form.custom_city }}
+                        
+                        {{ simple_form.custom_address.label_tag }}
+                        {{ simple_form.custom_address }}
+                    </div>
+                    
+                    <button type="submit" class="btn">
+                        <i class="fas fa-save"></i> Update Location
+                    </button>
+                </form>
+            </div>
+        </div>
+
+        <!-- GPS Location Detection -->
+        <div class="form-container">
+            <div class="form-section">
+                <h3><i class="fas fa-satellite"></i> Auto-Detect Current Location</h3>
+                <p>Use your device's GPS to automatically detect your current location:</p>
+                
+                <button type="button" class="btn btn-success" onclick="detectCurrentLocation()">
+                    <i class="fas fa-crosshairs"></i> Detect My Location
+                </button>
+                
+                <div id="location-status" style="margin-top: 15px; display: none;"></div>
+                
+                <form method="POST" action="{% url 'donor:detect_location' %}" id="gps-form" style="display: none;">
+                    {% csrf_token %}
+                    <input type="hidden" name="latitude" id="detected-lat">
+                    <input type="hidden" name="longitude" id="detected-lng">
+                </form>
+            </div>
+        </div>
+
+        <!-- Manual Entry -->
+        <div class="form-container">
+            <div class="form-section">
+                <h3><i class="fas fa-edit"></i> Manual Location Entry</h3>
+                <p>Enter your location details manually:</p>
+                
+                <form method="POST">
+                    {% csrf_token %}
+                    <input type="hidden" name="form_type" value="detailed">
+                    
+                    <div class="form-group">
+                        {{ detailed_form.address.label_tag }}
+                        {{ detailed_form.address }}
+                    </div>
+                    
+                    <div class="form-row">
+                        <div class="form-group">
+                            {{ detailed_form.city.label_tag }}
+                            {{ detailed_form.city }}
+                        </div>
+                        <div class="form-group">
+                            {{ detailed_form.state.label_tag }}
+                            {{ detailed_form.state }}
+                        </div>
+                    </div>
+                    
+                    <div class="form-row">
+                        <div class="form-group">
+                            {{ detailed_form.postal_code.label_tag }}
+                            {{ detailed_form.postal_code }}
+                        </div>
+                        <div class="form-group">
+                            <!-- Empty for spacing -->
+                        </div>
+                    </div>
+                    
+                    <div class="form-row">
+                        <div class="form-group">
+                            {{ detailed_form.manual_latitude.label_tag }}
+                            {{ detailed_form.manual_latitude }}
+                            <small>Optional: Enter latitude if known</small>
+                        </div>
+                        <div class="form-group">
+                            {{ detailed_form.manual_longitude.label_tag }}
+                            {{ detailed_form.manual_longitude }}
+                            <small>Optional: Enter longitude if known</small>
+                        </div>
+                    </div>
+                    
+                    {{ detailed_form.latitude }}
+                    {{ detailed_form.longitude }}
+                    
+                    <button type="submit" class="btn">
+                        <i class="fas fa-save"></i> Save Detailed Location
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Handle location choice dropdown
+        function handleLocationChoice(value) {
+            const customFields = document.getElementById('custom-fields');
+            const customCity = document.querySelector('input[name="custom_city"]');
+            const customAddress = document.querySelector('input[name="custom_address"]');
+            
+            if (value === 'other') {
+                customFields.style.display = 'block';
+                customCity.style.display = 'block';
+                customAddress.style.display = 'block';
+                customCity.required = true;
+            } else {
+                customFields.style.display = 'none';
+                customCity.style.display = 'none';
+                customAddress.style.display = 'none';
+                customCity.required = false;
+            }
+        }
+
+        // GPS location detection
+        function detectCurrentLocation() {
+            const statusDiv = document.getElementById('location-status');
+            statusDiv.style.display = 'block';
+            statusDiv.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Detecting your location...';
+            
+            if (navigator.geolocation) {
+                navigator.geolocation.getCurrentPosition(
+                    function(position) {
+                        const lat = position.coords.latitude;
+                        const lng = position.coords.longitude;
+                        
+                        document.getElementById('detected-lat').value = lat;
+                        document.getElementById('detected-lng').value = lng;
+                        
+                        statusDiv.innerHTML = `<i class="fas fa-check"></i> Location detected: ${lat.toFixed(4)}, ${lng.toFixed(4)}`;
+                        statusDiv.style.color = 'green';
+                        
+                        // Auto-submit the form
+                        setTimeout(() => {
+                            document.getElementById('gps-form').submit();
+                        }, 1000);
+                    },
+                    function(error) {
+                        statusDiv.innerHTML = `<i class="fas fa-times"></i> Error: ${error.message}`;
+                        statusDiv.style.color = 'red';
+                    },
+                    {
+                        enableHighAccuracy: true,
+                        timeout: 10000,
+                        maximumAge: 0
+                    }
+                );
+            } else {
+                statusDiv.innerHTML = '<i class="fas fa-times"></i> Geolocation is not supported by this browser.';
+                statusDiv.style.color = 'red';
+            }
+        }
+    </script>
+</body>
+</html>

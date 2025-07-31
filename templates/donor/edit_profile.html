@@ -1,0 +1,615 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Edit Profile | Blood Donor Information Management System</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .header {
+            background: rgba(255, 255, 255, 0.95);
+            padding: 20px;
+            border-radius: 15px;
+            margin-bottom: 30px;
+            text-align: center;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+        }
+
+        .header h1 {
+            color: #d32f2f;
+            margin-bottom: 10px;
+        }
+
+        .form-container {
+            background: rgba(255, 255, 255, 0.95);
+            padding: 40px;
+            border-radius: 15px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+        }
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 25px;
+        }
+
+        .form-group {
+            margin-bottom: 25px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #333;
+        }
+
+        .form-group input,
+        .form-group select,
+        .form-group textarea {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 16px;
+            transition: border-color 0.3s;
+        }
+
+        .form-group input:focus,
+        .form-group select:focus,
+        .form-group textarea:focus {
+            outline: none;
+            border-color: #d32f2f;
+        }
+
+        .form-group input[readonly] {
+            background-color: #f8f9fa;
+            color: #6c757d;
+        }
+
+        .readonly-info {
+            background: #e9ecef;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 25px;
+            border-left: 4px solid #6c757d;
+        }
+
+        .readonly-info h4 {
+            color: #495057;
+            margin-bottom: 10px;
+        }
+
+        .readonly-info p {
+            color: #6c757d;
+            margin: 0;
+        }
+
+        .btn {
+            background: linear-gradient(135deg, #d32f2f, #b71c1c);
+            color: white;
+            padding: 15px 30px;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.3s;
+            width: 100%;
+            margin-bottom: 15px;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+        }
+
+        .btn-secondary {
+            background: #6c757d;
+        }
+
+        .btn-group {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+        }
+
+        .suggestions-dropdown {
+            position: absolute;
+            top: 100%;
+            left: 0;
+            right: 0;
+            background: white;
+            border: 1px solid #ddd;
+            border-top: none;
+            border-radius: 0 0 8px 8px;
+            max-height: 200px;
+            overflow-y: auto;
+            z-index: 1000;
+            display: none;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        .suggestion-item {
+            padding: 12px 15px;
+            cursor: pointer;
+            border-bottom: 1px solid #f0f0f0;
+            transition: background-color 0.2s;
+        }
+
+        .suggestion-item:hover {
+            background: #f8f9fa;
+        }
+
+        .suggestion-item:last-child {
+            border-bottom: none;
+        }
+
+        .alert {
+            padding: 15px;
+            margin-bottom: 20px;
+            border-radius: 8px;
+        }
+
+        .alert-success {
+            background-color: #d4edda;
+            border: 1px solid #c3e6cb;
+            color: #155724;
+        }
+
+        .alert-error {
+            background-color: #f8d7da;
+            border: 1px solid #f5c6cb;
+            color: #721c24;
+        }
+
+        .profile-stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .stat-card {
+            background: rgba(255, 255, 255, 0.95);
+            padding: 20px;
+            border-radius: 10px;
+            text-align: center;
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+        }
+
+        .stat-card i {
+            font-size: 2rem;
+            color: #d32f2f;
+            margin-bottom: 10px;
+        }
+
+        .stat-card h4 {
+            color: #333;
+            margin-bottom: 5px;
+        }
+
+        .stat-card p {
+            color: #666;
+            font-size: 14px;
+        }
+
+        .form-section {
+            margin-bottom: 40px;
+        }
+
+        .form-section h3 {
+            color: #d32f2f;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #e0e0e0;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 10px;
+            }
+
+            .form-container {
+                padding: 20px;
+            }
+
+            .form-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .btn-group {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1><i class="fas fa-user-edit"></i> Edit Profile</h1>
+            <p>Update your donor information</p>
+        </div>
+
+        {% if messages %}
+            {% for message in messages %}
+                <div class="alert alert-{{ message.tags }}">
+                    {{ message }}
+                </div>
+            {% endfor %}
+        {% endif %}
+
+        <div class="profile-stats">
+            <div class="stat-card">
+                <i class="fas fa-tint"></i>
+                <h4>{{ donor.blood_group }}</h4>
+                <p>Blood Type</p>
+            </div>
+            <div class="stat-card">
+                <i class="fas fa-calendar-check"></i>
+                <h4>{{ donor.last_donation_date|default:"Never" }}</h4>
+                <p>Last Donation</p>
+            </div>
+            <div class="stat-card">
+                <i class="fas fa-user-clock"></i>
+                <h4>{{ donor.created_at|date:"M Y" }}</h4>
+                <p>Member Since</p>
+            </div>
+        </div>
+
+        <div class="form-container">
+            <div class="readonly-info">
+                <h4><i class="fas fa-info-circle"></i> Important Note</h4>
+                <p>Some fields like blood group and date of birth cannot be changed for safety reasons. Contact support if you need to update these fields.</p>
+            </div>
+
+            <form method="POST">
+                {% csrf_token %}
+
+                <div class="form-section">
+                    <h3><i class="fas fa-user"></i> Personal Information</h3>
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label for="first_name">
+                                <i class="fas fa-user"></i> First Name
+                            </label>
+                            <input type="text" id="first_name" name="first_name"
+                                   value="{{ donor.user.first_name }}" required>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="last_name">
+                                <i class="fas fa-user"></i> Last Name
+                            </label>
+                            <input type="text" id="last_name" name="last_name"
+                                   value="{{ donor.user.last_name }}" required>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="email">
+                                <i class="fas fa-envelope"></i> Email
+                            </label>
+                            <input type="email" id="email" name="email"
+                                   value="{{ donor.user.email }}" required>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="blood_group">
+                                <i class="fas fa-tint"></i> Blood Group
+                            </label>
+                            <input type="text" id="blood_group" name="blood_group"
+                                   value="{{ donor.blood_group }}" readonly>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="date_of_birth">
+                                <i class="fas fa-birthday-cake"></i> Date of Birth
+                            </label>
+                            <input type="date" id="date_of_birth" name="date_of_birth"
+                                   value="{{ donor.date_of_birth|date:'Y-m-d' }}" readonly>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="gender">
+                                <i class="fas fa-venus-mars"></i> Gender
+                            </label>
+                            <select id="gender" name="gender" required>
+                                <option value="M" {% if donor.gender == 'M' %}selected{% endif %}>Male</option>
+                                <option value="F" {% if donor.gender == 'F' %}selected{% endif %}>Female</option>
+                                <option value="O" {% if donor.gender == 'O' %}selected{% endif %}>Other</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-section">
+                    <h3><i class="fas fa-address-card"></i> Contact Information</h3>
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label for="phone_number">
+                                <i class="fas fa-phone"></i> Phone Number
+                            </label>
+                            <input type="tel" id="phone_number" name="phone_number"
+                                   value="{{ donor.phone_number }}" required>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="weight">
+                                <i class="fas fa-weight"></i> Weight (kg)
+                            </label>
+                            <input type="number" id="weight" name="weight"
+                                   value="{{ donor.weight }}" min="45" max="200" step="0.1" required>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="address">
+                            <i class="fas fa-map-marker-alt"></i> Street Address
+                        </label>
+                        <textarea id="address" name="address" rows="3" required>{{ donor.address }}</textarea>
+                    </div>
+
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label for="city">
+                                <i class="fas fa-city"></i> City
+                            </label>
+                            <input type="text" id="city" name="city" value="{{ donor.city }}" placeholder="Enter your city" autocomplete="off">
+                            <div id="city-suggestions" class="suggestions-dropdown"></div>
+                        </div>
+                        <div class="form-group">
+                            <label for="state">
+                                <i class="fas fa-flag"></i> State/Province
+                            </label>
+                            <input type="text" id="state" name="state" value="{{ donor.state }}" placeholder="Enter your state">
+                        </div>
+                    </div>
+
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label for="postal_code">
+                                <i class="fas fa-mail-bulk"></i> Postal Code
+                            </label>
+                            <input type="text" id="postal_code" name="postal_code" value="{{ donor.postal_code }}" placeholder="Enter postal code">
+                        </div>
+                        <div class="form-group">
+                            <label for="country">
+                                <i class="fas fa-globe"></i> Country
+                            </label>
+                            <select id="country" name="country">
+                                <option value="Nepal" {% if donor.country == 'Nepal' %}selected{% endif %}>Nepal</option>
+                                <option value="India" {% if donor.country == 'India' %}selected{% endif %}>India</option>
+                                <option value="China" {% if donor.country == 'China' %}selected{% endif %}>China</option>
+                                <option value="Bangladesh" {% if donor.country == 'Bangladesh' %}selected{% endif %}>Bangladesh</option>
+                                <option value="Other" {% if donor.country == 'Other' %}selected{% endif %}>Other</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="form-section">
+                        <h4><i class="fas fa-map-pin"></i> Location Coordinates (Optional)</h4>
+                        <p style="color: #666; margin-bottom: 15px; font-size: 0.9em;">
+                            Adding coordinates helps with location-based searches and emergency requests.
+                        </p>
+                        <div class="form-grid">
+                            <div class="form-group">
+                                <label for="latitude">
+                                    <i class="fas fa-compass"></i> Latitude
+                                </label>
+                                <input type="number" id="latitude" name="latitude" step="any"
+                                       value="{{ donor.latitude|default:'' }}" placeholder="e.g., 27.7172">
+                            </div>
+                            <div class="form-group">
+                                <label for="longitude">
+                                    <i class="fas fa-compass"></i> Longitude
+                                </label>
+                                <input type="number" id="longitude" name="longitude" step="any"
+                                       value="{{ donor.longitude|default:'' }}" placeholder="e.g., 85.3240">
+                            </div>
+                        </div>
+                        <button type="button" class="btn-secondary" onclick="getCurrentLocation()" style="margin-top: 10px;">
+                            <i class="fas fa-crosshairs"></i> Get My Current Location
+                        </button>
+                    </div>
+                </div>
+
+                <div class="form-section">
+                    <h3><i class="fas fa-notes-medical"></i> Medical Information</h3>
+                    <div class="form-group">
+                        <label for="medical_conditions">
+                            <i class="fas fa-stethoscope"></i> Medical Conditions (Optional)
+                        </label>
+                        <textarea id="medical_conditions" name="medical_conditions" rows="4"
+                                  placeholder="List any medical conditions, medications, or allergies...">{{ donor.medical_conditions }}</textarea>
+                    </div>
+                </div>
+
+                <div class="btn-group">
+                    <button type="submit" class="btn">
+                        <i class="fas fa-save"></i> Save Changes
+                    </button>
+                    <a href="{% url 'donor:donor_dashboard' %}" class="btn btn-secondary">
+                        <i class="fas fa-times"></i> Cancel
+                    </a>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        // Form validation
+        document.querySelector('form').addEventListener('submit', function(e) {
+            const weight = document.getElementById('weight').value;
+            const phone = document.getElementById('phone_number').value;
+
+            if (weight < 45 || weight > 200) {
+                e.preventDefault();
+                alert('Weight must be between 45 and 200 kg for blood donation eligibility.');
+                return;
+            }
+
+            if (phone.length < 10) {
+                e.preventDefault();
+                alert('Please enter a valid phone number.');
+                return;
+            }
+        });
+
+        // Auto-format phone number
+        document.getElementById('phone_number').addEventListener('input', function(e) {
+            let value = e.target.value.replace(/\D/g, '');
+            if (value.length >= 10) {
+                value = value.substring(0, 10);
+            }
+            e.target.value = value;
+        });
+
+        // City autocomplete functionality
+        let cityTimeout;
+
+        document.getElementById('city').addEventListener('input', function(e) {
+            const query = e.target.value.trim();
+
+            clearTimeout(cityTimeout);
+
+            if (query.length < 2) {
+                hideCitySuggestions();
+                return;
+            }
+
+            cityTimeout = setTimeout(() => {
+                fetchCitySuggestions(query);
+            }, 300);
+        });
+
+        // Hide suggestions when clicking outside
+        document.addEventListener('click', function(e) {
+            if (!e.target.closest('#city').parentElement) {
+                hideCitySuggestions();
+            }
+        });
+
+        function fetchCitySuggestions(query) {
+            const country = document.getElementById('country').value || 'Nepal';
+
+            // Simple fetch to admin panel API (if user has access) or use a basic list
+            // For now, we'll use a simple local suggestion system
+            const nepalCities = [
+                'Kathmandu', 'Pokhara', 'Lalitpur', 'Bhaktapur', 'Biratnagar',
+                'Birgunj', 'Dharan', 'Hetauda', 'Janakpur', 'Butwal',
+                'Dhangadhi', 'Tulsipur', 'Nepalgunj', 'Bharatpur', 'Gorkha',
+                'Chitwan', 'Lumbini', 'Mustang', 'Solukhumbu', 'Everest'
+            ];
+
+            const suggestions = nepalCities.filter(city =>
+                city.toLowerCase().includes(query.toLowerCase())
+            ).slice(0, 5);
+
+            if (suggestions.length > 0) {
+                showCitySuggestions(suggestions);
+            } else {
+                hideCitySuggestions();
+            }
+        }
+
+        function showCitySuggestions(suggestions) {
+            const dropdown = document.getElementById('city-suggestions');
+            dropdown.innerHTML = '';
+
+            suggestions.forEach(city => {
+                const item = document.createElement('div');
+                item.className = 'suggestion-item';
+                item.textContent = city;
+                item.addEventListener('click', () => {
+                    selectCitySuggestion(city);
+                });
+                dropdown.appendChild(item);
+            });
+
+            dropdown.style.display = 'block';
+        }
+
+        function hideCitySuggestions() {
+            document.getElementById('city-suggestions').style.display = 'none';
+        }
+
+        function selectCitySuggestion(city) {
+            document.getElementById('city').value = city;
+            hideCitySuggestions();
+
+            // Auto-fill coordinates if we have them
+            autoFillCoordinates(city);
+        }
+
+        function autoFillCoordinates(city) {
+            // Basic coordinates for major Nepali cities
+            const cityCoords = {
+                'Kathmandu': { lat: 27.7172, lng: 85.3240 },
+                'Pokhara': { lat: 28.2096, lng: 83.9856 },
+                'Lalitpur': { lat: 27.6683, lng: 85.3206 },
+                'Bhaktapur': { lat: 27.6710, lng: 85.4298 },
+                'Biratnagar': { lat: 26.4525, lng: 87.2718 },
+                'Birgunj': { lat: 27.0104, lng: 84.8803 },
+                'Chitwan': { lat: 27.5291, lng: 84.3542 }
+            };
+
+            if (cityCoords[city]) {
+                document.getElementById('latitude').value = cityCoords[city].lat;
+                document.getElementById('longitude').value = cityCoords[city].lng;
+            }
+        }
+
+        // Geolocation functionality
+        function getCurrentLocation() {
+            if (navigator.geolocation) {
+                const button = event.target;
+                const originalText = button.innerHTML;
+                button.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Getting location...';
+                button.disabled = true;
+
+                navigator.geolocation.getCurrentPosition(
+                    function(position) {
+                        document.getElementById('latitude').value = position.coords.latitude.toFixed(8);
+                        document.getElementById('longitude').value = position.coords.longitude.toFixed(8);
+                        button.innerHTML = '<i class="fas fa-check"></i> Location obtained!';
+                        setTimeout(() => {
+                            button.innerHTML = originalText;
+                            button.disabled = false;
+                        }, 2000);
+                    },
+                    function(error) {
+                        alert('Unable to get your location: ' + error.message);
+                        button.innerHTML = originalText;
+                        button.disabled = false;
+                    },
+                    {
+                        enableHighAccuracy: true,
+                        timeout: 10000,
+                        maximumAge: 0
+                    }
+                );
+            } else {
+                alert('Geolocation is not supported by this browser.');
+            }
+        }
+    </script>
+</body>
+</html>

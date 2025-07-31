@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Blood Donor Information Management System</title>
+    <style>
+        body { margin: 0; font-family: Arial, sans-serif; background: #f9f9f9; }
+        .navbar {
+            background: #e74c3c;
+            color: #fff;
+            padding: 1rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .navbar .logo {
+            font-size: 1.5rem;
+            font-weight: bold;
+        }
+        .navbar nav a {
+            color: #fff;
+            text-decoration: none;
+            margin-left: 2rem;
+            font-weight: 500;
+            transition: color 0.2s;
+        }
+        .navbar nav a:hover {
+            color: #ffd6d6;
+        }
+        .container {
+            max-width: 800px;
+            margin: 3rem auto;
+            background: #fff;
+            border-radius: 10px;
+            box-shadow: 0 4px 16px rgba(0,0,0,0.07);
+            padding: 2rem;
+            text-align: center;
+        }
+        h1 { color: #e74c3c; }
+        p { color: #444; font-size: 1.2rem; }
+    </style>
+</head>
+<body>
+    <div class="navbar">
+        <div class="logo">Blood Donation</div>
+        <nav>
+            <a href="/">Home</a>
+            <a href="{% url 'accounts:login' %}">Login</a>
+        </nav>
+    </div>
+    <div class="container">
+        <h1>🩸 {{ system_name|default:"Blood Donor Information Management System" }}</h1>
+        <p>{{ system_description|default:"Comprehensive Blood Donation Management Platform" }} - Save lives by donating blood. Register as a donor or log in as an admin to manage the system.</p>
+    </div>
+</body>
+</html>

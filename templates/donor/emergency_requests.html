@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Emergency Requests | Blood Donation System</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        body { margin: 0; font-family: Arial, sans-serif; background: #f9f9f9; }
+        .navbar {
+            background: #e74c3c;
+            color: #fff;
+            padding: 1rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .navbar .logo { font-size: 1.5rem; font-weight: bold; }
+        .navbar nav a {
+            color: #fff;
+            text-decoration: none;
+            margin-left: 2rem;
+            font-weight: 500;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 2rem auto;
+            background: #fff;
+            border-radius: 10px;
+            box-shadow: 0 4px 16px rgba(0,0,0,0.07);
+            padding: 2rem;
+        }
+        .emergency-card {
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            padding: 1rem;
+            margin: 1rem 0;
+            background: #fff;
+        }
+        .emergency-card.critical {
+            border-left: 5px solid #dc3545;
+            background: #fff5f5;
+        }
+        .emergency-card.high {
+            border-left: 5px solid #fd7e14;
+            background: #fff8f0;
+        }
+        .emergency-card.medium {
+            border-left: 5px solid #ffc107;
+            background: #fffbf0;
+        }
+        .emergency-card.low {
+            border-left: 5px solid #28a745;
+            background: #f8fff8;
+        }
+        .btn {
+            display: inline-block;
+            padding: 0.5rem 1rem;
+            background: #e74c3c;
+            color: white;
+            text-decoration: none;
+            border-radius: 5px;
+            margin: 0.25rem;
+        }
+        .btn:hover { background: #c0392b; }
+        .urgency-badge {
+            padding: 0.25rem 0.5rem;
+            border-radius: 3px;
+            font-size: 0.8rem;
+            font-weight: bold;
+        }
+        .urgency-critical { background: #dc3545; color: white; }
+        .urgency-high { background: #fd7e14; color: white; }
+        .urgency-medium { background: #ffc107; color: black; }
+        .urgency-low { background: #28a745; color: white; }
+    </style>
+</head>
+<body>
+    <div class="navbar">
+        <div class="logo">Blood Donation</div>
+        <nav>
+            <a href="{% url 'donor:donor_dashboard' %}">Dashboard</a>
+            <a href="{% url 'accounts:logout' %}">Logout</a>
+        </nav>
+    </div>
+    <div class="container">
+        <h1><i class="fas fa-exclamation-triangle"></i> Emergency Blood Requests</h1>
+        <p>Urgent blood requests that match your blood type ({{ donor.blood_group }})</p>
+        
+        {% if emergency_requests %}
+            {% for request in emergency_requests %}
+            <div class="emergency-card {{ request.urgency_level }}">
+                <div style="display: flex; justify-content: space-between; align-items: center;">
+                    <h3>{{ request.hospital_name }}</h3>
+                    <span class="urgency-badge urgency-{{ request.urgency_level }}">
+                        {{ request.get_urgency_level_display }}
+                    </span>
+                </div>
+                <p><strong>Blood Type Needed:</strong> {{ request.blood_group_needed }}</p>
+                <p><strong>Units Needed:</strong> {{ request.units_needed }}</p>
+                <p><strong>Location:</strong> {{ request.location }}</p>
+                <p><strong>Contact:</strong> {{ request.contact_person }} - {{ request.contact_phone }}</p>
+                <p><strong>Required By:</strong> {{ request.required_by }}</p>
+                {% if request.notes %}
+                <p><strong>Notes:</strong> {{ request.notes }}</p>
+                {% endif %}
+            </div>
+            {% endfor %}
+        {% else %}
+            <p>No emergency requests for your blood type at this time.</p>
+        {% endif %}
+        
+        <a href="{% url 'donor:donor_dashboard' %}" class="btn">Back to Dashboard</a>
+    </div>
+</body>
+</html>

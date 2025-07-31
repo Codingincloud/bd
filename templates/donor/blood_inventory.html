@@ -1,0 +1,347 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Blood Inventory | Blood Donor System</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .header {
+            background: rgba(255, 255, 255, 0.95);
+            padding: 20px;
+            border-radius: 15px;
+            margin-bottom: 30px;
+            text-align: center;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+        }
+
+        .header h1 {
+            color: #d32f2f;
+            margin-bottom: 10px;
+        }
+
+        .summary-card {
+            background: rgba(255, 255, 255, 0.95);
+            padding: 25px;
+            border-radius: 15px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+            margin-bottom: 30px;
+            text-align: center;
+        }
+
+        .total-units {
+            font-size: 3rem;
+            font-weight: bold;
+            color: #d32f2f;
+            margin-bottom: 10px;
+        }
+
+        .inventory-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .blood-type-card {
+            background: rgba(255, 255, 255, 0.95);
+            padding: 25px;
+            border-radius: 15px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .blood-type-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 5px;
+        }
+
+        .blood-type-card.good::before {
+            background: #28a745;
+        }
+
+        .blood-type-card.adequate::before {
+            background: #ffc107;
+        }
+
+        .blood-type-card.low::before {
+            background: #fd7e14;
+        }
+
+        .blood-type-card.critical::before {
+            background: #dc3545;
+        }
+
+        .blood-type {
+            font-size: 2.5rem;
+            font-weight: bold;
+            color: #d32f2f;
+            margin-bottom: 10px;
+        }
+
+        .units-count {
+            font-size: 2rem;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+
+        .units-count.good {
+            color: #28a745;
+        }
+
+        .units-count.adequate {
+            color: #ffc107;
+        }
+
+        .units-count.low {
+            color: #fd7e14;
+        }
+
+        .units-count.critical {
+            color: #dc3545;
+        }
+
+        .status-badge {
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-weight: bold;
+            font-size: 0.9rem;
+            text-transform: uppercase;
+        }
+
+        .status-badge.good {
+            background: #d4edda;
+            color: #155724;
+        }
+
+        .status-badge.adequate {
+            background: #fff3cd;
+            color: #856404;
+        }
+
+        .status-badge.low {
+            background: #ffeaa7;
+            color: #b8860b;
+        }
+
+        .status-badge.critical {
+            background: #f8d7da;
+            color: #721c24;
+        }
+
+        .last-updated {
+            font-size: 0.8rem;
+            color: #666;
+            margin-top: 10px;
+        }
+
+        .urgent-needs {
+            background: rgba(255, 255, 255, 0.95);
+            padding: 25px;
+            border-radius: 15px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+            margin-bottom: 30px;
+            border-left: 5px solid #dc3545;
+        }
+
+        .urgent-needs h3 {
+            color: #dc3545;
+            margin-bottom: 15px;
+        }
+
+        .urgent-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+
+        .urgent-item {
+            background: #f8d7da;
+            color: #721c24;
+            padding: 10px 15px;
+            border-radius: 10px;
+            font-weight: bold;
+        }
+
+        .nav-link {
+            display: inline-block;
+            color: #d32f2f;
+            text-decoration: none;
+            margin-bottom: 20px;
+            font-weight: bold;
+        }
+
+        .nav-link:hover {
+            text-decoration: underline;
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            flex-wrap: wrap;
+            margin-top: 20px;
+        }
+
+        .btn {
+            background: linear-gradient(135deg, #d32f2f, #b71c1c);
+            color: white;
+            padding: 12px 20px;
+            border: none;
+            border-radius: 8px;
+            text-decoration: none;
+            font-weight: bold;
+            transition: transform 0.3s;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+        }
+
+        .btn-success {
+            background: linear-gradient(135deg, #28a745, #20c997);
+        }
+
+        .legend {
+            background: rgba(255, 255, 255, 0.95);
+            padding: 20px;
+            border-radius: 15px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+        }
+
+        .legend-items {
+            display: flex;
+            justify-content: space-around;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .legend-color {
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+        }
+
+        @media (max-width: 768px) {
+            .inventory-grid {
+                grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            }
+
+            .action-buttons {
+                flex-direction: column;
+            }
+
+            .legend-items {
+                flex-direction: column;
+                align-items: center;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1><i class="fas fa-tint"></i> Blood Inventory Status</h1>
+            <p>Current blood stock levels across all donation centers</p>
+        </div>
+
+        <a href="{% url 'donor:donor_dashboard' %}" class="nav-link">
+            <i class="fas fa-arrow-left"></i> Back to Dashboard
+        </a>
+
+        <div class="summary-card">
+            <div class="total-units">{{ total_units }}</div>
+            <p>Total Units Available</p>
+            <div class="action-buttons">
+                <a href="{% url 'donor:schedule_donation' %}" class="btn">
+                    <i class="fas fa-calendar-plus"></i> Schedule Donation
+                </a>
+                <a href="{% url 'donor:compatibility_check' %}" class="btn btn-success">
+                    <i class="fas fa-heart"></i> Check Compatibility
+                </a>
+            </div>
+        </div>
+
+        {% if urgent_needs %}
+        <div class="urgent-needs">
+            <h3><i class="fas fa-exclamation-triangle"></i> Urgent Blood Needs</h3>
+            <p>These blood types are critically low and need immediate donations:</p>
+            <div class="urgent-list">
+                {% for blood_type, data in urgent_needs.items %}
+                    <div class="urgent-item">
+                        {{ blood_type }} - {{ data.units }} units ({{ data.status|title }})
+                    </div>
+                {% endfor %}
+            </div>
+        </div>
+        {% endif %}
+
+        <div class="inventory-grid">
+            {% for blood_type, data in blood_inventory.items %}
+            <div class="blood-type-card {{ data.status }}">
+                <div class="blood-type">{{ blood_type }}</div>
+                <div class="units-count {{ data.status }}">{{ data.units }}</div>
+                <div>Units Available</div>
+                <div class="status-badge {{ data.status }}">{{ data.status|title }}</div>
+                <div class="last-updated">Updated {{ data.last_updated }}</div>
+            </div>
+            {% endfor %}
+        </div>
+
+        <div class="legend">
+            <h3 style="text-align: center; margin-bottom: 15px; color: #333;">
+                <i class="fas fa-info-circle"></i> Status Legend
+            </h3>
+            <div class="legend-items">
+                <div class="legend-item">
+                    <div class="legend-color" style="background: #28a745;"></div>
+                    <span><strong>Good:</strong> 40+ units</span>
+                </div>
+                <div class="legend-item">
+                    <div class="legend-color" style="background: #ffc107;"></div>
+                    <span><strong>Adequate:</strong> 20-39 units</span>
+                </div>
+                <div class="legend-item">
+                    <div class="legend-color" style="background: #fd7e14;"></div>
+                    <span><strong>Low:</strong> 10-19 units</span>
+                </div>
+                <div class="legend-item">
+                    <div class="legend-color" style="background: #dc3545;"></div>
+                    <span><strong>Critical:</strong> Below 10 units</span>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

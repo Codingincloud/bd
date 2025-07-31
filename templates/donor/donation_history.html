@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Donation History | Blood Donation System</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        body { margin: 0; font-family: Arial, sans-serif; background: #f9f9f9; }
+        .navbar {
+            background: #e74c3c;
+            color: #fff;
+            padding: 1rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .navbar .logo { font-size: 1.5rem; font-weight: bold; }
+        .navbar nav a {
+            color: #fff;
+            text-decoration: none;
+            margin-left: 2rem;
+            font-weight: 500;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 2rem auto;
+            background: #fff;
+            border-radius: 10px;
+            box-shadow: 0 4px 16px rgba(0,0,0,0.07);
+            padding: 2rem;
+        }
+        .table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 1rem;
+        }
+        .table th, .table td {
+            padding: 1rem;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+        .table th {
+            background: #f8f9fa;
+            font-weight: 600;
+        }
+        .btn {
+            display: inline-block;
+            padding: 0.5rem 1rem;
+            background: #e74c3c;
+            color: white;
+            text-decoration: none;
+            border-radius: 5px;
+            margin: 0.25rem;
+        }
+        .btn:hover { background: #c0392b; }
+    </style>
+</head>
+<body>
+    <div class="navbar">
+        <div class="logo">Blood Donation</div>
+        <nav>
+            <a href="{% url 'donor:donor_dashboard' %}">Dashboard</a>
+            <a href="{% url 'accounts:logout' %}">Logout</a>
+        </nav>
+    </div>
+    <div class="container">
+        <h1><i class="fas fa-history"></i> Donation History</h1>
+        <p>Your complete donation history</p>
+        
+        {% if donation_history %}
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>Date</th>
+                        <th>Center</th>
+                        <th>Units Donated</th>
+                        <th>Blood Pressure</th>
+                        <th>Hemoglobin</th>
+                        <th>Notes</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for donation in donation_history %}
+                    <tr>
+                        <td>{{ donation.donation_date }}</td>
+                        <td>{{ donation.donation_center }}</td>
+                        <td>{{ donation.units_donated }}L</td>
+                        <td>{{ donation.blood_pressure|default:"N/A" }}</td>
+                        <td>{{ donation.hemoglobin_level|default:"N/A" }}</td>
+                        <td>{{ donation.notes|default:"" }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        {% else %}
+            <p>No donation history found.</p>
+        {% endif %}
+        
+        <a href="{% url 'donor:donor_dashboard' %}" class="btn">Back to Dashboard</a>
+    </div>
+</body>
+</html>
