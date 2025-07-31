@@ -1,0 +1,294 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Create Emergency Blood Request - Admin Panel</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #d32f2f 0%, #b71c1c 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 2rem;
+            margin-bottom: 10px;
+        }
+
+        .nav-back {
+            padding: 20px;
+            border-bottom: 1px solid #eee;
+        }
+
+        .nav-back a {
+            color: #d32f2f;
+            text-decoration: none;
+            font-weight: 500;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .form-container {
+            padding: 30px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #333;
+        }
+
+        .form-group input,
+        .form-group select,
+        .form-group textarea {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            font-size: 1rem;
+            transition: border-color 0.3s;
+        }
+
+        .form-group input:focus,
+        .form-group select:focus,
+        .form-group textarea:focus {
+            outline: none;
+            border-color: #d32f2f;
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+
+        .urgency-levels {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+            gap: 10px;
+            margin-top: 8px;
+        }
+
+        .urgency-option {
+            position: relative;
+        }
+
+        .urgency-option input[type="radio"] {
+            position: absolute;
+            opacity: 0;
+        }
+
+        .urgency-option label {
+            display: block;
+            padding: 12px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-weight: 500;
+        }
+
+        .urgency-option input[type="radio"]:checked + label {
+            border-color: #d32f2f;
+            background: #d32f2f;
+            color: white;
+        }
+
+        .urgency-critical label { border-color: #f44336; }
+        .urgency-critical input[type="radio"]:checked + label { background: #f44336; }
+
+        .urgency-high label { border-color: #ff9800; }
+        .urgency-high input[type="radio"]:checked + label { background: #ff9800; }
+
+        .urgency-medium label { border-color: #ffc107; }
+        .urgency-medium input[type="radio"]:checked + label { background: #ffc107; color: #333; }
+
+        .btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            text-decoration: none;
+            display: inline-block;
+            text-align: center;
+        }
+
+        .btn-primary {
+            background: #d32f2f;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #b71c1c;
+            transform: translateY(-2px);
+        }
+
+        .btn-secondary {
+            background: #6c757d;
+            color: white;
+            margin-right: 10px;
+        }
+
+        .btn-secondary:hover {
+            background: #5a6268;
+        }
+
+        .form-actions {
+            display: flex;
+            justify-content: flex-end;
+            margin-top: 30px;
+            padding-top: 20px;
+            border-top: 1px solid #eee;
+        }
+
+        .emergency-info {
+            background: #fff3cd;
+            border: 1px solid #ffeaa7;
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 20px;
+        }
+
+        .emergency-info h3 {
+            color: #856404;
+            margin-bottom: 10px;
+        }
+
+        .emergency-info p {
+            color: #856404;
+            margin: 0;
+        }
+
+        @media (max-width: 768px) {
+            .form-row {
+                grid-template-columns: 1fr;
+            }
+            
+            .urgency-levels {
+                grid-template-columns: 1fr 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🚨 Create Emergency Blood Request</h1>
+            <p>Request urgent blood donations from compatible donors</p>
+        </div>
+
+        <div class="nav-back">
+            <a href="{% url 'admin_panel:manage_emergencies' %}">
+                ← Back to Emergency Management
+            </a>
+        </div>
+
+        <div class="form-container">
+            <div class="emergency-info">
+                <h3>Emergency Request Process</h3>
+                <p>This will immediately notify all compatible donors in the system. Use only for genuine emergency situations.</p>
+            </div>
+
+            <form method="POST">
+                {% csrf_token %}
+                
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="blood_group">Blood Group Required *</label>
+                        <select name="blood_group" id="blood_group" required>
+                            <option value="">Select Blood Group</option>
+                            {% for value, label in blood_groups %}
+                                <option value="{{ value }}">{{ label }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="units_needed">Units Needed *</label>
+                        <input type="number" name="units_needed" id="units_needed" min="1" max="50" required>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="hospital_name">Hospital/Medical Center *</label>
+                    <input type="text" name="hospital_name" id="hospital_name" placeholder="Enter hospital name" required>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="contact_person">Contact Person *</label>
+                        <input type="text" name="contact_person" id="contact_person" placeholder="Doctor/Staff name" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="contact_phone">Contact Phone *</label>
+                        <input type="tel" name="contact_phone" id="contact_phone" placeholder="+977-1-XXXXXXX" required>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label>Urgency Level *</label>
+                    <div class="urgency-levels">
+                        <div class="urgency-option urgency-critical">
+                            <input type="radio" name="urgency_level" value="critical" id="critical">
+                            <label for="critical">Critical</label>
+                        </div>
+                        <div class="urgency-option urgency-high">
+                            <input type="radio" name="urgency_level" value="high" id="high" checked>
+                            <label for="high">High</label>
+                        </div>
+                        <div class="urgency-option urgency-medium">
+                            <input type="radio" name="urgency_level" value="medium" id="medium">
+                            <label for="medium">Medium</label>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="notes">Additional Notes</label>
+                    <textarea name="notes" id="notes" rows="4" placeholder="Any additional information about the emergency..."></textarea>
+                </div>
+
+                <div class="form-actions">
+                    <a href="{% url 'admin_panel:manage_emergencies' %}" class="btn btn-secondary">Cancel</a>
+                    <button type="submit" class="btn btn-primary">🚨 Create Emergency Request</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</body>
+</html>

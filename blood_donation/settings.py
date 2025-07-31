@@ -28,6 +28,11 @@ INSTALLED_APPS = [
     'admin_panel',
 ]
 
+# Admin site customization
+ADMIN_SITE_HEADER = 'Blood Donation Management System'
+ADMIN_SITE_TITLE = 'Blood Donation Admin'
+ADMIN_INDEX_TITLE = 'Blood Donation Administration'
+
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
@@ -62,7 +67,7 @@ WSGI_APPLICATION = 'blood_donation.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
-        'NAME': '1',
+        'NAME': 'don',
         'USER': 'postgres',
         'PASSWORD': '1',
         'HOST': 'localhost',

@@ -8,6 +8,13 @@ urlpatterns = [
     path('profile/edit/', views.edit_profile, name='edit_profile'),
     path('location/update/', views.update_location, name='update_location'),
     path('location/detect/', views.detect_location, name='detect_location'),
+    path('location/save/', views.save_detected_location, name='save_detected_location'),
+
+    # Notification URLs
+    path('notifications/mark-read/<int:notification_id>/', views.mark_notification_read, name='mark_notification_read'),
+    path('notifications/mark-all-read/', views.mark_all_notifications_read, name='mark_all_notifications_read'),
+    path('notifications/all/', views.all_notifications, name='all_notifications'),
+    path('notifications/dismiss-system/<int:notification_id>/', views.dismiss_system_notification, name='dismiss_system_notification'),
     path('compatibility/', views.compatibility_check, name='compatibility_check'),
     path('blood-inventory/', views.blood_inventory, name='blood_inventory'),
     path('donation-centers/', views.donation_centers, name='donation_centers'),

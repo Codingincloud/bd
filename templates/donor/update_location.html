@@ -234,14 +234,29 @@
         <div class="form-container">
             <div class="form-section">
                 <h3><i class="fas fa-satellite"></i> Auto-Detect Current Location</h3>
-                <p>Use your device's GPS to automatically detect your current location:</p>
-                
+                <p>Use your device's GPS to automatically detect your current location and fill in address details:</p>
+
                 <button type="button" class="btn btn-success" onclick="detectCurrentLocation()">
                     <i class="fas fa-crosshairs"></i> Detect My Location
                 </button>
-                
+
                 <div id="location-status" style="margin-top: 15px; display: none;"></div>
-                
+
+                <!-- Detected Location Details -->
+                <div id="detected-location-details" style="display: none; margin-top: 20px; padding: 20px; background: #e8f5e8; border-radius: 8px; border-left: 4px solid #28a745;">
+                    <h4><i class="fas fa-map-marker-alt"></i> Detected Location Details</h4>
+                    <div id="location-info"></div>
+                    <div style="margin-top: 15px;">
+                        <button type="button" class="btn btn-primary" onclick="useDetectedLocation()">
+                            <i class="fas fa-check"></i> Use This Location
+                        </button>
+                        <button type="button" class="btn btn-secondary" onclick="clearDetectedLocation()">
+                            <i class="fas fa-times"></i> Clear
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Hidden form for coordinates -->
                 <form method="POST" action="{% url 'donor:detect_location' %}" id="gps-form" style="display: none;">
                     {% csrf_token %}
                     <input type="hidden" name="latitude" id="detected-lat">
@@ -330,43 +345,220 @@
             }
         }
 
-        // GPS location detection
+        // Enhanced GPS location detection with detailed address information
+        let detectedLocationData = null;
+
         function detectCurrentLocation() {
             const statusDiv = document.getElementById('location-status');
+            const detailsDiv = document.getElementById('detected-location-details');
+
             statusDiv.style.display = 'block';
             statusDiv.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Detecting your location...';
-            
+            detailsDiv.style.display = 'none';
+
             if (navigator.geolocation) {
                 navigator.geolocation.getCurrentPosition(
                     function(position) {
                         const lat = position.coords.latitude;
                         const lng = position.coords.longitude;
-                        
-                        document.getElementById('detected-lat').value = lat;
-                        document.getElementById('detected-lng').value = lng;
-                        
-                        statusDiv.innerHTML = `<i class="fas fa-check"></i> Location detected: ${lat.toFixed(4)}, ${lng.toFixed(4)}`;
-                        statusDiv.style.color = 'green';
-                        
-                        // Auto-submit the form
-                        setTimeout(() => {
-                            document.getElementById('gps-form').submit();
-                        }, 1000);
+
+                        statusDiv.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Getting location details...';
+
+                        // Call the enhanced location detection API
+                        fetch('{% url "donor:detect_location" %}', {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                                'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
+                            },
+                            body: JSON.stringify({
+                                latitude: lat,
+                                longitude: lng
+                            })
+                        })
+                        .then(response => response.json())
+                        .then(data => {
+                            if (data.success) {
+                                detectedLocationData = data.location;
+                                displayLocationDetails(data.location);
+                                statusDiv.innerHTML = '<i class="fas fa-check"></i> Location detected successfully!';
+                                statusDiv.style.color = 'green';
+                                detailsDiv.style.display = 'block';
+                            } else {
+                                statusDiv.innerHTML = `<i class="fas fa-times"></i> Error: ${data.error}`;
+                                statusDiv.style.color = 'red';
+                            }
+                        })
+                        .catch(error => {
+                            statusDiv.innerHTML = `<i class="fas fa-times"></i> Error getting location details: ${error.message}`;
+                            statusDiv.style.color = 'red';
+                        });
                     },
                     function(error) {
-                        statusDiv.innerHTML = `<i class="fas fa-times"></i> Error: ${error.message}`;
+                        statusDiv.innerHTML = `<i class="fas fa-times"></i> GPS Error: ${error.message}`;
                         statusDiv.style.color = 'red';
                     },
                     {
                         enableHighAccuracy: true,
-                        timeout: 10000,
-                        maximumAge: 0
+                        timeout: 15000,
+                        maximumAge: 60000
                     }
                 );
             } else {
                 statusDiv.innerHTML = '<i class="fas fa-times"></i> Geolocation is not supported by this browser.';
                 statusDiv.style.color = 'red';
             }
+        }
+
+        function displayLocationDetails(location) {
+            const infoDiv = document.getElementById('location-info');
+
+            let html = `
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 15px;">
+                    <div>
+                        <strong><i class="fas fa-map-marker-alt"></i> Address:</strong><br>
+                        ${location.formatted_address || 'Address not available'}
+                    </div>
+                    <div>
+                        <strong><i class="fas fa-city"></i> City:</strong><br>
+                        ${location.city || 'Not available'}
+                    </div>
+                    ${location.district ? `<div><strong><i class="fas fa-map"></i> District:</strong><br>${location.district}</div>` : ''}
+                    ${location.state ? `<div><strong><i class="fas fa-flag"></i> State/Province:</strong><br>${location.state}</div>` : ''}
+                    ${location.postcode ? `<div><strong><i class="fas fa-mail-bulk"></i> Postal Code:</strong><br>${location.postcode}</div>` : ''}
+                    ${location.ward ? `<div><strong><i class="fas fa-building"></i> Ward:</strong><br>Ward ${location.ward}</div>` : ''}
+                </div>
+                <div style="margin-top: 15px; padding: 10px; background: #f8f9fa; border-radius: 5px;">
+                    <strong><i class="fas fa-crosshairs"></i> Coordinates:</strong>
+                    ${location.latitude.toFixed(6)}, ${location.longitude.toFixed(6)}
+                </div>
+            `;
+
+            infoDiv.innerHTML = html;
+        }
+
+        function useDetectedLocation() {
+            if (detectedLocationData) {
+                const statusDiv = document.getElementById('location-status');
+                statusDiv.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Saving location...';
+                statusDiv.style.color = 'blue';
+
+                console.log('Saving location data:', detectedLocationData); // Debug log
+
+                // Save location to database
+                fetch('{% url "donor:save_detected_location" %}', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
+                    },
+                    body: JSON.stringify(detectedLocationData)
+                })
+                .then(response => {
+                    console.log('Response status:', response.status); // Debug log
+                    return response.json();
+                })
+                .then(data => {
+                    console.log('Response data:', data); // Debug log
+                    if (data.success) {
+                        // Auto-fill the form with detected location data
+
+                        // Target the simple form (Quick Location Update)
+                        const simpleLocationSelect = document.querySelector('select[name="location_choice"]');
+                        const customCityField = document.querySelector('input[name="custom_city"]');
+                        const customAddressField = document.querySelector('input[name="custom_address"]');
+
+                        // Target the detailed form (Manual Location Entry)
+                        const detailedAddressField = document.querySelector('textarea[name="address"]');
+                        const detailedCityField = document.querySelector('input[name="city"]');
+                        const detailedStateField = document.querySelector('input[name="state"]');
+                        const detailedPostalField = document.querySelector('input[name="postal_code"]');
+
+                        // Fill the detailed form (Manual Location Entry) - this is the main form
+                        if (detailedAddressField && detectedLocationData.suggested_address) {
+                            detailedAddressField.value = detectedLocationData.suggested_address;
+                        }
+
+                        if (detailedCityField && detectedLocationData.city) {
+                            detailedCityField.value = detectedLocationData.city;
+                        }
+
+                        if (detailedStateField && detectedLocationData.state) {
+                            detailedStateField.value = detectedLocationData.state;
+                        }
+
+                        if (detailedPostalField && detectedLocationData.postcode) {
+                            detailedPostalField.value = detectedLocationData.postcode;
+                        }
+
+                        // Try to set the simple form dropdown if city matches
+                        if (simpleLocationSelect && detectedLocationData.city) {
+                            let cityFound = false;
+                            // Check if the detected city matches any option in the dropdown
+                            for (let i = 0; i < simpleLocationSelect.options.length; i++) {
+                                const option = simpleLocationSelect.options[i];
+                                if (option.text.toLowerCase().includes(detectedLocationData.city.toLowerCase()) ||
+                                    option.value.toLowerCase().includes(detectedLocationData.city.toLowerCase())) {
+                                    option.selected = true;
+                                    simpleLocationSelect.value = option.value;
+                                    cityFound = true;
+                                    break;
+                                }
+                            }
+
+                            // If city not found in dropdown, select "other" and fill custom fields
+                            if (!cityFound) {
+                                const otherOption = simpleLocationSelect.querySelector('option[value="other"]');
+                                if (otherOption) {
+                                    otherOption.selected = true;
+                                    simpleLocationSelect.value = 'other';
+
+                                    // Show custom fields
+                                    const customFields = document.getElementById('custom-fields');
+                                    if (customFields) {
+                                        customFields.style.display = 'block';
+                                    }
+
+                                    // Fill custom fields
+                                    if (customCityField) {
+                                        customCityField.value = detectedLocationData.city;
+                                        customCityField.style.display = 'block';
+                                    }
+                                    if (customAddressField) {
+                                        customAddressField.value = detectedLocationData.suggested_address;
+                                        customAddressField.style.display = 'block';
+                                    }
+                                }
+                            }
+                        }
+
+                        // Show success message
+                        statusDiv.innerHTML = '<i class="fas fa-check"></i> Location saved and form updated successfully!';
+                        statusDiv.style.color = 'green';
+
+                        // Hide the detected location details after successful save
+                        setTimeout(() => {
+                            document.getElementById('detected-location-details').style.display = 'none';
+                        }, 2000);
+
+                        // Scroll to the form
+                        document.querySelector('.form-container').scrollIntoView({ behavior: 'smooth' });
+                    } else {
+                        statusDiv.innerHTML = `<i class="fas fa-times"></i> Error saving location: ${data.error}`;
+                        statusDiv.style.color = 'red';
+                    }
+                })
+                .catch(error => {
+                    statusDiv.innerHTML = `<i class="fas fa-times"></i> Error saving location: ${error.message}`;
+                    statusDiv.style.color = 'red';
+                });
+            }
+        }
+
+        function clearDetectedLocation() {
+            detectedLocationData = null;
+            document.getElementById('detected-location-details').style.display = 'none';
+            document.getElementById('location-status').style.display = 'none';
         }
     </script>
 </body>

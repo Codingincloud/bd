@@ -7,6 +7,11 @@ from django.conf import settings
 from django.conf.urls.static import static
 from django.shortcuts import render
 
+# Customize admin site
+admin.site.site_header = 'Blood Donation Management System'
+admin.site.site_title = 'Blood Donation Admin'
+admin.site.index_title = 'Blood Donation Administration'
+
 def home(request):
     """Home page for Blood Donation Management System"""
     context = {

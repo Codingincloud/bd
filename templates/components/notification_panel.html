@@ -1,0 +1,553 @@
+<!-- Notification Panel Component -->
+<div class="notification-panel">
+    <!-- Notification Bell Icon -->
+    <div class="notification-bell" onclick="toggleNotificationPanel()">
+        🔔
+        {% if unread_count > 0 %}
+            <span class="notification-badge">{{ unread_count }}</span>
+        {% endif %}
+    </div>
+
+    <!-- Notification Dropdown Panel -->
+    <div class="notification-dropdown" id="notificationDropdown" style="display: none;">
+        <div class="notification-header">
+            <h4>🔔 Notifications</h4>
+            {% if unread_count > 0 %}
+                <button class="mark-all-read-btn" onclick="markAllAsRead()">
+                    Mark All Read
+                </button>
+            {% endif %}
+        </div>
+
+        <div class="notification-list">
+            {% if user_notifications %}
+                {% for notification in user_notifications %}
+                    <div class="notification-item {% if not notification.is_read %}unread{% endif %}"
+                         data-notification-id="{{ notification.id }}"
+                         data-read-status="{% if notification.is_read %}read{% else %}unread{% endif %}"
+                         onclick="{% if not notification.is_read %}markAsRead({{ notification.id }}){% endif %}">
+                        <div class="notification-content">
+                            <div class="notification-title">{{ notification.title }}</div>
+                            <div class="notification-message">{{ notification.message|truncatechars:80 }}</div>
+                            <div class="notification-time">{{ notification.created_at|timesince }} ago</div>
+                        </div>
+                        {% if not notification.is_read %}
+                            <div class="notification-status">
+                                <span class="unread-indicator">●</span>
+                            </div>
+                        {% endif %}
+                    </div>
+                {% endfor %}
+            {% else %}
+                <div class="no-notifications">
+                    <p>No notifications yet</p>
+                </div>
+            {% endif %}
+        </div>
+
+        <div class="notification-footer">
+            <a href="{% url 'donor:all_notifications' %}" class="view-all-btn">
+                See More
+            </a>
+        </div>
+    </div>
+</div>
+
+<!-- System Notifications Banner -->
+{% if system_notifications %}
+    <div class="system-notifications">
+        {% for notification in system_notifications %}
+            <div class="system-notification system-notification-{{ notification.priority }}" 
+                 data-notification-id="{{ notification.id }}">
+                <div class="system-notification-content">
+                    <div class="system-notification-icon">
+                        {% if notification.notification_type == 'emergency_request' %}
+                            <i class="fas fa-exclamation-triangle"></i>
+                        {% elif notification.notification_type == 'maintenance' %}
+                            <i class="fas fa-tools"></i>
+                        {% elif notification.notification_type == 'info' %}
+                            <i class="fas fa-info-circle"></i>
+                        {% else %}
+                            <i class="fas fa-bell"></i>
+                        {% endif %}
+                    </div>
+                    <div class="system-notification-text">
+                        <strong>{{ notification.title }}</strong>
+                        <p>{{ notification.message }}</p>
+                    </div>
+                </div>
+                <button class="system-notification-close" onclick="dismissSystemNotification({{ notification.id }})">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+        {% endfor %}
+    </div>
+{% endif %}
+
+<style>
+/* Notification Panel Styles */
+.notification-panel {
+    position: relative;
+    display: inline-block;
+}
+
+.notification-bell {
+    position: relative;
+    cursor: pointer;
+    padding: 10px;
+    border-radius: 50%;
+    background-color: #f8f9fa;
+    border: 2px solid #dee2e6;
+    transition: all 0.3s ease;
+}
+
+.notification-bell:hover {
+    background-color: #e9ecef;
+    border-color: #adb5bd;
+}
+
+.notification-bell i {
+    font-size: 1.2rem;
+    color: #495057;
+}
+
+.notification-badge {
+    position: absolute;
+    top: -5px;
+    right: -5px;
+    background-color: #dc3545;
+    color: white;
+    border-radius: 50%;
+    padding: 2px 6px;
+    font-size: 0.75rem;
+    font-weight: bold;
+    min-width: 18px;
+    text-align: center;
+}
+
+.notification-dropdown {
+    position: absolute;
+    top: 100%;
+    right: 0;
+    width: 350px;
+    max-height: 500px;
+    background: white;
+    border: 1px solid #dee2e6;
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    z-index: 1000;
+    overflow: hidden;
+}
+
+.notification-header {
+    padding: 15px;
+    background-color: #f8f9fa;
+    border-bottom: 1px solid #dee2e6;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.notification-header h4 {
+    margin: 0;
+    color: #495057;
+    font-size: 1rem;
+}
+
+.mark-all-read-btn {
+    background: none;
+    border: none;
+    color: #007bff;
+    cursor: pointer;
+    font-size: 0.85rem;
+    padding: 4px 8px;
+    border-radius: 4px;
+    transition: background-color 0.2s;
+}
+
+.mark-all-read-btn:hover {
+    background-color: #e7f3ff;
+}
+
+.notification-list {
+    max-height: 350px;
+    overflow-y: auto;
+}
+
+.notification-item {
+    display: flex;
+    padding: 12px 15px;
+    border-bottom: 1px solid #f1f3f4;
+    transition: background-color 0.2s;
+    cursor: pointer;
+}
+
+.notification-item:hover {
+    background-color: #f8f9fa;
+}
+
+.notification-item.unread {
+    background-color: #e7f3ff;
+    border-left: 3px solid #007bff;
+}
+
+.notification-status {
+    display: flex;
+    align-items: center;
+    margin-left: 10px;
+}
+
+.unread-indicator {
+    color: #007bff;
+    font-size: 1.2rem;
+    font-weight: bold;
+}
+
+.notification-icon {
+    margin-right: 12px;
+    display: flex;
+    align-items: flex-start;
+    padding-top: 2px;
+}
+
+.notification-content {
+    flex: 1;
+}
+
+.notification-title {
+    font-weight: 600;
+    color: #212529;
+    margin-bottom: 4px;
+    font-size: 0.9rem;
+}
+
+.notification-message {
+    color: #6c757d;
+    font-size: 0.85rem;
+    line-height: 1.4;
+    margin-bottom: 4px;
+}
+
+.notification-time {
+    color: #adb5bd;
+    font-size: 0.75rem;
+}
+
+.notification-actions {
+    display: flex;
+    align-items: flex-start;
+    padding-top: 2px;
+}
+
+.mark-read-btn {
+    background: none;
+    border: none;
+    color: #28a745;
+    cursor: pointer;
+    padding: 4px;
+    border-radius: 4px;
+    transition: background-color 0.2s;
+}
+
+.mark-read-btn:hover {
+    background-color: #d4edda;
+}
+
+.no-notifications {
+    text-align: center;
+    padding: 30px 15px;
+    color: #6c757d;
+}
+
+.no-notifications i {
+    font-size: 2rem;
+    margin-bottom: 10px;
+    opacity: 0.5;
+}
+
+.notification-footer {
+    padding: 10px 15px;
+    background-color: #f8f9fa;
+    border-top: 1px solid #dee2e6;
+    text-align: center;
+}
+
+.view-all-btn {
+    color: #007bff;
+    text-decoration: none;
+    font-size: 0.9rem;
+    font-weight: 500;
+}
+
+.view-all-btn:hover {
+    text-decoration: underline;
+}
+
+/* System Notifications */
+.system-notifications {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    z-index: 1050;
+    max-width: 400px;
+}
+
+.system-notification {
+    display: flex;
+    align-items: flex-start;
+    padding: 15px;
+    margin-bottom: 10px;
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    animation: slideInRight 0.3s ease;
+}
+
+.system-notification-low {
+    background-color: #d1ecf1;
+    border-left: 4px solid #17a2b8;
+}
+
+.system-notification-medium {
+    background-color: #fff3cd;
+    border-left: 4px solid #ffc107;
+}
+
+.system-notification-high {
+    background-color: #f8d7da;
+    border-left: 4px solid #dc3545;
+}
+
+.system-notification-critical {
+    background-color: #f5c6cb;
+    border-left: 4px solid #721c24;
+    animation: pulse 2s infinite;
+}
+
+.system-notification-content {
+    flex: 1;
+    display: flex;
+    align-items: flex-start;
+}
+
+.system-notification-icon {
+    margin-right: 12px;
+    padding-top: 2px;
+}
+
+.system-notification-text strong {
+    display: block;
+    margin-bottom: 4px;
+    font-size: 0.95rem;
+}
+
+.system-notification-text p {
+    margin: 0;
+    font-size: 0.85rem;
+    line-height: 1.4;
+}
+
+.system-notification-close {
+    background: none;
+    border: none;
+    color: #6c757d;
+    cursor: pointer;
+    padding: 4px;
+    margin-left: 10px;
+}
+
+.system-notification-close:hover {
+    color: #495057;
+}
+
+/* Text Colors */
+.text-success { color: #28a745 !important; }
+.text-warning { color: #ffc107 !important; }
+.text-danger { color: #dc3545 !important; }
+.text-info { color: #17a2b8 !important; }
+.text-primary { color: #007bff !important; }
+
+/* Animations */
+@keyframes slideInRight {
+    from {
+        transform: translateX(100%);
+        opacity: 0;
+    }
+    to {
+        transform: translateX(0);
+        opacity: 1;
+    }
+}
+
+@keyframes pulse {
+    0% { opacity: 1; }
+    50% { opacity: 0.7; }
+    100% { opacity: 1; }
+}
+</style>
+
+<script>
+// Notification Panel JavaScript
+function toggleNotificationPanel() {
+    const dropdown = document.getElementById('notificationDropdown');
+    const isVisible = dropdown.style.display !== 'none';
+    
+    if (isVisible) {
+        dropdown.style.display = 'none';
+    } else {
+        dropdown.style.display = 'block';
+        // Mark notifications as seen when panel is opened
+        markNotificationsAsSeen();
+    }
+}
+
+function markAsRead(notificationId) {
+    fetch(`/donor/notifications/mark-read/${notificationId}/`, {
+        method: 'POST',
+        headers: {
+            'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value,
+            'Content-Type': 'application/json',
+        },
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            // Mark notification as read (keep it but remove unread styling)
+            const notificationItem = document.querySelector(`[data-notification-id="${notificationId}"]`);
+            if (notificationItem) {
+                notificationItem.classList.remove('unread');
+                notificationItem.setAttribute('data-read-status', 'read');
+                notificationItem.onclick = null; // Remove click handler
+
+                // Remove unread indicator
+                const unreadIndicator = notificationItem.querySelector('.unread-indicator');
+                if (unreadIndicator) {
+                    unreadIndicator.parentElement.remove();
+                }
+
+                updateNotificationBadge();
+            }
+        }
+    })
+    .catch(error => console.error('Error:', error));
+}
+
+function markAllAsRead() {
+    fetch('/donor/notifications/mark-all-read/', {
+        method: 'POST',
+        headers: {
+            'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value,
+            'Content-Type': 'application/json',
+        },
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            // Mark all notifications as read (keep them but remove unread styling)
+            document.querySelectorAll('.notification-item.unread').forEach(item => {
+                item.classList.remove('unread');
+                item.setAttribute('data-read-status', 'read');
+                item.onclick = null; // Remove click handler
+
+                // Remove unread indicator
+                const unreadIndicator = item.querySelector('.unread-indicator');
+                if (unreadIndicator) {
+                    unreadIndicator.parentElement.remove();
+                }
+            });
+
+            // Update UI
+            updateNotificationBadge();
+            const markAllBtn = document.querySelector('.mark-all-read-btn');
+            if (markAllBtn) markAllBtn.style.display = 'none';
+        }
+    })
+    .catch(error => console.error('Error:', error));
+}
+
+function dismissSystemNotification(notificationId) {
+    fetch(`/donor/notifications/dismiss-system/${notificationId}/`, {
+        method: 'POST',
+        headers: {
+            'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value,
+            'Content-Type': 'application/json',
+        },
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            const notification = document.querySelector(`[data-notification-id="${notificationId}"]`);
+            if (notification) {
+                notification.style.animation = 'slideOutRight 0.3s ease';
+                setTimeout(() => {
+                    notification.remove();
+                }, 300);
+            }
+        }
+    })
+    .catch(error => console.error('Error:', error));
+}
+
+function updateNotificationBadge() {
+    const unreadCount = document.querySelectorAll('.notification-item.unread').length;
+    const badge = document.querySelector('.notification-badge');
+
+    if (unreadCount > 0) {
+        if (badge) {
+            badge.textContent = unreadCount;
+        } else {
+            // Create badge if it doesn't exist
+            const bell = document.querySelector('.notification-bell');
+            const newBadge = document.createElement('span');
+            newBadge.className = 'notification-badge';
+            newBadge.textContent = unreadCount;
+            bell.appendChild(newBadge);
+        }
+    } else {
+        if (badge) {
+            badge.remove();
+        }
+    }
+}
+
+function checkIfNoNotifications() {
+    const notificationList = document.querySelector('.notification-list');
+    const notificationItems = document.querySelectorAll('.notification-item');
+
+    if (notificationItems.length === 0) {
+        // Show "no notifications" message
+        notificationList.innerHTML = `
+            <div class="no-notifications">
+                <i class="fas fa-bell-slash"></i>
+                <p>No notifications</p>
+            </div>
+        `;
+    }
+}
+
+function markNotificationsAsSeen() {
+    // This could be used to mark notifications as "seen" but not necessarily "read"
+    // For now, we'll just update the UI
+}
+
+// Close notification panel when clicking outside
+document.addEventListener('click', function(event) {
+    const panel = document.querySelector('.notification-panel');
+    const dropdown = document.getElementById('notificationDropdown');
+    
+    if (panel && !panel.contains(event.target)) {
+        dropdown.style.display = 'none';
+    }
+});
+
+// Auto-dismiss system notifications after 10 seconds
+document.addEventListener('DOMContentLoaded', function() {
+    const systemNotifications = document.querySelectorAll('.system-notification');
+    systemNotifications.forEach(notification => {
+        setTimeout(() => {
+            if (notification.parentNode) {
+                dismissSystemNotification(notification.dataset.notificationId);
+            }
+        }, 10000); // 10 seconds
+    });
+});
+</script>

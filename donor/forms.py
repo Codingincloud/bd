@@ -1,14 +1,27 @@
 from django import forms
 from .models import Donor
-from utils.nepal_locations import get_popular_cities
+# Removed Nepal locations dependency
 
 
 class LocationUpdateForm(forms.ModelForm):
     """Simple form for updating donor location"""
     
     # Add a choice field for popular cities
+    POPULAR_CITIES = [
+        ('Kathmandu', 'Kathmandu'),
+        ('Pokhara', 'Pokhara'),
+        ('Lalitpur', 'Lalitpur'),
+        ('Bhaktapur', 'Bhaktapur'),
+        ('Biratnagar', 'Biratnagar'),
+        ('Birgunj', 'Birgunj'),
+        ('Dharan', 'Dharan'),
+        ('Butwal', 'Butwal'),
+        ('Hetauda', 'Hetauda'),
+        ('Janakpur', 'Janakpur'),
+    ]
+
     popular_city = forms.ChoiceField(
-        choices=[('', 'Select a popular city')] + [(city, city) for city in get_popular_cities()],
+        choices=[('', 'Select a popular city')] + POPULAR_CITIES,
         required=False,
         widget=forms.Select(attrs={
             'class': 'form-control',

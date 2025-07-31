@@ -3,118 +3,306 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Blood Inventory | Admin Panel</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <title>Blood Inventory Management - Admin Panel</title>
     <style>
-        body { margin: 0; font-family: Arial, sans-serif; background: #f9f9f9; }
-        .navbar {
-            background: #e74c3c;
-            color: #fff;
-            padding: 1rem 2rem;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
         }
-        .navbar .logo { font-size: 1.5rem; font-weight: bold; }
-        .navbar nav a {
-            color: #fff;
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #d32f2f 0%, #b71c1c 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+
+        .nav-back {
+            padding: 20px;
+            border-bottom: 1px solid #eee;
+        }
+
+        .nav-back a {
+            color: #d32f2f;
             text-decoration: none;
-            margin-left: 2rem;
             font-weight: 500;
         }
-        .container {
-            max-width: 1200px;
-            margin: 2rem auto;
-            background: #fff;
-            border-radius: 10px;
-            box-shadow: 0 4px 16px rgba(0,0,0,0.07);
-            padding: 2rem;
+
+        .content {
+            padding: 30px;
         }
+
+        .update-form {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 30px;
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr 1fr auto;
+            gap: 15px;
+            align-items: end;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 600;
+            color: #333;
+        }
+
+        .form-group select,
+        .form-group input {
+            width: 100%;
+            padding: 10px;
+            border: 2px solid #ddd;
+            border-radius: 5px;
+            font-size: 1rem;
+        }
+
+        .btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .btn-primary {
+            background: #d32f2f;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #b71c1c;
+        }
+
         .inventory-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 1rem;
-            margin-top: 2rem;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
         }
+
         .blood-card {
-            text-align: center;
-            padding: 2rem;
             border: 2px solid #ddd;
             border-radius: 10px;
-            background: #f8f9fa;
+            padding: 20px;
+            background: white;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            transition: transform 0.3s;
         }
-        .blood-card.low-stock {
-            border-color: #dc3545;
-            background: #fff5f5;
+
+        .blood-card:hover {
+            transform: translateY(-5px);
         }
+
+        .blood-card.critical {
+            border-color: #f44336;
+            background: #ffebee;
+        }
+
+        .blood-card.low {
+            border-color: #ff9800;
+            background: #fff3e0;
+        }
+
+        .blood-card.medium {
+            border-color: #ffc107;
+            background: #fffde7;
+        }
+
+        .blood-card.good {
+            border-color: #4caf50;
+            background: #e8f5e8;
+        }
+
         .blood-type {
             font-size: 2rem;
             font-weight: bold;
-            color: #e74c3c;
-            margin-bottom: 1rem;
+            color: #d32f2f;
+            margin-bottom: 10px;
+            text-align: center;
         }
-        .units-count {
-            font-size: 3rem;
+
+        .units-available {
+            font-size: 1.5rem;
             font-weight: bold;
-            color: #333;
-            margin-bottom: 0.5rem;
+            text-align: center;
+            margin-bottom: 15px;
         }
-        .units-label {
-            color: #666;
-            font-size: 0.9rem;
-        }
-        .recent-donations {
-            color: #666;
-            font-size: 0.8rem;
-            margin-top: 0.5rem;
-        }
-        .btn {
+
+        .status-badge {
             display: inline-block;
-            padding: 0.5rem 1rem;
-            background: #e74c3c;
-            color: white;
-            text-decoration: none;
-            border-radius: 5px;
-            margin: 0.25rem;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: bold;
+            text-transform: uppercase;
+            margin-bottom: 15px;
         }
-        .btn:hover { background: #c0392b; }
+
+        .status-critical {
+            background: #f44336;
+            color: white;
+        }
+
+        .status-low {
+            background: #ff9800;
+            color: white;
+        }
+
+        .status-medium {
+            background: #ffc107;
+            color: #333;
+        }
+
+        .status-good {
+            background: #4caf50;
+            color: white;
+        }
+
+        .recent-info {
+            font-size: 0.9rem;
+            color: #666;
+            margin-top: 10px;
+        }
+
+        .last-updated {
+            font-size: 0.8rem;
+            color: #999;
+            margin-top: 5px;
+        }
+
+        @media (max-width: 768px) {
+            .form-row {
+                grid-template-columns: 1fr;
+            }
+            
+            .inventory-grid {
+                grid-template-columns: 1fr;
+            }
+        }
     </style>
 </head>
 <body>
-    <div class="navbar">
-        <div class="logo">Admin Panel</div>
-        <nav>
-            <a href="{% url 'admin_panel:dashboard' %}">Dashboard</a>
-            <a href="{% url 'admin_panel:manage_donors' %}">Donors</a>
-            <a href="{% url 'admin_panel:manage_requests' %}">Requests</a>
-            <a href="{% url 'accounts:logout' %}">Logout</a>
-        </nav>
-    </div>
     <div class="container">
-        <h1><i class="fas fa-boxes"></i> Blood Inventory Management</h1>
-        <p>Current blood stock levels (based on recent donations)</p>
-        
-        <div class="inventory-grid">
-            {% for item in inventory_data %}
-            <div class="blood-card {% if item.units_available < 5 %}low-stock{% endif %}">
-                <div class="blood-type">{{ item.blood_group }}</div>
-                <div class="units-count">{{ item.units_available }}</div>
-                <div class="units-label">units available</div>
-                <div class="recent-donations">{{ item.recent_donations }} recent donations</div>
-                {% if item.units_available < 5 %}
-                <div style="color: #dc3545; font-weight: bold; margin-top: 0.5rem;">
-                    <i class="fas fa-exclamation-triangle"></i> Low Stock
-                </div>
-                {% endif %}
+        <div class="header">
+            <h1>📦 Blood Inventory Management</h1>
+            <p>Track and update blood bank inventory</p>
+        </div>
+
+        <div class="nav-back">
+            <a href="{% url 'admin_panel:dashboard' %}">← Back to Dashboard</a>
+        </div>
+
+        <div class="content">
+            <!-- Quick Update Form -->
+            <div class="update-form">
+                <h3>Quick Inventory Update</h3>
+                <form method="POST">
+                    {% csrf_token %}
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="blood_group">Blood Group</label>
+                            <select name="blood_group" id="blood_group" required>
+                                <option value="">Select Blood Group</option>
+                                {% for value, label in blood_groups %}
+                                    <option value="{{ value }}">{{ label }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="action">Action</label>
+                            <select name="action" id="action" required>
+                                <option value="">Select Action</option>
+                                <option value="add">Add Units</option>
+                                <option value="remove">Remove Units</option>
+                                <option value="set">Set Total</option>
+                            </select>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="units">Units</label>
+                            <input type="number" name="units" id="units" step="0.1" min="0" required>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="notes">Notes</label>
+                            <input type="text" name="notes" id="notes" placeholder="Optional notes...">
+                        </div>
+                        
+                        <div class="form-group">
+                            <button type="submit" class="btn btn-primary">Update</button>
+                        </div>
+                    </div>
+                </form>
             </div>
-            {% endfor %}
+
+            <!-- Current Inventory -->
+            <h3>Current Blood Inventory</h3>
+            
+            <div class="inventory-grid">
+                {% for item in inventory_data %}
+                    <div class="blood-card {{ item.status }}">
+                        <div class="blood-type">{{ item.blood_group_display }}</div>
+                        <div class="units-available">{{ item.units_available }} units</div>
+                        
+                        <div class="status-badge status-{{ item.status }}">
+                            {% if item.status == 'critical' %}
+                                Critical - Need Urgent Donations
+                            {% elif item.status == 'low' %}
+                                Low Stock
+                            {% elif item.status == 'medium' %}
+                                Adequate Stock
+                            {% else %}
+                                Good Stock
+                            {% endif %}
+                        </div>
+                        
+                        <div class="recent-info">
+                            Recent donations (35 days): {{ item.recent_donations }}
+                        </div>
+                        
+                        {% if item.last_updated %}
+                            <div class="last-updated">
+                                Last updated: {{ item.last_updated|date:"M d, Y H:i" }}
+                            </div>
+                        {% endif %}
+                        
+                        {% if item.notes and item.notes != 'No inventory record' %}
+                            <div class="recent-info">
+                                <strong>Notes:</strong> {{ item.notes }}
+                            </div>
+                        {% endif %}
+                    </div>
+                {% endfor %}
+            </div>
         </div>
-        
-        <div style="margin-top: 2rem;">
-            <p><strong>Note:</strong> Inventory is calculated based on donations from the last 35 days (blood expiry period).</p>
-        </div>
-        
-        <a href="{% url 'admin_panel:dashboard' %}" class="btn">Back to Dashboard</a>
     </div>
 </body>
 </html>

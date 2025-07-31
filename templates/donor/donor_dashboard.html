@@ -119,10 +119,15 @@
     </header>
 
     <div class="logout-section">
+        <!-- Notification Panel -->
+        <div style="display: inline-block; margin-right: 20px;">
+            {% include 'components/notification_panel.html' %}
+        </div>
+
         <form action="{% url 'accounts:logout' %}" method="POST" style="display: inline;">
             {% csrf_token %}
             <button type="submit" class="logout-btn">
-                <i class="fas fa-sign-out-alt"></i> Logout
+                Logout
             </button>
         </form>
     </div>
@@ -184,15 +189,40 @@
             <div class="dashboard-card">
                 <div class="card-header">
                     <i class="fas fa-bell"></i> Recent Notifications
+                    {% if unread_count > 0 %}
+                        <span style="background: #dc3545; color: white; padding: 2px 8px; border-radius: 12px; font-size: 0.8rem; margin-left: 10px;">
+                            {{ unread_count }}
+                        </span>
+                    {% endif %}
                 </div>
                 <div class="card-content">
-                    {% if notifications %}
-                        {% for notification in notifications %}
-                            <div class="stat">
-                                <i class="fas fa-info-circle"></i>
-                                <span>{{ notification.message }}</span>
+                    {% if user_notifications %}
+                        {% for notification in user_notifications|slice:":3" %}
+                            <div class="stat" style="{% if not notification.is_read %}background: #e7f3ff; padding: 8px; border-radius: 4px; margin-bottom: 8px;{% endif %}">
+                                {% if notification.notification_type == 'donation_scheduled' %}
+                                    <i class="fas fa-calendar-check" style="color: #28a745;"></i>
+                                {% elif notification.notification_type == 'donation_reminder' %}
+                                    <i class="fas fa-clock" style="color: #ffc107;"></i>
+                                {% elif notification.notification_type == 'emergency_request' %}
+                                    <i class="fas fa-exclamation-triangle" style="color: #dc3545;"></i>
+                                {% elif notification.notification_type == 'location_updated' %}
+                                    <i class="fas fa-map-marker-alt" style="color: #17a2b8;"></i>
+                                {% else %}
+                                    <i class="fas fa-info-circle"></i>
+                                {% endif %}
+                                <span>{{ notification.title }}</span>
+                                {% if not notification.is_read %}
+                                    <small style="color: #007bff; font-weight: bold;"> • NEW</small>
+                                {% endif %}
                             </div>
                         {% endfor %}
+                        {% if user_notifications|length > 3 %}
+                            <div style="text-align: center; margin-top: 10px;">
+                                <a href="{% url 'donor:all_notifications' %}" style="color: #007bff; text-decoration: none; font-weight: 500;">
+                                    <i class="fas fa-list"></i> View All Notifications
+                                </a>
+                            </div>
+                        {% endif %}
                     {% else %}
                         <div class="stat">
                             <i class="fas fa-info-circle"></i>

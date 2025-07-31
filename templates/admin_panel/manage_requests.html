@@ -138,16 +138,17 @@
                     <td>{{ request.created_at|date:"M d, Y" }}</td>
                     <td>
                         {% if request.status == 'pending' %}
-                            <form method="POST" action="{% url 'admin_panel:approve_request' request.id %}" style="display: inline;">
+                            <form method="POST" action="{% url 'admin_panel:approve_donation_request' request.id %}" style="display: inline;">
                                 {% csrf_token %}
-                                <input type="hidden" name="action" value="approve">
-                                <button type="submit" class="btn btn-success">Approve</button>
+                                <button type="submit" class="btn btn-success" style="font-size: 0.8rem; padding: 4px 8px;">Approve</button>
                             </form>
-                            <form method="POST" action="{% url 'admin_panel:approve_request' request.id %}" style="display: inline;">
-                                {% csrf_token %}
-                                <input type="hidden" name="action" value="reject">
-                                <button type="submit" class="btn btn-warning">Reject</button>
-                            </form>
+                            <button onclick="showRejectModal({{ request.id }}, '{{ request.donor.name }}')" class="btn btn-warning" style="font-size: 0.8rem; padding: 4px 8px;">Reject</button>
+                        {% elif request.status == 'approved' %}
+                            <button onclick="showCompleteModal({{ request.id }}, '{{ request.donor.name }}')" class="btn btn-primary" style="font-size: 0.8rem; padding: 4px 8px;">Mark Complete</button>
+                        {% elif request.status == 'completed' %}
+                            <span class="text-success">✅ Completed</span>
+                        {% elif request.status == 'rejected' %}
+                            <span class="text-danger">❌ Rejected</span>
                         {% else %}
                             <span class="badge badge-secondary">{{ request.get_status_display }}</span>
                         {% endif %}
@@ -161,5 +162,85 @@
             </tbody>
         </table>
     </div>
+
+    <!-- Reject Modal -->
+    <div id="rejectModal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 1000;">
+        <div style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); background: white; padding: 30px; border-radius: 10px; width: 400px;">
+            <h3>Reject Donation Request</h3>
+            <form id="rejectForm" method="POST">
+                {% csrf_token %}
+                <p>Are you sure you want to reject the donation request for <strong id="rejectDonorName"></strong>?</p>
+                <div style="margin: 15px 0;">
+                    <label for="rejection_reason">Reason for rejection:</label>
+                    <textarea name="rejection_reason" id="rejection_reason" rows="3" style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px;" placeholder="Enter reason for rejection..."></textarea>
+                </div>
+                <div style="text-align: right; margin-top: 20px;">
+                    <button type="button" onclick="closeRejectModal()" style="margin-right: 10px; padding: 8px 16px; border: 1px solid #ddd; background: white; border-radius: 4px;">Cancel</button>
+                    <button type="submit" style="padding: 8px 16px; background: #dc3545; color: white; border: none; border-radius: 4px;">Reject Request</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Complete Modal -->
+    <div id="completeModal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 1000;">
+        <div style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); background: white; padding: 30px; border-radius: 10px; width: 400px;">
+            <h3>Mark Donation as Completed</h3>
+            <form id="completeForm" method="POST">
+                {% csrf_token %}
+                <p>Mark donation as completed for <strong id="completeDonorName"></strong>?</p>
+                <div style="margin: 15px 0;">
+                    <label for="units_collected">Units Collected:</label>
+                    <input type="number" name="units_collected" id="units_collected" value="1" min="0.5" max="2" step="0.1" style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px;">
+                </div>
+                <div style="margin: 15px 0;">
+                    <label for="donation_center">Donation Center:</label>
+                    <input type="text" name="donation_center" id="donation_center" value="Main Center" style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px;">
+                </div>
+                <div style="margin: 15px 0;">
+                    <label for="completion_notes">Notes:</label>
+                    <textarea name="notes" id="completion_notes" rows="2" style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px;" placeholder="Any additional notes..."></textarea>
+                </div>
+                <div style="text-align: right; margin-top: 20px;">
+                    <button type="button" onclick="closeCompleteModal()" style="margin-right: 10px; padding: 8px 16px; border: 1px solid #ddd; background: white; border-radius: 4px;">Cancel</button>
+                    <button type="submit" style="padding: 8px 16px; background: #28a745; color: white; border: none; border-radius: 4px;">Mark Complete</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        function showRejectModal(requestId, donorName) {
+            document.getElementById('rejectModal').style.display = 'block';
+            document.getElementById('rejectDonorName').textContent = donorName;
+            document.getElementById('rejectForm').action = `/admin-panel/requests/reject/${requestId}/`;
+        }
+
+        function closeRejectModal() {
+            document.getElementById('rejectModal').style.display = 'none';
+        }
+
+        function showCompleteModal(requestId, donorName) {
+            document.getElementById('completeModal').style.display = 'block';
+            document.getElementById('completeDonorName').textContent = donorName;
+            document.getElementById('completeForm').action = `/admin-panel/requests/complete/${requestId}/`;
+        }
+
+        function closeCompleteModal() {
+            document.getElementById('completeModal').style.display = 'none';
+        }
+
+        // Close modals when clicking outside
+        window.onclick = function(event) {
+            const rejectModal = document.getElementById('rejectModal');
+            const completeModal = document.getElementById('completeModal');
+            if (event.target == rejectModal) {
+                closeRejectModal();
+            }
+            if (event.target == completeModal) {
+                closeCompleteModal();
+            }
+        }
+    </script>
 </body>
 </html>

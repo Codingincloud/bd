@@ -92,12 +92,7 @@ class Donor(models.Model):
         else:
             return "Obese"
 
-    def can_donate(self):
-        if not self.last_donation_date:
-            return True
-        # Standard waiting period of 56 days (8 weeks) between donations
-        next_donation_date = self.last_donation_date + timedelta(days=56)
-        return date.today() >= next_donation_date
+
 
     @property
     def next_eligible_date(self):
@@ -161,6 +156,31 @@ class Donor(models.Model):
             'AB+': ['AB+'],
         }
         return compatibility.get(self.blood_group, [])
+
+    def can_donate(self):
+        """Check if donor is eligible to donate based on last donation date"""
+        if not self.last_donation_date:
+            return True, "Eligible to donate"
+
+        # Standard donation interval is 56 days (8 weeks)
+        next_eligible_date = self.last_donation_date + timedelta(days=56)
+        today = date.today()
+
+        if today >= next_eligible_date:
+            return True, "Eligible to donate"
+        else:
+            days_remaining = (next_eligible_date - today).days
+            return False, f"Must wait {days_remaining} more days. Next eligible date: {next_eligible_date.strftime('%B %d, %Y')}"
+
+    @property
+    def donation_eligibility_status(self):
+        """Get donation eligibility status"""
+        eligible, message = self.can_donate()
+        return {
+            'eligible': eligible,
+            'message': message,
+            'next_eligible_date': self.last_donation_date + timedelta(days=56) if self.last_donation_date else None
+        }
 
 class DonationCenter(models.Model):
     name = models.CharField(max_length=200)
@@ -243,6 +263,34 @@ class DonationHistory(models.Model):
     class Meta:
         ordering = ['-donation_date']
         verbose_name_plural = "Donation histories"
+
+
+class BloodInventory(models.Model):
+    """Track blood inventory by blood group"""
+    blood_group = models.CharField(max_length=5, choices=Donor.BLOOD_GROUPS, unique=True)
+    units_available = models.FloatField(default=0.0)
+    last_updated = models.DateTimeField(auto_now=True)
+    updated_by = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True)
+    notes = models.TextField(blank=True, help_text="Notes about inventory changes")
+
+    class Meta:
+        verbose_name_plural = "Blood Inventories"
+        ordering = ['blood_group']
+
+    def __str__(self):
+        return f"{self.get_blood_group_display()}: {self.units_available} units"
+
+    @property
+    def status(self):
+        """Get inventory status based on units available"""
+        if self.units_available <= 0:
+            return 'critical'
+        elif self.units_available <= 5:
+            return 'low'
+        elif self.units_available <= 15:
+            return 'medium'
+        else:
+            return 'good'
 
 class EmergencyRequest(models.Model):
     URGENCY_LEVELS = [

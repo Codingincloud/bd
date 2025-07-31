@@ -5,10 +5,12 @@ from django.utils import timezone
 from django.db import models
 from django.core.mail import send_mail
 from django.conf import settings
+from django.http import JsonResponse
+from utils.notification_service import NotificationService
 from .models import Donor, DonationRequest, DonationHistory, EmergencyRequest, DonationCenter
 from .forms import LocationUpdateForm, SimpleLocationForm, MedicalInfoUpdateForm, HealthMetricsForm
 from .models import HealthMetrics
-from utils.nepal_locations import get_nepal_location
+# Removed Nepal locations dependency
 from datetime import datetime, timedelta
 
 @login_required
@@ -37,16 +39,28 @@ def donor_dashboard(request):
         total_units_donated = DonationHistory.objects.filter(donor=donor).aggregate(
             total=models.Sum('units_donated')
         )['total'] or 0
+
+        # Get notifications for the user (recent ones for dashboard)
+        user_notifications = NotificationService.get_user_notifications(request.user, unread_only=False)[:5]
+        system_notifications = NotificationService.get_system_notifications('donors', user=request.user)[:3]
+        unread_count = NotificationService.get_notification_count(request.user, unread_only=True)
         
+        # Get donation eligibility
+        can_donate, eligibility_message = donor.can_donate()
+
         context = {
             'donor': donor,
-            'can_donate': donor.can_donate(),
+            'can_donate': can_donate,
+            'eligibility_message': eligibility_message,
             'donation_history': donation_history,
             'pending_requests': pending_requests,
             'emergency_requests': emergency_requests,
             'total_donations': total_donations,
             'total_units_donated': total_units_donated,
             'next_eligible_date': donor.next_eligible_date,
+            'user_notifications': user_notifications,
+            'system_notifications': system_notifications,
+            'unread_count': unread_count,
         }
         return render(request, 'donor/donor_dashboard.html', context)
     except Donor.DoesNotExist:
@@ -57,8 +71,10 @@ def donor_dashboard(request):
 def schedule_donation(request):
     donor = get_object_or_404(Donor, user=request.user)
     
-    if not donor.can_donate():
-        messages.warning(request, 'You are not eligible to donate at this time.')
+    # Check donation eligibility
+    eligible, eligibility_message = donor.can_donate()
+    if not eligible:
+        messages.warning(request, f'You are not eligible to donate at this time. {eligibility_message}')
         return redirect('donor:donor_dashboard')
     
     if request.method == 'POST':
@@ -70,7 +86,10 @@ def schedule_donation(request):
                 notes=request.POST.get('notes', '')
             )
             donation_request.save()
-            
+
+            # Create notification for donation scheduled
+            NotificationService.notify_donation_scheduled(donation_request)
+
             # Send confirmation email
             try:
                 if donor.user.email:
@@ -231,14 +250,25 @@ def update_location(request):
                         donor.city = custom_city
                         donor.address = custom_address or f"{custom_city}, Nepal"
 
-                        # Try to get coordinates for the custom city
-                        location_data = get_nepal_location(custom_city)
-                        if location_data:
-                            donor.latitude = location_data['lat']
-                            donor.longitude = location_data['lng']
+                        # Set basic coordinates for Nepal (can be updated via GPS later)
+                        donor.latitude = 27.7172  # Default to Kathmandu coordinates
+                        donor.longitude = 85.3240
                 elif location_choice:
-                    # Use predefined location
-                    location_data = get_nepal_location(location_choice)
+                    # Use predefined location with basic coordinates
+                    location_map = {
+                        'kathmandu': {'name': 'Kathmandu', 'lat': 27.7172, 'lng': 85.3240},
+                        'pokhara': {'name': 'Pokhara', 'lat': 28.2096, 'lng': 83.9856},
+                        'lalitpur': {'name': 'Lalitpur', 'lat': 27.6588, 'lng': 85.3247},
+                        'bhaktapur': {'name': 'Bhaktapur', 'lat': 27.6710, 'lng': 85.4298},
+                        'biratnagar': {'name': 'Biratnagar', 'lat': 26.4525, 'lng': 87.2718},
+                        'birgunj': {'name': 'Birgunj', 'lat': 27.0104, 'lng': 84.8803},
+                        'dharan': {'name': 'Dharan', 'lat': 26.8147, 'lng': 87.2789},
+                        'hetauda': {'name': 'Hetauda', 'lat': 27.4287, 'lng': 85.0326},
+                        'janakpur': {'name': 'Janakpur', 'lat': 26.7288, 'lng': 85.9266},
+                        'butwal': {'name': 'Butwal', 'lat': 27.7000, 'lng': 83.4500},
+                    }
+
+                    location_data = location_map.get(location_choice)
                     if location_data:
                         donor.city = location_data['name']
                         donor.address = f"{location_data['name']}, Nepal"
@@ -246,6 +276,10 @@ def update_location(request):
                         donor.longitude = location_data['lng']
 
                 donor.save()
+
+                # Create notification for location update
+                NotificationService.notify_location_updated(donor)
+
                 messages.success(request, 'Location updated successfully!')
                 return redirect('donor:update_location')
 
@@ -253,6 +287,10 @@ def update_location(request):
             form = LocationUpdateForm(request.POST, instance=donor)
             if form.is_valid():
                 form.save()
+
+                # Create notification for location update
+                NotificationService.notify_location_updated(donor)
+
                 messages.success(request, 'Detailed location updated successfully!')
                 return redirect('donor:update_location')
     else:
@@ -268,25 +306,208 @@ def update_location(request):
 
 @login_required
 def detect_location(request):
-    """Handle location detection from GPS"""
+    """Auto-detect user location using GPS with detailed information"""
     if request.method == 'POST':
-        latitude = request.POST.get('latitude')
-        longitude = request.POST.get('longitude')
+        try:
+            import json
+            data = json.loads(request.body)
+            latitude = data.get('latitude')
+            longitude = data.get('longitude')
 
-        if latitude and longitude:
-            try:
-                donor = request.user.donor
-                donor.latitude = float(latitude)
-                donor.longitude = float(longitude)
-                donor.save()
+            if latitude and longitude:
+                # Use enhanced geocoding service to get detailed location
+                from utils.geocoding import geocoding_service
+                location_info = geocoding_service.reverse_geocode(latitude, longitude)
 
-                messages.success(request, f'GPS location detected and saved! ({latitude}, {longitude})')
-            except (ValueError, Donor.DoesNotExist):
-                messages.error(request, 'Error saving GPS location.')
-        else:
-            messages.error(request, 'Could not detect your location.')
+                if location_info and location_info.get('success'):
+                    # Prepare comprehensive location data
+                    response_data = {
+                        'success': True,
+                        'location': {
+                            # Main display information
+                            'display_name': location_info.get('display_name', ''),
+                            'formatted_address': location_info.get('formatted_address', ''),
 
-    return redirect('donor:update_location')
+                            # Address components for form filling
+                            'house_number': location_info.get('house_number', ''),
+                            'road': location_info.get('road', ''),
+                            'neighbourhood': location_info.get('neighbourhood', ''),
+                            'tole': location_info.get('tole', ''),
+                            'ward': location_info.get('ward', ''),
+                            'city': location_info.get('city', ''),
+                            'municipality': location_info.get('municipality', ''),
+                            'vdc_municipality': location_info.get('vdc_municipality', ''),
+                            'district': location_info.get('district', ''),
+                            'state': location_info.get('state', ''),
+                            'postcode': location_info.get('postcode', ''),
+                            'country': location_info.get('country', 'Nepal'),
+                            'country_code': location_info.get('country_code', 'NP'),
+
+                            # Coordinates
+                            'latitude': location_info.get('latitude'),
+                            'longitude': location_info.get('longitude'),
+
+                            # Quality indicators (removed confidence display)
+                            'place_type': location_info.get('place_type', ''),
+
+                            # Suggested full address for the address field
+                            'suggested_address': format_suggested_address(location_info),
+                        }
+                    }
+
+                    return JsonResponse(response_data)
+                else:
+                    # Fallback with basic coordinate information
+                    return JsonResponse({
+                        'success': True,
+                        'location': {
+                            'display_name': f"Location: {latitude:.4f}, {longitude:.4f}",
+                            'formatted_address': f"Coordinates: {latitude:.4f}, {longitude:.4f}",
+                            'city': 'Unknown Location',
+                            'country': 'Nepal',
+                            'country_code': 'NP',
+                            'latitude': float(latitude),
+                            'longitude': float(longitude),
+                            'suggested_address': f"Near {latitude:.4f}, {longitude:.4f}",
+                            'note': 'Exact address could not be determined'
+                        }
+                    })
+            else:
+                return JsonResponse({
+                    'success': False,
+                    'error': 'Invalid coordinates provided'
+                })
+
+        except Exception as e:
+            return JsonResponse({
+                'success': False,
+                'error': f'Location detection failed: {str(e)}'
+            })
+
+    return JsonResponse({'success': False, 'error': 'Invalid request method'})
+
+
+def format_suggested_address(location_info):
+    """Format a suggested address string for the address field"""
+    parts = []
+
+    # Start with house number and road
+    if location_info.get('house_number'):
+        parts.append(location_info['house_number'])
+    if location_info.get('road'):
+        parts.append(location_info['road'])
+
+    # Add neighbourhood/tole
+    if location_info.get('neighbourhood'):
+        parts.append(location_info['neighbourhood'])
+    elif location_info.get('tole'):
+        parts.append(location_info['tole'])
+
+    # Add ward if available
+    if location_info.get('ward'):
+        parts.append(f"Ward {location_info['ward']}")
+
+    # Add city/municipality
+    if location_info.get('city'):
+        parts.append(location_info['city'])
+    elif location_info.get('municipality'):
+        parts.append(location_info['municipality'])
+
+    # Add district if different from city
+    if location_info.get('district') and location_info.get('district') != location_info.get('city'):
+        parts.append(location_info['district'])
+
+    # Add postcode if available
+    if location_info.get('postcode'):
+        parts.append(location_info['postcode'])
+
+    return ', '.join(filter(None, parts)) or 'Address details not available'
+
+@login_required
+def mark_notification_read(request, notification_id):
+    """Mark a specific notification as read (keep it in system)"""
+    if request.method == 'POST':
+        try:
+            from admin_panel.models import UserNotification
+            notification = UserNotification.objects.get(id=notification_id, user=request.user)
+            notification.is_read = True
+            notification.save()
+            return JsonResponse({'success': True})
+        except UserNotification.DoesNotExist:
+            return JsonResponse({'success': False, 'error': 'Notification not found'})
+        except Exception as e:
+            return JsonResponse({'success': False, 'error': str(e)})
+    return JsonResponse({'success': False, 'error': 'Invalid request method'})
+
+@login_required
+def mark_all_notifications_read(request):
+    """Mark all notifications as read for the current user"""
+    if request.method == 'POST':
+        from admin_panel.models import UserNotification
+        UserNotification.objects.filter(user=request.user, is_read=False).update(is_read=True)
+        return JsonResponse({'success': True})
+    return JsonResponse({'success': False, 'error': 'Invalid request method'})
+
+@login_required
+def all_notifications(request):
+    """View all notifications for the user"""
+    # Show all notifications (read and unread)
+    user_notifications = NotificationService.get_user_notifications(request.user, unread_only=False)
+    unread_count = NotificationService.get_notification_count(request.user, unread_only=True)
+
+    context = {
+        'user_notifications': user_notifications,
+        'unread_count': unread_count,
+    }
+    return render(request, 'donor/all_notifications.html', context)
+
+@login_required
+def dismiss_system_notification(request, notification_id):
+    """Dismiss a system notification for the current user"""
+    if request.method == 'POST':
+        success = NotificationService.mark_system_notification_read(notification_id, request.user)
+        return JsonResponse({'success': success})
+    return JsonResponse({'success': False, 'error': 'Invalid request method'})
+
+@login_required
+def save_detected_location(request):
+    """Save the detected location data to donor profile"""
+    if request.method == 'POST':
+        try:
+            import json
+            data = json.loads(request.body)
+
+            donor = get_object_or_404(Donor, user=request.user)
+
+            # Update donor location information
+            if data.get('city'):
+                donor.city = data['city']
+            if data.get('country'):
+                donor.country = data['country']
+            if data.get('suggested_address'):
+                donor.address = data['suggested_address']
+            if data.get('latitude'):
+                donor.latitude = float(data['latitude'])
+            if data.get('longitude'):
+                donor.longitude = float(data['longitude'])
+
+            donor.save()
+
+            # Create notification for location update
+            NotificationService.notify_location_updated(donor)
+
+            return JsonResponse({
+                'success': True,
+                'message': 'Location saved successfully!'
+            })
+
+        except Exception as e:
+            return JsonResponse({
+                'success': False,
+                'error': f'Failed to save location: {str(e)}'
+            })
+
+    return JsonResponse({'success': False, 'error': 'Invalid request method'})
 
 @login_required
 def compatibility_check(request):

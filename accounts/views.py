@@ -253,14 +253,12 @@ def login_view(request):
             # Check role compatibility
             if role == 'admin' and user.is_staff:
                 login(request, user)
-                messages.success(request, f'Welcome back, {user.get_full_name() or user.username}!')
                 return redirect('admin_panel:dashboard')
             elif role == 'donor' and not user.is_staff:
                 # Check if donor profile exists
                 try:
-                    donor = user.donor
+                    user.donor  # Just check if donor profile exists
                     login(request, user)
-                    messages.success(request, f'Welcome back, {donor.user.get_full_name() or donor.user.username}!')
                     return redirect('donor:donor_dashboard')
                 except Donor.DoesNotExist:
                     return render(request, 'accounts/login.html', {
@@ -286,9 +284,7 @@ def login_view(request):
 @login_required
 def logout_view(request):
     """Enhanced logout with proper cleanup"""
-    user_name = request.user.get_full_name() or request.user.username
     logout(request)
-    messages.success(request, f'You have been successfully logged out. Thank you, {user_name}!')
     return redirect('accounts:login')
 
 class CustomPasswordResetView(PasswordResetView):

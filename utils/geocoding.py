@@ -101,7 +101,10 @@ class GeocodingService:
                 'lat': lat,
                 'lon': lng,
                 'format': 'json',
-                'addressdetails': 1
+                'addressdetails': 1,
+                'zoom': 18,
+                'accept-language': 'en',  # Force English language
+                'namedetails': 1
             }
             
             response = self.session.get(
@@ -113,9 +116,43 @@ class GeocodingService:
             if response.status_code == 200:
                 data = response.json()
                 if data:
+                    address = data.get('address', {})
                     result = {
+                        'success': True,
                         'display_name': data['display_name'],
-                        'address_details': data.get('address', {})
+                        'formatted_address': self._format_nepal_address(address),
+                        'address_details': address,
+
+                        # Detailed components
+                        'house_number': address.get('house_number', ''),
+                        'road': address.get('road', ''),
+                        'neighbourhood': address.get('neighbourhood', ''),
+                        'suburb': address.get('suburb', ''),
+                        'quarter': address.get('quarter', ''),
+                        'village': address.get('village', ''),
+                        'town': address.get('town', ''),
+                        'city': self._get_city_name(address),
+                        'municipality': address.get('municipality', ''),
+                        'district': address.get('state_district', ''),
+                        'state': address.get('state', ''),
+                        'region': address.get('region', ''),
+                        'postcode': address.get('postcode', ''),
+                        'country': address.get('country', ''),
+                        'country_code': address.get('country_code', '').upper(),
+
+                        # Nepal-specific
+                        'ward': self._extract_ward_number(address),
+                        'tole': address.get('neighbourhood', ''),
+                        'vdc_municipality': self._get_vdc_municipality(address),
+
+                        # Coordinates
+                        'latitude': float(lat),
+                        'longitude': float(lng),
+
+                        # Additional info
+                        'place_type': data.get('type', ''),
+                        'importance': data.get('importance', 0),
+                        'confidence': self._calculate_confidence(data),
                     }
                     
                     # Cache for 24 hours
@@ -205,6 +242,106 @@ class GeocodingService:
             'myanmar': 'mm'
         }
         return country_codes.get(country.lower(), 'np')
+
+    def _format_nepal_address(self, address):
+        """Format address specifically for Nepal with English names only"""
+        import re
+        parts = []
+
+        def clean_english_text(text):
+            """Clean text to ensure English characters only"""
+            if not text:
+                return ''
+            # Remove non-ASCII characters and clean up
+            cleaned = re.sub(r'[^\x00-\x7F]+', '', str(text)).strip()
+            return cleaned.title() if cleaned else ''
+
+        # House number and road
+        if address.get('house_number'):
+            parts.append(clean_english_text(address['house_number']))
+        if address.get('road'):
+            parts.append(clean_english_text(address['road']))
+
+        # Neighbourhood/Tole
+        if address.get('neighbourhood'):
+            parts.append(clean_english_text(address['neighbourhood']))
+        elif address.get('suburb'):
+            parts.append(clean_english_text(address['suburb']))
+
+        # City/Municipality
+        city = self._get_city_name(address)
+        if city:
+            parts.append(city)
+
+        # District
+        if address.get('state_district'):
+            parts.append(clean_english_text(address['state_district']))
+
+        # State/Province
+        if address.get('state'):
+            parts.append(clean_english_text(address['state']))
+
+        # Country (always in English)
+        if address.get('country'):
+            parts.append('Nepal' if 'nepal' in address['country'].lower() else address['country'])
+
+        return ', '.join(filter(None, parts))
+
+    def _get_city_name(self, address):
+        """Extract the most appropriate city name in English"""
+        # Prefer English names and common international names
+        city_name = (address.get('city') or
+                    address.get('town') or
+                    address.get('municipality') or
+                    address.get('village') or
+                    address.get('suburb', ''))
+
+        # Clean up the city name to ensure English characters
+        if city_name:
+            # Remove any non-ASCII characters and clean up
+            import re
+            city_name = re.sub(r'[^\x00-\x7F]+', '', city_name).strip()
+            # Capitalize properly
+            city_name = city_name.title()
+
+        return city_name
+
+    def _extract_ward_number(self, address):
+        """Extract ward number from Nepal address"""
+        import re
+        # Look for ward information in various fields
+        for field in ['neighbourhood', 'suburb', 'quarter']:
+            value = address.get(field, '')
+            if 'ward' in value.lower():
+                # Extract number from "Ward 5" or "Ward No. 5"
+                match = re.search(r'ward\s*(?:no\.?\s*)?(\d+)', value.lower())
+                if match:
+                    return match.group(1)
+        return ''
+
+    def _get_vdc_municipality(self, address):
+        """Get VDC or Municipality name"""
+        return (address.get('municipality') or
+                address.get('city') or
+                address.get('town') or
+                address.get('village', ''))
+
+    def _calculate_confidence(self, data):
+        """Calculate confidence score based on available data"""
+        score = 0
+        address = data.get('address', {})
+
+        # Base score from importance
+        score += (data.get('importance', 0) * 50)
+
+        # Add points for detailed address components
+        if address.get('house_number'): score += 10
+        if address.get('road'): score += 10
+        if address.get('neighbourhood'): score += 10
+        if address.get('city'): score += 15
+        if address.get('postcode'): score += 5
+
+        return min(100, max(0, score))
 
 
 # Global instance

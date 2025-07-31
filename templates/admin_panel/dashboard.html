@@ -282,12 +282,14 @@
     <nav class="nav">
         <div class="nav-container">
             <ul class="nav-list">
-                <li><a href="{% url 'admin_panel:dashboard' %}" class="active"><i class="fas fa-home"></i> Dashboard</a></li>
-                <li><a href="{% url 'admin_panel:manage_donors' %}"><i class="fas fa-users"></i> Donors</a></li>
-                <li><a href="{% url 'admin_panel:manage_requests' %}"><i class="fas fa-calendar-check"></i> Requests</a></li>
-                <li><a href="{% url 'admin_panel:manage_inventory' %}"><i class="fas fa-boxes"></i> Inventory</a></li>
-                <li><a href="{% url 'admin_panel:manage_emergencies' %}"><i class="fas fa-exclamation-triangle"></i> Emergency</a></li>
-                <li><a href="{% url 'admin_panel:reports' %}"><i class="fas fa-chart-bar"></i> Reports</a></li>
+                <li><a href="{% url 'admin_panel:dashboard' %}" class="active">📊 Dashboard</a></li>
+                <li><a href="{% url 'admin_panel:manage_donors' %}">👥 Manage Donors</a></li>
+                <li><a href="{% url 'admin_panel:manage_requests' %}">📋 Donation Requests</a></li>
+                <li><a href="{% url 'admin_panel:manage_inventory' %}">📦 Blood Inventory</a></li>
+                <li><a href="{% url 'admin_panel:manage_emergencies' %}">🚨 Emergency Requests</a></li>
+                <li><a href="{% url 'admin_panel:create_emergency_request' %}">➕ Create Emergency</a></li>
+                <li><a href="{% url 'admin_panel:manage_blood_centers' %}">🏥 Blood Centers</a></li>
+                <li><a href="{% url 'admin_panel:donor_tracking' %}">📍 Track Donors</a></li>
             </ul>
         </div>
     </nav>
@@ -452,24 +454,47 @@
             </div>
         </div>
 
+        <!-- Admin Notifications -->
+        {% if admin_notifications %}
+        <div class="card">
+            <div class="card-title">
+                🔔 System Notifications
+            </div>
+            <div style="max-height: 200px; overflow-y: auto;">
+                {% for notification in admin_notifications %}
+                    <div style="padding: 0.75rem; margin-bottom: 0.5rem; background: #f8f9fa; border-radius: 4px; border-left: 3px solid {% if notification.priority == 'critical' %}#dc3545{% elif notification.priority == 'high' %}#fd7e14{% elif notification.priority == 'medium' %}#ffc107{% else %}#17a2b8{% endif %};">
+                        <strong>{{ notification.title }}</strong>
+                        <p style="margin: 0.25rem 0 0 0; color: #6c757d; font-size: 0.9rem;">{{ notification.message }}</p>
+                        <small style="color: #adb5bd;">{{ notification.created_at|timesince }} ago</small>
+                    </div>
+                {% endfor %}
+            </div>
+        </div>
+        {% endif %}
+
         <!-- Quick Actions -->
         <div class="card">
             <div class="card-title">
-                <i class="fas fa-bolt"></i>
                 Quick Actions
             </div>
             <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem;">
                 <a href="{% url 'admin_panel:manage_requests' %}" class="btn btn-primary">
-                    <i class="fas fa-calendar-check"></i> Manage Requests
+                    Manage Requests
                 </a>
                 <a href="{% url 'admin_panel:manage_donors' %}" class="btn btn-primary">
-                    <i class="fas fa-users"></i> Manage Donors
+                    Manage Donors
                 </a>
                 <a href="{% url 'admin_panel:manage_inventory' %}" class="btn btn-primary">
-                    <i class="fas fa-boxes"></i> Update Inventory
+                    Update Inventory
                 </a>
                 <a href="{% url 'admin_panel:manage_emergencies' %}" class="btn btn-primary">
-                    <i class="fas fa-exclamation-triangle"></i> Emergency Requests
+                    Emergency Requests
+                </a>
+                <a href="{% url 'admin_panel:create_emergency_request' %}" class="btn btn-primary">
+                    Create Emergency Request
+                </a>
+                <a href="{% url 'admin_panel:manage_blood_centers' %}" class="btn btn-primary">
+                    Manage Blood Centers
                 </a>
             </div>
         </div>
