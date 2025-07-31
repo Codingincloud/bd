@@ -179,11 +179,12 @@ npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 
-# Docker
+# Docker (NOT USED - Project is Docker-free)
 .dockerignore
 Dockerfile
 docker-compose.yml
 docker-compose.override.yml
+*.dockerfile
 
 # Secrets and sensitive data
 secrets.json

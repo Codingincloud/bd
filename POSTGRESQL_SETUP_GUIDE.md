@@ -46,32 +46,7 @@ GRANT ALL PRIVILEGES ON ALL SEQUENCES IN SCHEMA public TO blood_donation_user;
 
 ---
 
-## 🐳 **Option 2: Docker PostgreSQL (Easiest)**
-
-### **Step 1: Install Docker Desktop**
-1. Download from: https://www.docker.com/products/docker-desktop/
-2. Install and start Docker Desktop
-
-### **Step 2: Run PostgreSQL Container**
-Open PowerShell and run:
-
-```powershell
-docker run --name blood-donation-postgres `
-  -e POSTGRES_DB=blood_donation_db `
-  -e POSTGRES_USER=blood_donation_user `
-  -e POSTGRES_PASSWORD=blood_donation_pass `
-  -p 5432:5432 `
-  -d postgres:15
-```
-
-### **Step 3: Verify Container is Running**
-```powershell
-docker ps
-```
-
----
-
-## ☁️ **Option 3: Cloud PostgreSQL (Production Ready)**
+## ☁️ **Option 2: Cloud PostgreSQL (Production Ready)**
 
 ### **Free Cloud Options:**
 1. **Supabase** (https://supabase.com/) - Free tier with 500MB

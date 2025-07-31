@@ -21,32 +21,9 @@ PostgreSQL server is not running on localhost:5432. Here are quick solutions:
 
 ---
 
-## 🐳 **Option 1: Quick Docker Setup (Recommended)**
 
-### **Step 1: Install Docker Desktop**
-- Download: https://www.docker.com/products/docker-desktop/
-- Install and start Docker Desktop
 
-### **Step 2: Run PostgreSQL with Your Settings**
-Open PowerShell and run:
-```powershell
-docker run --name postgres-blood-donation `
-  -e POSTGRES_DB=1 `
-  -e POSTGRES_USER=postgres `
-  -e POSTGRES_PASSWORD=1 `
-  -p 5432:5432 `
-  -d postgres:15
-```
-
-### **Step 3: Test Connection**
-```powershell
-cd g:\org_don
-python manage.py migrate
-```
-
----
-
-## 💻 **Option 2: Install PostgreSQL Locally**
+## 💻 **Option 1: Install PostgreSQL Locally**
 
 ### **Step 1: Download PostgreSQL**
 - Go to: https://www.postgresql.org/download/windows/
@@ -72,7 +49,7 @@ python manage.py migrate
 
 ---
 
-## ☁️ **Option 3: Free Cloud PostgreSQL**
+## ☁️ **Option 2: Free Cloud PostgreSQL**
 
 ### **Supabase (Recommended)**
 1. Go to: https://supabase.com/
@@ -97,7 +74,7 @@ DATABASES = {
 
 ---
 
-## 🔄 **Option 4: Temporary SQLite Fallback**
+## 🔄 **Option 3: Temporary SQLite Fallback**
 
 If you want to continue development while setting up PostgreSQL:
 
@@ -119,10 +96,9 @@ Then switch back to PostgreSQL when ready.
 
 ### **For Immediate Development:**
 ```powershell
-# Option 1: Use Docker (if you have it)
-docker run --name postgres-blood-donation -e POSTGRES_DB=1 -e POSTGRES_USER=postgres -e POSTGRES_PASSWORD=1 -p 5432:5432 -d postgres:15
-
-# Option 2: Temporarily switch to SQLite
+# Option 1: Install PostgreSQL locally and create database "1"
+# Option 2: Use cloud PostgreSQL (Supabase, ElephantSQL)
+# Option 3: Temporarily switch to SQLite
 # (Edit settings.py to use SQLite, then switch back later)
 ```
 
@@ -148,10 +124,7 @@ python manage.py runserver
 netstat -an | findstr :5432
 ```
 
-### **Docker Check:**
-```powershell
-docker ps
-```
+
 
 ---
 
