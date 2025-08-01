@@ -1,0 +1,650 @@
+\textbf{HURBANCHAL UNIVERSITY}
+
+\textbf{Hello}
+
+\textbf{hi}
+
+\textbf{\hfill\break
+}\includegraphics[width=0.94931in,height=0.9375in,alt={http://khec.edu.np/images/logo.png}]{/media/imagea.png}
+
+\textbf{DEPARTMENT OF COMPUTER ENGINEERING}
+
+\textbf{KHWOPA ENGINEERING COLLEGE\\
+LIBALI-08, BHAKTAPUR}
+
+\textbf{A MID-TERM REPORT}
+
+\textbf{ON}
+
+\textbf{Literature Efficient Architecture Folio (LEAF)}
+
+Project work submitted in partial fulfillment of requirements for the
+award of the degree of Bachelor of Engineering in Computer Engineering
+(Third Semester)
+
+\textbf{SUBMITTED BY}
+
+Jayadev Tripathi (780314)
+
+Sahana Shrestha (78036)
+
+Sanjib Kasti (780339)
+
+Upendra Shahi (780347)
+
+\textbf{UNDER THE SUPERVISION OF}
+
+Er. Avijit Karn
+
+06 September 2023
+
+\textbf{ACKNOWLEDGEMENT}
+
+We would like to express our heartily thanks to our \textbf{Purbanchal
+University} for including Project I as part of the curriculum and thank
+our project supervisor \textbf{Er. Avjit Karn} who has supervised and
+motivated us to fulfill this project before the timeline.~
+
+~We also extend our deepest gratitude to our \textbf{Khwopa Engineering
+College} and Department of Computer Engineering (\textbf{HOD. Er. Bikash
+Chawal} and all the faculty members) for providing us with a wonderful
+environment, excellent guidance, and supervision.~~
+
+~
+
+\textbf{With Regards,~}~
+
+Jayadev Tripathi~~
+
+Sahana Shrestha~~
+
+Sanjib Kasti~
+
+Upendra Shahi~
+
+\textbf{\hfill\break
+}
+
+\textbf{ABSTRACT}
+
+Our project LEAF (Literature Efficient Architecture Folio) is an
+architecture for the manipulation of literature-based contents and
+creations. It is an efficient platform for all literature
+enthusiasts.~The system is based on the localized server (i.e. data are
+stored only in the local system or user's system). Supporting multiple
+users to engage in a system and have their interaction, the system
+provides secured sessions. Also providing limiting functionality to the
+guest users, it is totally concerned with promoting enthusiasm in
+literature and helping in organizing users' creations enabling them to
+create their project and collaborate by adding the members who can
+access their own credentials in the same system.~~
+
+This console-based application will also allow the user to view their
+analytics and engagements, read the loaded contents, and bookmark the
+preferred and impressive ones. Tying with the fluent, organized, and
+user-friendly experience; Project LEAF will be part of taking your
+literature experience to new heights~
+
+~
+
+\emph{\textbf{Keywords}}: - Analytics, LEAF, Literature, Articles,
+LeafHandle~
+
+\textbf{List of Figures}
+
+\hyperref[_Toc144842058]{Figure 4.2.1: FlowChart 5}
+
+\hyperref[_Toc144842663]{Figure 4.3.1: UML Activity Diagram 6}
+
+\hyperref[_Toc144842664]{Figure 5.1.1: Home Page 7}
+
+\hyperref[_Toc144842059]{Figure 5.1.2:Login Selection 7}
+
+\hyperref[_Toc144842666]{Figure 5.1.3: Register Page 8}
+
+\hyperref[_Toc144842667]{Figure 5.1.4: Read Section {[}HOME{]} 8}
+
+\hyperref[_Toc144842668]{Figure 5.1.5: Read Section {[}Literature{]} 8}
+
+\hyperref[_Toc144842669]{Figure 5.1.6: Read Section {[}Poem{]} 9}
+
+\section{TABLE OF CONTENTS}\label{table-of-contents}
+
+\hyperref[introduction]{INTRODUCTION \hyperref[introduction]{1}}
+
+\hyperref[background]{1.1 BACKGROUND \hyperref[background]{1}}
+
+\hyperref[problem-statement]{1.2 PROBLEM STATEMENT
+\hyperref[problem-statement]{1}}
+
+\hyperref[objectives]{1.3 OBJECTIVES \hyperref[objectives]{1}}
+
+\hyperref[feature-and-functionalities-of-leaf-application]{1.4 FEATURE
+AND FUNCTIONALITIES OF LEAF APPLICATION
+\hyperref[feature-and-functionalities-of-leaf-application]{2}}
+
+\hyperref[significance-and-scope]{1.5 SIGNIFICANCE AND SCOPE
+\hyperref[significance-and-scope]{2}}
+
+\hyperref[chapter-2]{CHAPTER 2 \hyperref[chapter-2]{3}}
+
+\hyperref[literature-review]{LITERATURE REVIEW
+\hyperref[literature-review]{3}}
+
+\hyperref[chapter-3]{CHAPTER 3 \hyperref[chapter-3]{4}}
+
+\hyperref[project-management]{PROJECT MANAGEMENT
+\hyperref[project-management]{4}}
+
+\hyperref[team-members]{3.1 TEAM MEMBERS \hyperref[team-members]{4}}
+
+\hyperref[work-breakdown-planning]{3.2 WORK BREAKDOWN PLANNING
+\hyperref[work-breakdown-planning]{4}}
+
+\hyperref[feasibility-study]{3.3 FEASIBILITY STUDY
+\hyperref[feasibility-study]{4}}
+
+\hyperref[chapter-4]{CHAPTER 4 \hyperref[chapter-4]{5}}
+
+\hyperref[methodology]{METHODOLOGY \hyperref[methodology]{5}}
+
+\hyperref[algorithm]{4.1 ALGORITHM \hyperref[algorithm]{5}}
+
+\hyperref[flowchart]{4.2 FLOWCHART \hyperref[flowchart]{6}}
+
+\hyperref[uml-activity-diagram]{4.3 UML ACTIVITY DIAGRAM
+\hyperref[uml-activity-diagram]{7}}
+
+\hyperref[tools-and-platforms]{4.4 TOOLS AND PLATFORMS
+\hyperref[tools-and-platforms]{7}}
+
+\hyperref[chapter-5]{CHAPTER 5 \hyperref[chapter-5]{8}}
+
+\hyperref[project-work-status]{PROJECT WORK STATUS
+\hyperref[project-work-status]{8}}
+
+\hyperref[work-done]{5.1 WORK DONE \hyperref[work-done]{8}}
+
+\hyperref[work-remaining]{5.2 WORK REMAINING
+\hyperref[work-remaining]{10}}
+
+\hyperref[chapter-6]{CHAPTER 6 \hyperref[chapter-6]{11}}
+
+\hyperref[references]{REFERENCES \hyperref[references]{11}}
+
+\textbf{CHATPTER 1}
+
+\section{INTRODUCTION}\label{introduction}
+
+\subsection{BACKGROUND}\label{background}
+
+In today's digital world, ever field has been randomly digitized. To
+cope with the efficient digitization in the field of literature LEAF has
+been developed with prime motive to enrich the user experience with the
+efficient architecture and user-friendly interface. This project aims to
+ease users with exciting features and promotes their enthusiasm in
+literature.~
+
+The system allows the user to register into the system and also allows
+to create the new user. This facilitates the secured sessions which
+includes logging out user automatically after certain course of
+inactivity. It remembers the last logged user too. It even allows the
+user to interact with the system without registering or logging in; but
+with the limited functionalities. To gain the complete system user
+registration and logging in is mandatory,~~
+
+After you login to the system, there is option to choose between
+general, professional and the management mode. Management mode includes
+logging you out, changing the user credentials and managing your
+collaborators. As, every author or literature enthusiasts want their
+literature identity by their preferred nickname, this system facilitates
+this too under this section.~~
+
+Included in the professional mode, you can carry out any specific
+literature projects by adding collaborators, setting the remainders and
+tracking your each session\textquotesingle s progresses. You can even
+give the relevant system feedbacks.~~
+
+Inside into the general mode, you can use the available templates, read
+and add the contents, keep your general notes, have conversation with
+the collaborators, bookmark the preferred articles and view the logs and
+the project description.~~
+
+Beside these the system provides search functionalities, tags management
+too.~
+
+Once you terminate the program, you are automatically logged out of the
+system and requires to enter the password again to enter into the
+system.~~~~~
+
+\subsection{\texorpdfstring{PROBLEM STATEMENT
+}{PROBLEM STATEMENT }}\label{problem-statement}
+
+In this digital era, everyone desires to organize their notes in the
+regular basis. They want to experience their literature experience in a
+single platform having multiple functionalities and simple and efficient
+interface. They want to keep records, add teams, have conversation,
+manage tags, have search functionality and track progress too. And this
+is mandatory if one wants to move ahead in any respective field.~~
+
+\subsection{OBJECTIVES}\label{objectives}
+
+The main objective of project LEAF is to develop a user friendly and
+multi-functionality literature repository.~~
+
+\subsection{FEATURE AND FUNCTIONALITIES OF LEAF
+APPLICATION}\label{feature-and-functionalities-of-leaf-application}
+
+\begin{itemize}
+\item
+  User Registration and Login~
+\item
+  Create, Edit, and Delete Literature Entries~
+\item
+  Categorization, Tagging and Bookmarking~
+\item
+  Search Functionality~
+\item
+  Formatting and Styling~
+\end{itemize}
+
+\begin{itemize}
+\item
+  Import and Export~
+\item
+  Random Post Display~
+\item
+  User management~
+\item
+  Security~
+\item
+  Graphical User Interface {[}GUI{]}~
+\end{itemize}
+
+\begin{itemize}
+\item
+  Error handling~
+\item
+  Documentation and Help~
+\end{itemize}
+
+\subsection{SIGNIFICANCE AND SCOPE}\label{significance-and-scope}
+
+This project LEAF will be outstanding platform to explore the literature
+field. This will be useful for one seeking for the tool to enable them
+to record their creation and gather as a project. This will entirely
+give outstanding experience of the literature field and helps the
+individuals to explore their creativity, record it in organized manner,
+and view the progress track. This also enables to upload ones favorite
+contents and read it during the leisure.~~
+
+\section{CHAPTER 2}\label{chapter-2}
+
+\section{LITERATURE REVIEW}\label{literature-review}
+
+In this era of advanced technologies, the world is caught up in a single
+computer or digital device. Every moment and all human activities are
+associated with the digital platform. Aside, literature is the magic
+that can overcome sorrows, pain, and loneliness and motivates in every
+failure and further encourage to achieve the goal. In the digital era,
+the development of applications provides an amazing platform for
+organizing and creating literature.~
+
+The application like memo in the early keypad phones to the evolved
+application like: Google Keep, Evernote, Microsoft OneNote, To do List,
+and soon clarifies the importance of the habit of note takings. On the
+other side, Evernote, Instapaper, Pocket, Flipboard, Read wise, etc.
+applications are popular for accessing and reading the literature
+contents.~
+
+``Notes are stored in virtual "notebooks" and can be tagged, annotated,
+edited, searched, and exported.'' Evernote
+
+Neil Gaiman: "Software development is an ally to authors, empowering us
+to explore innovative narrative structures and collaborate with readers
+in unprecedented ways. The digital realm offers endless possibilities to
+enhance and expand the reader\textquotesingle s experience."~
+
+Salman Rushdie: "Technology has reshaped the literary landscape,
+enabling us to transcend traditional boundaries. Through software
+development, we can create multi-dimensional narratives and amplify
+diverse voices, fostering a truly global literary community."~
+
+``You can create, edit, and share notes with Google Keep.''
+
+From the above statements from prominent authors, as a user, every
+individual wants a well-organized application that not only allows one
+to create notes and general articles or just provides written articles
+to look over, but they also want wide range of features that enhance the
+overall literature experience. Google Keep is concerned only with
+keeping, editing, and sharing notes while Evernote facilitates reading
+articles more. However, they lack allowing user to create their typical
+literature projects, classifying the literature genre, set the nickname,
+track their analytics, add the collaborator securely, manage tags and
+search for the prominent literature figures in the same platform. As the
+one to address these issues and promote the journey through the magical
+world of literature, the project ``LEAF'' has been developed.~~
+
+\section{CHAPTER 3}\label{chapter-3}
+
+\section{PROJECT MANAGEMENT~}\label{project-management}
+
+\textbf{~}~
+
+\begin{enumerate}
+\def\labelenumi{\arabic{enumi}.}
+\item
+\item
+\end{enumerate}
+
+\subsection{TEAM MEMBERS}\label{team-members}
+
+The project is carried out by the contribution of the following four
+team members.~~
+
+\begin{itemize}
+\item
+  Jayadev Tripathi {[}780314{]}~
+\item
+  Sahana Shrestha {[}780336{]}~
+\item
+  Sanjib Kasti {[}780339{]}~
+\end{itemize}
+
+\begin{itemize}
+\item
+  Upendra Shahi {[}780347{]}~
+\end{itemize}
+
+\subsection{WORK BREAKDOWN PLANNING~}\label{work-breakdown-planning}
+
+The table shows the work breakdown planning of the project duration.
+
+\begin{longtable}[]{@{}
+  >{\centering\arraybackslash}p{(\linewidth - 16\tabcolsep) * \real{0.0643}}
+  >{\centering\arraybackslash}p{(\linewidth - 16\tabcolsep) * \real{0.3278}}
+  >{\centering\arraybackslash}p{(\linewidth - 16\tabcolsep) * \real{0.1191}}
+  >{\centering\arraybackslash}p{(\linewidth - 16\tabcolsep) * \real{0.0815}}
+  >{\centering\arraybackslash}p{(\linewidth - 16\tabcolsep) * \real{0.0815}}
+  >{\centering\arraybackslash}p{(\linewidth - 16\tabcolsep) * \real{0.0815}}
+  >{\centering\arraybackslash}p{(\linewidth - 16\tabcolsep) * \real{0.0815}}
+  >{\centering\arraybackslash}p{(\linewidth - 16\tabcolsep) * \real{0.0815}}
+  >{\centering\arraybackslash}p{(\linewidth - 16\tabcolsep) * \real{0.0815}}@{}}
+\toprule\noalign{}
+\begin{minipage}[b]{\linewidth}\centering
+S.N.~
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedleft
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ Week~
+
+~
+
+Task Description~
+\end{minipage} & \begin{minipage}[b]{\linewidth}\centering
+Duration~
+\end{minipage} & \begin{minipage}[b]{\linewidth}\centering
+1\textsuperscript{st} Week~
+\end{minipage} & \begin{minipage}[b]{\linewidth}\centering
+2\textsuperscript{nd} Week~
+\end{minipage} & \begin{minipage}[b]{\linewidth}\centering
+3\textsuperscript{rd} Week~
+\end{minipage} & \begin{minipage}[b]{\linewidth}\centering
+4\textsuperscript{th} Week~
+\end{minipage} & \begin{minipage}[b]{\linewidth}\centering
+5\textsuperscript{th} Week~
+\end{minipage} & \begin{minipage}[b]{\linewidth}\centering
+6\textsuperscript{th} Week~
+\end{minipage} \\
+\midrule\noalign{}
+\endhead
+\bottomrule\noalign{}
+\endlastfoot
+1~ & Problem Identification~ & 3~ & ~ & ~ & ~ & ~ & ~ & ~ \\
+2~ & Analysis~ & 5~ & ~ & ~ & ~ & ~ & ~ & ~ \\
+3~ & Design~ & 9~ & ~ & ~ & ~ & ~ & ~ & ~ \\
+4~ & Coding~ & 22~ & ~ & ~ & ~ & ~ & ~ & ~ \\
+5~ & Implementing and Testing~ & 10~ & ~ & ~ & ~ & ~ & ~ & ~ \\
+6~ & Documentation~ & 27~ & ~ & ~ & ~ & ~ & ~ & ~ \\
+\end{longtable}
+
+\subsection{FEASIBILITY STUDY}\label{feasibility-study}
+
+­
+
+It is the aspect that analyze, studies and predict the overall success
+and potential of the project under several aspects. It is based on
+extensive research and investigation regarding the project scenario and
+conceptual models.~~
+
+\begin{itemize}
+\item
+\item
+\item
+\item
+  \textbf{Economic Feasibility}: The project does not requires any high
+  financial support as it will be performed in free platform. Further,
+  no any financial needs till its completion.~~\textbf{Operation
+  Feasibility:} This application will run smoothly in minimum hardware
+  specifications and does not needs high
+  requirements.~~\textbf{Technical Feasibility:} A normal literate
+  people who can understand general English Language can easily handle
+  the operation. In case of difficulty, the logs and manuals in the
+  program will clarify it.~~\textbf{Schedule Feasibility:} The expected
+  duration for the completion of this project is around 3 months. The
+  project will be completed in the allotted time frame.~~
+\end{itemize}
+
+\section{CHAPTER 4}\label{chapter-4}
+
+\section{METHODOLOGY}\label{methodology}
+
+\subsection{4.1 ALGORITHM}\label{algorithm}
+
+\begin{enumerate}
+\def\labelenumi{\arabic{enumi}.}
+\item
+  Start:
+\item
+  Display introduction:~Display a welcome message and introduce the
+  application to the user.
+\item
+  Ask user to login:~Ask the user if they would like to login or sign up
+  for an account or Guest mode.
+\item
+  If the user chooses to login:
+
+  \begin{enumerate}
+  \def\labelenumii{\arabic{enumii}.}
+  \item
+    Prompt the user to enter their username and password.
+  \item
+    Verify the user\textquotesingle s credentials.
+  \item
+    If the user\textquotesingle s credentials are valid, log them in and
+    display the main menu.
+  \item
+    If the user\textquotesingle s credentials are invalid, display an
+    error message and ask them to try again.
+  \end{enumerate}
+\item
+  If the user chooses to sign up:
+
+  \begin{enumerate}
+  \def\labelenumii{\arabic{enumii}.}
+  \item
+    Prompt the user to enter their name, and password.
+  \item
+    Create a new account for the user.
+  \item
+    Log the user in and display the main menu.
+  \end{enumerate}
+\item
+  If user enters guest mode:
+
+  \begin{enumerate}
+  \def\labelenumii{\arabic{enumii}.}
+  \item
+    Display the main menu.
+  \item
+    Access to Read module only.
+  \item
+    If tries to access other, request login/sign up and redirect.
+  \end{enumerate}
+\item
+  Display main menu:~Display the following list of options to the user:
+
+  \begin{enumerate}
+  \def\labelenumii{\arabic{enumii}.}
+  \item
+    Read literature
+  \item
+    Collaborate with other users
+  \item
+    Keep notes
+  \item
+    Create new content
+  \item
+    Change settings
+  \end{enumerate}
+\end{enumerate}
+
+\begin{enumerate}
+\def\labelenumi{\arabic{enumi}.}
+\item
+  Allow the user to select an option:~Allow the user to select one of
+  the options from the main menu.
+\item
+  Perform the selected action:~Based on the option selected by the user,
+  perform the corresponding action. For example, if the user selects
+  "Read literature", display a list of all available literature.
+\item
+  Repeat steps 7-9 until the user selects "Exit":~Continue to display
+  the main menu and allow the user to select an option until they select
+  "Exit".
+\item
+  Exit:~Close the application.
+\end{enumerate}
+
+\subsection[4.2
+FLOWCHART]{\texorpdfstring{\protect\includegraphics[width=7.26389in,height=7.05208in]{media/image2.png}4.2
+FLOWCHART}{4.2 FLOWCHART}}\label{flowchart}
+
+\protect\phantomsection\label{_Toc144842058}{}\textbf{Figure 4.2.1:
+Flowchart}
+
+\begin{enumerate}
+\def\labelenumi{\arabic{enumi}.}
+\setcounter{enumi}{4}
+\tightlist
+\item
+\end{enumerate}
+
+\subsection{4.3 UML ACTIVITY DIAGRAM}\label{uml-activity-diagram}
+
+\protect\phantomsection\label{_Toc144842663}{}\includegraphics[width=6.82257in,height=6.71675in]{media/image3.png}
+
+\textbf{Figure 4.3.1: Activity Diagram}
+
+\subsection{\texorpdfstring{4.4 TOOLS AND PLATFORMS
+}{4.4 TOOLS AND PLATFORMS }}\label{tools-and-platforms}
+
+\textbf{Tools:} Code Blocks
+
+\textbf{Platform:} Windows
+
+\section{CHAPTER 5}\label{chapter-5}
+
+\section{PROJECT WORK STATUS}\label{project-work-status}
+
+\subsection{\texorpdfstring{5.1 WORK DONE
+}{5.1 WORK DONE }}\label{work-done}
+
+In this phase, we have worked on the basic application framework and
+organized the data flow and arranged the file management. We jointly
+worked to accomplish the project by dividing it into several modules. In
+this phase, we have completed:
+
+\begin{enumerate}
+\def\labelenumi{\arabic{enumi}.}
+\item
+  Login Module
+\item
+  Read Section Module
+\item
+  Home Page Section
+\item
+  Basic Graphics Designs
+\end{enumerate}
+
+\begin{figure}
+\centering
+\includegraphics[width=4.98431in,height=2.8025in]{media/image4.png}
+\caption{\protect\phantomsection\label{_Toc144842664}{}\textbf{Figure
+5.1.1: Home Page}}
+\end{figure}
+
+\begin{figure}
+\centering
+\includegraphics[width=5.0844in,height=2.84019in]{media/image5.png}
+\caption{\protect\phantomsection\label{_Toc144842059}{}\textbf{Figure
+2.1.2: Login Selection}}
+\end{figure}
+
+\begin{figure}
+\centering
+\includegraphics[width=4.85962in,height=2.73993in]{media/image6.png}
+\caption{\protect\phantomsection\label{_Toc144842666}{}\textbf{Figure
+5.1.3: Register Page (Proposed Design)}}
+\end{figure}
+
+\begin{figure}
+\centering
+\includegraphics[width=4.91012in,height=2.75698in]{media/image7.png}
+\caption{\protect\phantomsection\label{_Toc144842667}{}\textbf{Figure
+5.1.4: Read Section {[}HOME{]}}}
+\end{figure}
+
+\begin{figure}
+\centering
+\includegraphics[width=5.00968in,height=2.81677in]{media/image8.png}
+\caption{\protect\phantomsection\label{_Toc144842668}{}\textbf{Figure
+5.1.5: Read Section//Literature}}
+\end{figure}
+
+\begin{figure}
+\centering
+\includegraphics[width=5.77071in,height=3.24466in]{media/image9.png}
+\caption{\protect\phantomsection\label{_Toc144842669}{}\textbf{Figure
+5.1.6:
+Read\textbackslash\textbackslash Literature\textbackslash\textbackslash Poems}}
+\end{figure}
+
+\subsection{}\label{section}
+
+\subsection{5.2 WORK REMAINING}\label{work-remaining}
+
+We have completed the basic structure of the application and
+accomplished the CLI codes in several other modules. Some major tasks
+that remains includes:
+
+\begin{itemize}
+\item
+  Sign up module
+\item
+  Notes Section
+\item
+  Collaborator Section
+\item
+  User Management Section
+\end{itemize}
+
+\section{CHAPTER 6}\label{chapter-6}
+
+\section{REFERENCES}\label{references}
+
+~
+
+{[}1{]}. en.wikipedia.org/wiki/Evernote~
+
+{[}2{]}.\href{https://support.google.com/keep/answer/2888240?hl=en&co=GENIE.Platform\%3DAndroid}{support.google.com/keep/answer/2888240?hl=en\&co=GENIE.Platform\%3DAndroid}~
+
+{[}3{]} https://github.com/kostasthanos/Social-Network-in-Cpp

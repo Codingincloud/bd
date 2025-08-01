@@ -1,0 +1,152 @@
+\documentclass[12pt,a4paper]{report}
+\usepackage[utf8]{inputenc}
+\usepackage[top=1in,bottom=1in,left=1.5in,right=1in]{geometry}
+\usepackage{graphicx}
+\usepackage[numbers]{natbib}
+\usepackage{subcaption}
+\usepackage{multirow}
+\usepackage{microtype}
+\usepackage{amsmath,amssymb,amsfonts,bbm}
+\usepackage[hidelinks]{hyperref}
+\usepackage{cite}
+\usepackage{url}
+\usepackage{times}
+\usepackage{pifont}
+\usepackage{enumitem}
+\usepackage{parskip}
+\newcommand\tab[1][1cm]{\hspace*{#1}}
+\setcounter{secnumdepth}{3}
+\setcounter{tocdepth}{3}
+
+\usepackage[pagestyles]{titlesec}
+\titleformat{\chapter}[display]{\Huge\bfseries}{Chapter \thechapter}{1ex}{}
+\titlespacing*{\chapter}{0ex}{-2ex}{4ex}
+
+\begin{document}
+	\begin{center}
+		\thispagestyle{empty}
+		\Large\textbf{PURBANCHAL UNIVERSITY}\\[0.2in]
+		\begin{figure}[h]
+			\centering
+			\includegraphics[width=0.25\textwidth]{img/Khwopalogo.jpg}
+		\end{figure}
+		\vspace{0.3in}
+		\large\textbf{DEPARTMENT OF COMPUTER ENGINEERING}\\
+		\large\textbf{KHWOPA ENGINEERING COLLEGE}\\
+		\normalsize LIBALI-08, BHAKTAPUR\\[0.4in]
+		
+		\large A MID DEFENCE REPORT ON\\
+		\textbf{Blood Donor Information Management System}\\[0.3in]
+		
+		\textit{\normalsize Project work submitted in partial fulfillment of the requirements for the degree of Bachelor of Engineering in Computer Engineering (Fifth Semester)}\\[0.4in]
+		
+		\large Submitted by\\
+		\begin{tabular}{ll}
+			\hspace{0.3cm}Bishal Shrestha & (790310)\\
+			\hspace{0.3cm}Chirayu Shrestha & (790311)\\
+			\hspace{0.3cm}Pappu Yadav & (790324)\\
+			\hspace{0.3cm}Prashant Ghimire & (790328)\\
+		\end{tabular}\\[0.3in]
+		
+		\large\textbf{Under the Supervision of}\\
+		\normalsize Er. Anish Baral\\[2cm]
+		
+		\large\textbf{Khwopa Engineering College}\\
+		\normalsize Libali-08, Bhaktapur\\
+		August 01, 2025
+	\end{center}
+	
+	\pagebreak
+	\pagenumbering{roman}
+	
+	\chapter*{Acknowledgement}
+	\addcontentsline{toc}{chapter}{Acknowledgement}
+	We are pleased to present the mid-defense report of our project titled “Blood Donor Information Management System”, undertaken as a part of the curriculum of Bachelor of Computer Engineering.
+	
+	We would like to express our sincere gratitude to all those who have supported us throughout the progress of this project. We are especially thankful to our respected Head of Department, Er. Bikash Chawal, and Deputy Head of Department, Er. Avijit Karn, for their continuous guidance, encouragement, and valuable feedback during the development process.
+	
+	Our heartfelt thanks go to Purbanchal University and Khwopa Engineering College, Bhaktapur, for providing us with this opportunity to work on a real-world oriented project that helps enhance our technical, analytical, and project management skills.
+	
+	We also appreciate the cooperation and support of our supervisors, teachers, friends, and seniors who have offered constructive suggestions and moral support, which have been crucial to the progress of our work so far. Also, we would like to thank Er. Anish Baral for providing valuable suggestions and for supporting the project.
+	
+	\vspace{1cm}
+	\noindent
+	\begin{tabular}{ll}
+		Bishal Shrestha & (790310)\\
+		Chirayu Shrestha & (790311)\\
+		Pappu Yadav & (790324)\\
+		Prashant Ghimire & (790328)
+	\end{tabular}
+	
+	\pagebreak
+	\chapter*{Abstract}
+	\addcontentsline{toc}{chapter}{Abstract}
+	The Blood Donor Information Management System is an ongoing project aimed at developing a comprehensive and efficient platform to manage blood donor information, track donation history, and streamline blood request handling. As we reach the mid-point of development, the system has begun to take form as a user-friendly and secure web-based application designed to serve both administrators and donors effectively.
+	
+	The system enables administrators to register and manage donor records, monitor donation eligibility, and handle blood requests in real-time. Donors are able to register themselves, receive notifications about their donation eligibility, and search for nearby blood donation opportunities. The platform integrates a robust backend database to ensure secure, consistent, and reliable storage of all records.
+	
+	At this stage, key functionalities including donor registration, login modules, data validation, and basic blood request management have been implemented. The system architecture has been designed to allow for scalability and future enhancements, such as automated notifications and real-time request matching.
+	
+	This project contributes toward improving the coordination between blood donors and medical organizations by minimizing manual efforts, reducing errors, and enhancing response time in emergency situations. The system is being developed with a strong focus on usability, data integrity, and maintainability.
+	
+	\vspace{1em}
+	\noindent\textbf{Keywords:} \textit{Blood Donor System, Donor Management, Donation History, Blood Request Handling, Donor Eligibility, User Notifications}
+	
+	\pagebreak
+	\tableofcontents
+	\pagebreak
+	\listoffigures
+	\pagebreak
+	
+	\chapter{Introduction}
+	\pagenumbering{arabic}
+	
+	\section{Background Introduction}
+	The Blood Donor Information Management System is a complete solution designed to modernize how blood donor information is organized and managed. It uses a smart database to securely store, manage, and access important details like donor profiles, donation history, and blood donation requests. The system features easy donor registration, quick search options, and automatic eligibility tracking based on donation intervals. A secure login ensures that only authorized administrators can access and manage sensitive donor data safely and efficiently, making the overall donor management process faster, more reliable, and more user-friendly.
+	
+	\section{Motivation}
+	During medical emergencies, timely access to the right blood donor can save lives. However, outdated manual records often delay this process. Many hospitals still lack efficient systems for connecting donors to recipients. Our project aims to bridge this gap with a digital solution that notifies donors, tracks eligibility, and matches requests quickly and reliably.
+	
+	\section{Problem Definition}
+	Manual donor tracking is time-consuming and error-prone. Administrators struggle to monitor eligibility, donation frequency, and respond to urgent blood needs. This inefficiency affects service quality, especially in critical situations.
+	
+	\section{Objectives}
+	The primary goal of this project is to build a secure, web-based system that:
+	
+	\begin{enumerate}
+		\item Simplifies donor registration and management.
+		\item Tracks donation history and eligibility.
+		\item Processes blood requests quickly and reliably.
+		\item Enhances coordination between donors and hospitals.
+		\item Replaces paper-based records with a digital platform.
+	\end{enumerate}
+	
+	\section{Significance and Scope}
+	This project will digitize the blood donation process, enabling hospitals to access donor data securely and in real-time. While the system does not manage actual blood storage, it focuses on improving information flow, accuracy, and response speed.
+	
+	\section{Features and Functionalities}
+	
+	\textbf{Admin:}
+	\begin{itemize}
+		\item Secure login and dashboard
+		\item Donor management
+		\item Eligibility tracking
+		\item Blood request handling
+		\item Reports and analytics
+	\end{itemize}
+	
+	\textbf{Donor:}
+	\begin{itemize}
+		\item Secure login and profile update
+		\item View donation history
+		\item Check eligibility
+		\item Search donation opportunities
+	\end{itemize}
+	
+	\pagebreak
+	\chapter{Literature Review}
+	Blood Donor Information Management Systems (BDIMS) are vital for enhancing blood donation services. International studies (Kumar \& Gupta, 2020; Sharma et al., 2019) confirm that digital systems improve efficiency and emergency response. In Nepal, initiatives like Hamro LifeBank and Nepal Red Cross Society's digitization efforts show the shift toward modern platforms. Despite progress, challenges such as digital illiteracy, poor internet access in rural areas, and low adoption remain. Research recommends offline-capable, scalable solutions for long-term national deployment.
+	
+	\pagebreak
+	\chapter{Methodology}
+	% (You can now continue your methodology chapter content here.)

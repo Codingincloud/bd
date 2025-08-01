@@ -1,0 +1,561 @@
+\documentclass[12pt,a4paper]{report}
+\usepackage[utf8]{inputenc}
+\usepackage[top=1in,bottom=1in,left=1.5in,right=1in]{geometry}
+\usepackage{graphicx}
+\usepackage[hidelinks]{hyperref}
+\usepackage{times}
+\usepackage{enumitem}
+\usepackage{booktabs}
+\usepackage{fancyhdr}
+\usepackage{setspace}
+\usepackage{amssymb}
+
+\setcounter{secnumdepth}{3}
+\setcounter{tocdepth}{2}
+
+% Chapter formatting
+\usepackage{titlesec}
+\titleformat{\chapter}[display]{\Large\bfseries}{\chaptertitlename\ \thechapter}{1ex}{}
+\titlespacing*{\chapter}{0ex}{-2ex}{4ex}
+
+% Page style
+\pagestyle{fancy}
+\fancyhf{}
+\fancyhead[R]{\thepage}
+\renewcommand{\headrulewidth}{0pt}
+
+\begin{document}
+
+% Title Page
+\begin{titlepage}
+    \begin{center}
+        \thispagestyle{empty}
+        \vspace*{1cm}
+
+        \Large\textbf{PURBANCHAL UNIVERSITY}\\[0.5cm]
+
+        % University Logo (placeholder)
+        \rule{3cm}{3cm} % Placeholder for logo
+
+        \vspace{0.5cm}
+        \large\textbf{DEPARTMENT OF COMPUTER ENGINEERING}\\
+        \large\textbf{KHWOPA ENGINEERING COLLEGE}\\
+        \normalsize LIBALI-08, BHAKTAPUR\\[1cm]
+
+        \Large\textbf{A MID-TERM REPORT}\\[0.2cm]
+        \Large\textbf{ON}\\[0.2cm]
+        \Large\textbf{BLOOD DONOR INFORMATION MANAGEMENT SYSTEM}\\[0.5cm]
+
+        \normalsize Project work submitted in partial fulfillment of requirements for the award of the degree of\\
+        \normalsize Bachelor of Engineering in Computer Engineering (Fifth Semester)\\[1cm]
+
+        \large\textbf{SUBMITTED BY}\\[0.2cm]
+        Bishal Shrestha (790310)\\
+        Chirayu Shrestha (790311)\\
+        Pappu Yadav (790324)\\
+        Prashant Ghimire (790328)\\[1cm]
+
+        \large\textbf{UNDER THE SUPERVISION OF}\\[0.2cm]
+        Er. Anish Baral\\[2cm]
+
+        \today
+    \end{center}
+\end{titlepage}
+
+% Roman numbering for preliminary pages
+\pagenumbering{roman}
+\setcounter{page}{2}
+
+% Acknowledgement
+\chapter*{ACKNOWLEDGEMENT}
+\addcontentsline{toc}{chapter}{Acknowledgement}
+
+We are pleased to present the mid-defense report of our project titled "Blood Donor Information Management System", undertaken as a part of the curriculum of Bachelor of Computer Engineering at Khwopa Engineering College.
+
+We would like to express our sincere gratitude to all those who have supported us throughout the progress of this project. We are especially thankful to our respected Head of Department, Er. Bikash Chawal, and Deputy Head of Department, Er. Avijit Karn, for their continuous guidance, encouragement, and valuable feedback during the development process.
+
+Our heartfelt thanks go to Purbanchal University and Khwopa Engineering College, Bhaktapur, for providing us with this opportunity to work on a real-world oriented project that helps enhance our technical, analytical, and project management skills.
+
+We also appreciate the cooperation and support of our supervisors, teachers, friends, and seniors who have offered constructive suggestions and moral support, which have been crucial to the progress of our work so far. Special thanks to Er. Anish Baral for providing valuable guidance and continuous support throughout the project development.
+
+We extend our gratitude to the administration and staff of Khwopa Engineering College for providing the necessary resources and infrastructure required for the successful completion of this project.
+
+\vspace{1cm}
+\noindent
+\textbf{With Regards,}\\[0.5cm]
+\begin{tabular}{ll}
+    Bishal Shrestha & (790310)\\
+    Chirayu Shrestha & (790311)\\
+    Pappu Yadav & (790324)\\
+    Prashant Ghimire & (790328)
+\end{tabular}
+
+\pagebreak
+
+% Abstract
+\chapter*{ABSTRACT}
+\addcontentsline{toc}{chapter}{Abstract}
+
+Our project Blood Donor Information Management System is a comprehensive web-based application designed to revolutionize the management of blood donor information and streamline the blood donation process. It is an efficient platform for all healthcare institutions and blood donation centers. The system is based on a centralized database (i.e., data are stored securely in the system's database). Supporting multiple users to engage in the system and have their interaction, the system provides secured sessions. Also providing limiting functionality to the guest users, it is totally concerned with promoting blood donation awareness and helping in organizing donor information enabling healthcare institutions to manage donors and collaborate by adding the members who can access their own credentials in the same system.
+
+This web-based application will also allow the administrators to view analytics and donor engagements, manage donor records, and track donation eligibility. Donors can register, view their donation history, and check their eligibility status. Tying with the fluent, organized, and user-friendly experience; Blood Donor Information Management System will be part of taking your healthcare management experience to new heights.
+
+\vspace{1em}
+\noindent\textbf{Keywords:} \textit{Analytics, Blood Donor Management, Healthcare, Donation History, Donor Eligibility}
+
+\pagebreak
+
+% Table of Contents
+\tableofcontents
+\pagebreak
+
+% List of Figures
+\listoffigures
+\pagebreak
+
+% Main content - Arabic numbering
+\pagenumbering{arabic}
+\setcounter{page}{1}
+
+\chapter{INTRODUCTION}
+
+\section{BACKGROUND}
+In today's digital world, every field has been rapidly digitized. To cope with the efficient digitization in the field of healthcare, Blood Donor Information Management System has been developed with prime motive to enrich the user experience with efficient architecture and user-friendly interface. This project aims to ease healthcare institutions with exciting features and promotes blood donation awareness.
+
+The system allows administrators to register into the system and also allows to create new donor records. This facilitates secured sessions which includes logging out users automatically after certain course of inactivity. It remembers the last logged user too. It even allows donors to interact with the system without full registration; but with limited functionalities. To gain the complete system access, user registration and logging in is mandatory.
+
+After you login to the system, there are options to choose between donor management, inventory management, and emergency request handling. Management mode includes logging you out, changing user credentials, and managing donor records. As every healthcare institution wants their unique identity, this system facilitates this too under this section.
+
+Included in the professional mode, you can carry out any specific blood donation projects by adding collaborators, setting reminders, and tracking donation progress. You can even give relevant system feedback.
+
+Inside the general mode, you can use available templates, read and add donor information, keep general notes, have conversations with team members, bookmark preferred donor profiles, and view logs and project descriptions.
+
+Besides these, the system provides search functionalities and donor management too.
+
+Once you terminate the program, you are automatically logged out of the system and require to enter the password again to enter into the system.
+
+\section{PROBLEM STATEMENT}
+In this digital era, healthcare institutions desire to organize their donor information on a regular basis. They want to experience their blood donation management in a single platform having multiple functionalities and simple and efficient interface. They want to keep records, add team members, have conversations, manage donor eligibility, have search functionality, and track donation progress too. And this is mandatory if one wants to move ahead in healthcare management.
+
+\section{OBJECTIVES}
+The main objective of Blood Donor Information Management System is to develop a user-friendly and multi-functionality blood donor repository.
+
+\section{FEATURES AND FUNCTIONALITIES OF BLOOD DONOR APPLICATION}
+\begin{itemize}
+    \item User Registration and Login (Donors \& Administrators)
+    \item Comprehensive Donor Profile Management
+    \item Blood Group Management and 56-day Eligibility Tracking
+    \item Advanced Search and Filter Functionality
+    \item Complete Donation History Management
+    \item Emergency Blood Request System with Real-time Notifications
+    \item Blood Inventory Management and Tracking
+    \item Health Metrics Recording and Monitoring
+    \item Donation Center Management
+    \item Location-based Donor Search
+    \item Medical Report Generation
+    \item Automated Notification System
+    \item Admin Dashboard with Analytics
+    \item Multi-user Access Control and Security
+    \item Responsive Web-based User Interface
+    \item Comprehensive Error Handling
+    \item PostgreSQL Database Integration
+    \item Django Framework Implementation
+\end{itemize}
+
+\section{SIGNIFICANCE AND SCOPE}
+This Blood Donor Information Management System will be an outstanding platform to explore the healthcare field. This will be useful for healthcare institutions seeking a tool to enable them to record donor information and manage it as a comprehensive project. This will entirely give an outstanding experience in the healthcare field and help institutions to explore their management capabilities, record donor information in an organized manner, and view progress tracking. This also enables uploading donor information and accessing it during emergencies.
+
+\pagebreak
+
+\chapter{LITERATURE REVIEW}
+
+In this era of advanced technologies, the world is caught up in digital healthcare solutions. Every moment and all healthcare activities are associated with digital platforms. Blood donation management is crucial for saving lives and can overcome medical emergencies, shortages, and critical situations, motivating healthcare institutions in every challenge and further encouraging them to achieve their goals. In the digital era, the development of applications provides an amazing platform for organizing and managing blood donation processes.
+
+Applications like basic donor registries in early healthcare systems to evolved applications like: Blood Bank Management Systems, Red Cross Blood Services, WHO Blood Safety databases, and many others clarify the importance of efficient donor management. On the other side, systems like BloodConnect, Hamro LifeBank, Blood Donor Finder, etc., applications are popular for connecting donors with healthcare institutions.
+
+"Donor information is stored in secure databases and can be searched, filtered, managed, and tracked for eligibility." - Blood Bank Management Systems
+
+Healthcare Expert: "Technology development is an ally to healthcare institutions, empowering us to explore innovative donor management structures and collaborate with donors in unprecedented ways. The digital realm offers endless possibilities to enhance and expand the healthcare experience."
+
+Medical Professional: "Technology has reshaped the healthcare landscape, enabling us to transcend traditional boundaries. Through software development, we can create multi-dimensional donor networks and amplify healthcare services, fostering a truly connected medical community."
+
+"You can register, manage, and track donor information with modern blood donor systems."
+
+From the above statements from prominent healthcare professionals, as healthcare institutions, every organization wants a well-organized application that not only allows one to register donors and manage basic information but also provides comprehensive features that enhance the overall blood donation management experience. Basic systems are concerned only with storing and retrieving donor information while advanced systems facilitate complete donor lifecycle management. However, they lack allowing institutions to create comprehensive donor projects, classifying blood groups efficiently, setting institutional identity, tracking analytics, adding team members securely, managing donor eligibility, and searching for donors in emergency situations in the same platform. To address these issues and promote the journey through efficient healthcare management, the "Blood Donor Information Management System" has been developed.
+
+\pagebreak
+
+\chapter{PROJECT MANAGEMENT}
+
+\section{TEAM MEMBERS}
+The project is carried out by the contribution of the following four team members.
+\begin{itemize}
+    \item Bishal Shrestha [790310]
+    \item Chirayu Shrestha [790311]
+    \item Pappu Yadav [790324]
+    \item Prashant Ghimire [790328]
+\end{itemize}
+
+\section{WORK BREAKDOWN PLANNING}
+The table shows the work breakdown planning of the project duration.
+
+\begin{table}[h]
+\centering
+\begin{tabular}{|c|l|c|}
+\hline
+\textbf{S.N.} & \textbf{Task Description} & \textbf{Duration (Weeks)} \\
+\hline
+1 & Problem Identification & 3 \\
+\hline
+2 & Requirements Analysis & 2 \\
+\hline
+3 & System Design \& Database Design & 3 \\
+\hline
+4 & Django Backend Development & 4 \\
+\hline
+5 & Frontend Development (HTML/CSS/JS) & 3 \\
+\hline
+6 & User Authentication \& Authorization & 2 \\
+\hline
+7 & Donor Management Module & 3 \\
+\hline
+8 & Admin Panel Development & 3 \\
+\hline
+9 & Blood Inventory Management & 2 \\
+\hline
+10 & Emergency Request System & 2 \\
+\hline
+11 & Notification System & 2 \\
+\hline
+12 & Testing \& Debugging & 3 \\
+\hline
+13 & Documentation & 4 \\
+\hline
+14 & Deployment \& Final Testing & 2 \\
+\hline
+\textbf{Total} & & \textbf{38 weeks} \\
+\hline
+\end{tabular}
+\caption{Work Breakdown Planning}
+\end{table}
+
+\section{FEASIBILITY STUDY}
+It is the aspect that analyzes, studies, and predicts the overall success and potential of the project under several aspects. It is based on extensive research and investigation regarding the project scenario and conceptual models.
+
+\begin{itemize}
+    \item \textbf{Economic Feasibility:} The project does not require any high financial support as it will be performed on a free platform. Further, no financial needs till its completion.
+    \item \textbf{Operation Feasibility:} This application will run smoothly with minimum hardware specifications and does not need high requirements.
+    \item \textbf{Technical Feasibility:} Healthcare professionals who can understand general English language can easily handle the operation. In case of difficulty, the logs and manuals in the program will clarify it.
+    \item \textbf{Schedule Feasibility:} The expected duration for the completion of this project is around 3 months. The project will be completed in the allotted time frame.
+\end{itemize}
+
+\chapter{METHODOLOGY}
+
+\section{ALGORITHM}
+\begin{enumerate}
+    \item Start: Initialize the Blood Donor Information Management System
+    \item Display home page: Show welcome message and system introduction
+    \item User authentication: Ask user to login or register as Donor or Administrator
+    \item If user chooses to register as Donor:
+    \begin{enumerate}
+        \item Collect personal information (name, email, phone, address)
+        \item Collect medical information (blood group, weight, medical conditions)
+        \item Validate all input data
+        \item Create donor account and profile
+        \item Send confirmation and redirect to donor dashboard
+    \end{enumerate}
+    \item If user chooses to login:
+    \begin{enumerate}
+        \item Prompt for username and password
+        \item Verify credentials against database
+        \item If valid, determine user type (Donor/Admin) and redirect to appropriate dashboard
+        \item If invalid, display error message and retry
+    \end{enumerate}
+    \item For Donor Dashboard:
+    \begin{enumerate}
+        \item Display donor profile overview
+        \item Show donation eligibility status (56-day rule)
+        \item Display donation history
+        \item Show emergency blood requests for donor's blood type
+        \item Allow profile updates and health metrics entry
+    \end{enumerate}
+    \item For Admin Dashboard:
+    \begin{enumerate}
+        \item Display system statistics and analytics
+        \item Manage donor records and profiles
+        \item Handle blood inventory management
+        \item Process emergency blood requests
+        \item Generate reports and notifications
+    \end{enumerate}
+    \item Process user actions: Execute selected operations (donation scheduling, emergency requests, etc.)
+    \item Update database: Save all changes and maintain data integrity
+    \item Repeat steps 6-9 until user logs out
+    \item Exit: Secure logout and session termination
+\end{enumerate}
+
+\section{FLOWCHART}
+\begin{figure}[h]
+    \centering
+    \rule{12cm}{8cm} % Placeholder for flowchart
+    \caption{System Flowchart}
+    \label{fig:flowchart}
+\end{figure}
+
+\section{UML ACTIVITY DIAGRAM}
+\begin{figure}[h]
+    \centering
+    \rule{12cm}{8cm} % Placeholder for UML diagram
+    \caption{UML Activity Diagram}
+    \label{fig:uml_activity}
+\end{figure}
+
+\section{TOOLS AND PLATFORMS}
+
+\subsection{Backend Technologies}
+\begin{itemize}
+    \item \textbf{Django 5.x:} Python web framework for rapid development
+    \item \textbf{PostgreSQL:} Relational database management system
+    \item \textbf{Python 3.x:} Programming language for backend logic
+\end{itemize}
+
+\subsection{Frontend Technologies}
+\begin{itemize}
+    \item \textbf{HTML5:} Markup language for web pages
+    \item \textbf{CSS3:} Styling and responsive design
+    \item \textbf{JavaScript:} Client-side interactivity
+    \item \textbf{Bootstrap:} CSS framework for responsive design
+\end{itemize}
+
+\subsection{Development Tools}
+\begin{itemize}
+    \item \textbf{Visual Studio Code:} Integrated development environment
+    \item \textbf{Git:} Version control system
+    \item \textbf{Django Admin:} Built-in administration interface
+    \item \textbf{PostgreSQL Admin:} Database management tool
+\end{itemize}
+
+\subsection{Platform}
+\begin{itemize}
+    \item \textbf{Development:} Windows
+    \item \textbf{Deployment:} Web Browser Compatible
+    \item \textbf{Database:} PostgreSQL Server
+\end{itemize}
+
+\chapter{PROJECT WORK STATUS}
+
+\section{WORK DONE}
+In this phase, we have worked on the comprehensive application framework and organized the data flow with complete database management. We jointly worked to accomplish the project by dividing it into several modules. In this phase, we have completed:
+
+\begin{enumerate}
+    \item \textbf{User Authentication System}
+    \begin{itemize}
+        \item User registration and login for donors and administrators
+        \item Secure session management
+        \item Password encryption and validation
+    \end{itemize}
+
+    \item \textbf{Donor Management Module}
+    \begin{itemize}
+        \item Complete donor profile management
+        \item Blood group and medical information tracking
+        \item Eligibility status with 56-day cooldown period
+        \item Location-based donor search
+    \end{itemize}
+
+    \item \textbf{Admin Panel System}
+    \begin{itemize}
+        \item Comprehensive admin dashboard
+        \item Donor management and tracking
+        \item Blood inventory management
+        \item Emergency request handling
+        \item System notifications management
+    \end{itemize}
+
+    \item \textbf{Database Design and Implementation}
+    \begin{itemize}
+        \item PostgreSQL database with normalized schema
+        \item Models for Donor, DonationHistory, EmergencyRequest
+        \item BloodInventory and HealthMetrics tracking
+        \item SystemNotification and DonationCenter models
+    \end{itemize}
+
+    \item \textbf{Core Functionalities}
+    \begin{itemize}
+        \item Donation history tracking
+        \item Health metrics recording
+        \item Emergency blood request system
+        \item Notification system implementation
+    \end{itemize}
+\end{enumerate}
+
+\begin{figure}[h]
+    \centering
+    \rule{12cm}{8cm} % Placeholder for Home Page screenshot
+    \caption{System Home Page}
+    \label{fig:home_page}
+\end{figure}
+
+\begin{figure}[h]
+    \centering
+    \rule{12cm}{8cm} % Placeholder for Login Page screenshot
+    \caption{User Login Interface}
+    \label{fig:login_page}
+\end{figure}
+
+\begin{figure}[h]
+    \centering
+    \rule{12cm}{8cm} % Placeholder for Donor Registration screenshot
+    \caption{Donor Registration Form}
+    \label{fig:donor_registration_form}
+\end{figure}
+
+\begin{figure}[h]
+    \centering
+    \rule{12cm}{8cm} % Placeholder for Donor Dashboard screenshot
+    \caption{Donor Dashboard Interface}
+    \label{fig:donor_dashboard}
+\end{figure}
+
+\begin{figure}[h]
+    \centering
+    \rule{12cm}{8cm} % Placeholder for Admin Dashboard screenshot
+    \caption{Admin Dashboard with Analytics}
+    \label{fig:admin_dashboard_analytics}
+\end{figure}
+
+\begin{figure}[h]
+    \centering
+    \rule{12cm}{8cm} % Placeholder for Blood Inventory screenshot
+    \caption{Blood Inventory Management System}
+    \label{fig:blood_inventory_system}
+\end{figure}
+
+\section{WORK REMAINING}
+We have completed the core structure of the application and accomplished the web-based implementation in several modules. Some major tasks that remain include:
+
+\begin{itemize}
+    \item \textbf{Advanced Features}
+    \begin{itemize}
+        \item SMS notification integration
+        \item Email notification system enhancement
+        \item Advanced reporting and analytics dashboard
+        \item Data visualization charts and graphs
+    \end{itemize}
+
+    \item \textbf{System Enhancements}
+    \begin{itemize}
+        \item Mobile application development
+        \item API development for third-party integration
+        \item Real-time chat system for donor-admin communication
+        \item Automated reminder system for eligible donors
+    \end{itemize}
+
+    \item \textbf{Testing and Deployment}
+    \begin{itemize}
+        \item Comprehensive unit testing
+        \item Integration testing
+        \item Performance optimization
+        \item Security testing and vulnerability assessment
+        \item Production deployment and server configuration
+    \end{itemize}
+
+    \item \textbf{Documentation and Training}
+    \begin{itemize}
+        \item User manual creation
+        \item Admin training documentation
+        \item System maintenance guide
+        \item API documentation
+    \end{itemize}
+\end{itemize}
+
+\chapter{REFERENCES}
+
+\begin{enumerate}
+    \item en.wikipedia.org/wiki/Blood\_donation
+    \item who.int/news-room/fact-sheets/detail/blood-safety-and-availability
+    \item https://github.com/django/django
+    \item https://www.postgresql.org/docs/
+    \item Kumar, A., \& Gupta, S. (2020). \textit{Digital transformation in blood donor management: A comprehensive study}. Journal of Healthcare Information Systems, 15(3), 45-62.
+    \item Sharma, R., Patel, M., \& Singh, K. (2019). \textit{Blood donor management systems in developing countries: Challenges and opportunities}. International Journal of Medical Informatics, 128, 89-97.
+    \item World Health Organization. (2020). \textit{Blood safety and availability: Key facts}. Retrieved from https://www.who.int/news-room/fact-sheets/detail/blood-safety-and-availability
+    \item Django Software Foundation. (2024). \textit{Django documentation}. Retrieved from https://docs.djangoproject.com/
+    \item PostgreSQL Global Development Group. (2024). \textit{PostgreSQL documentation}. Retrieved from https://www.postgresql.org/docs/
+    \item Nepal Red Cross Society. (2023). \textit{Blood donation services in Nepal: Annual report}. Kathmandu: NRCS Publications.
+\end{enumerate}
+
+\pagebreak
+
+% Appendices
+\appendix
+
+\chapter{SYSTEM SCREENSHOTS}
+
+\section{Admin Dashboard}
+% Placeholder for admin dashboard screenshot
+\begin{figure}[h]
+    \centering
+    \rule{12cm}{8cm} % Placeholder for screenshot
+    \caption{Admin Dashboard Interface}
+    \label{fig:admin_dashboard}
+\end{figure}
+
+\section{Donor Registration}
+% Placeholder for donor registration screenshot
+\begin{figure}[h]
+    \centering
+    \rule{12cm}{8cm} % Placeholder for screenshot
+    \caption{Donor Registration Form}
+    \label{fig:donor_registration}
+\end{figure}
+
+\section{Blood Inventory Management}
+% Placeholder for inventory management screenshot
+\begin{figure}[h]
+    \centering
+    \rule{12cm}{8cm} % Placeholder for screenshot
+    \caption{Blood Inventory Management Interface}
+    \label{fig:inventory_management}
+\end{figure}
+
+\chapter{DATABASE SCHEMA}
+
+\section{Entity Relationship Diagram}
+% Placeholder for ERD
+\begin{figure}[h]
+    \centering
+    \rule{14cm}{10cm} % Placeholder for ERD
+    \caption{Entity Relationship Diagram}
+    \label{fig:erd}
+\end{figure}
+
+\section{Table Structures}
+\subsection{User Table}
+\begin{table}[h]
+\centering
+\begin{tabular}{|l|l|l|l|}
+\hline
+\textbf{Field Name} & \textbf{Data Type} & \textbf{Constraints} & \textbf{Description} \\
+\hline
+id & INTEGER & PRIMARY KEY & Unique identifier \\
+\hline
+username & VARCHAR(150) & UNIQUE, NOT NULL & User login name \\
+\hline
+email & VARCHAR(254) & UNIQUE, NOT NULL & Email address \\
+\hline
+password & VARCHAR(128) & NOT NULL & Encrypted password \\
+\hline
+first\_name & VARCHAR(150) & NULL & First name \\
+\hline
+last\_name & VARCHAR(150) & NULL & Last name \\
+\hline
+is\_staff & BOOLEAN & DEFAULT FALSE & Admin status \\
+\hline
+is\_active & BOOLEAN & DEFAULT TRUE & Account status \\
+\hline
+date\_joined & DATETIME & NOT NULL & Registration date \\
+\hline
+\end{tabular}
+\caption{User Table Structure}
+\end{table}
+
+\end{document}
