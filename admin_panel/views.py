@@ -997,52 +997,20 @@ def manage_emergencies(request):
     """Manage emergency requests"""
     emergencies = EmergencyRequest.objects.order_by('-urgency_level', '-created_at')
     
-    # Handle emergency response
-    if request.method == 'POST':
-        emergency_id = request.POST.get('emergency_id')
-        action = request.POST.get('action')
-        
-        try:
-            emergency = EmergencyRequest.objects.get(id=emergency_id)
-            
-            if action == 'respond':
-                emergency.status = 'in_progress'
-                emergency.responded_by = request.user
-                emergency.responded_at = timezone.now()
-                emergency.save()
-                messages.success(request, f'You have responded to the emergency request at {emergency.hospital_name}')
-                
-            elif action == 'resolve':
-                emergency.status = 'resolved'
-                emergency.resolved_by = request.user
-                emergency.resolved_at = timezone.now()
-                emergency.save()
-                messages.success(request, f'Emergency request at {emergency.hospital_name} has been marked as resolved')
-                
-            elif action == 'cancel':
-                emergency.status = 'cancelled'
-                emergency.cancelled_by = request.user
-                emergency.cancelled_at = timezone.now()
-                emergency.save()
-                messages.success(request, f'Emergency request at {emergency.hospital_name} has been cancelled')
-                
-            return redirect('admin_panel:manage_emergencies')
-            
-        except EmergencyRequest.DoesNotExist:
-            messages.error(request, 'Emergency request not found')
-        except Exception as e:
-            messages.error(request, f'Error processing request: {str(e)}')
+    # Emergency response is handled by separate view functions: respond_to_emergency_admin and resolve_emergency
+    # This section removed to prevent duplicate functionality and errors
     
     # Filter by status
     status_filter = request.GET.get('status', '')
     if status_filter:
         emergencies = emergencies.filter(status=status_filter)
     
-    # Calculate statistics
+    # Calculate statistics - using only valid EmergencyRequest.STATUS_CHOICES
     total_emergencies = emergencies.count()
     active_emergencies = emergencies.filter(status='active').count()
-    in_progress_emergencies = emergencies.filter(status='in_progress').count()
-    resolved_emergencies = emergencies.filter(status='resolved').count()
+    fulfilled_emergencies = emergencies.filter(status='fulfilled').count()
+    expired_emergencies = emergencies.filter(status='expired').count()
+    # Note: in_progress and resolved are NOT valid statuses in EmergencyRequest model
     critical_emergencies = emergencies.filter(urgency_level='critical').count()
     high_emergencies = emergencies.filter(urgency_level='high').count()
     medium_emergencies = emergencies.filter(urgency_level='medium').count()
@@ -1053,8 +1021,8 @@ def manage_emergencies(request):
         'status_choices': EmergencyRequest.STATUS_CHOICES,
         'total_emergencies': total_emergencies,
         'active_emergencies': active_emergencies,
-        'in_progress_emergencies': in_progress_emergencies,
-        'resolved_emergencies': resolved_emergencies,
+        'fulfilled_emergencies': fulfilled_emergencies,
+        'expired_emergencies': expired_emergencies,
         'critical_emergencies': critical_emergencies,
         'high_emergencies': high_emergencies,
         'medium_emergencies': medium_emergencies,
@@ -1756,23 +1724,51 @@ def respond_to_emergency_admin(request, emergency_id):
     """Admin responds to an emergency request"""
     if request.method == 'POST':
         try:
-            data = json.loads(request.body) if request.body else {}
             emergency = get_object_or_404(EmergencyRequest, id=emergency_id)
-            emergency.status = 'in_progress'
-            emergency.responded_by = request.user
-            emergency.responded_at = timezone.now()
-            emergency.save()
             
-            return JsonResponse({
-                'success': True,
-                'message': f'You have responded to the emergency request at {emergency.hospital_name}'
-            })
+            # Validate response
+            if emergency.status == 'fulfilled':
+                messages.warning(request, f'Cannot respond to fulfilled emergency at {emergency.hospital_name}.')
+            elif emergency.status == 'expired':
+                messages.warning(request, f'Cannot respond to expired emergency at {emergency.hospital_name}.')
+            else:
+                # Keep status as active, track response in notes
+                admin_name = request.user.get_full_name() or request.user.username
+                timestamp = timezone.now().strftime('%Y-%m-%d %H:%M')
+                
+                # Check if already responded
+                if f"Admin {admin_name} responded" in (emergency.notes or ''):
+                    messages.info(request, f'You have already responded to the emergency at {emergency.hospital_name}.')
+                    return redirect('admin_panel:manage_emergencies')
+                
+                if emergency.notes:
+                    emergency.notes = f"{emergency.notes}\n\nResponse: Admin {admin_name} responded on {timestamp}"
+                else:
+                    emergency.notes = f"Response: Admin {admin_name} responded on {timestamp}"
+                
+                emergency.save()
+                
+                # Notify admins
+                try:
+                    NotificationService.create_system_notification(
+                        title=f'Emergency Response Initiated',
+                        message=f'Admin {admin_name} is now handling the emergency at {emergency.hospital_name}',
+                        notification_type='info',
+                        target_audience='admins'
+                    )
+                except Exception as e:
+                    print(f"Notification error: {e}")
+                
+                messages.success(request, f'✅ You have responded to the emergency request at {emergency.hospital_name}. Your response has been recorded.')
+            
+            return redirect('admin_panel:manage_emergencies')
+            
         except Exception as e:
-            return JsonResponse({
-                'success': False,
-                'error': str(e)
-            })
-    return JsonResponse({'success': False, 'error': 'Invalid request method'})
+            messages.error(request, f'Error responding to emergency: {str(e)}')
+            return redirect('admin_panel:manage_emergencies')
+    
+    messages.error(request, 'Invalid request method.')
+    return redirect('admin_panel:manage_emergencies')
 
 
 @login_required
@@ -1782,21 +1778,49 @@ def resolve_emergency(request, emergency_id):
     if request.method == 'POST':
         try:
             emergency = get_object_or_404(EmergencyRequest, id=emergency_id)
-            emergency.status = 'resolved'
-            emergency.resolved_by = request.user
-            emergency.resolved_at = timezone.now()
-            emergency.save()
             
-            return JsonResponse({
-                'success': True,
-                'message': f'Emergency request at {emergency.hospital_name} has been marked as resolved'
-            })
+            # Validate resolution
+            if emergency.status == 'fulfilled':
+                messages.info(request, f'Emergency at {emergency.hospital_name} is already marked as resolved.')
+            elif emergency.status == 'expired':
+                messages.warning(request, f'Cannot resolve expired emergency at {emergency.hospital_name}.')
+            else:
+                # Resolve active emergencies
+                units_fulfilled = request.POST.get('units_fulfilled', emergency.units_needed)
+                emergency.status = 'fulfilled'
+                admin_name = request.user.get_full_name() or request.user.username
+                timestamp = timezone.now().strftime('%Y-%m-%d %H:%M')
+                
+                resolution_note = f"Resolution: {units_fulfilled} units fulfilled by Admin {admin_name} on {timestamp}"
+                
+                if emergency.notes:
+                    emergency.notes = f"{emergency.notes}\n\n{resolution_note}"
+                else:
+                    emergency.notes = resolution_note
+                
+                emergency.save()
+                
+                # Notify admins
+                try:
+                    NotificationService.create_system_notification(
+                        title=f'Emergency Resolved Successfully',
+                        message=f'Emergency at {emergency.hospital_name} for {emergency.blood_group_needed} blood has been resolved. {units_fulfilled} units fulfilled.',
+                        notification_type='success',
+                        target_audience='admins'
+                    )
+                except Exception as e:
+                    print(f"Notification error: {e}")
+                
+                messages.success(request, f'✅ Emergency request at {emergency.hospital_name} has been marked as resolved successfully! Thank you for your prompt action.')
+            
+            return redirect('admin_panel:manage_emergencies')
+            
         except Exception as e:
-            return JsonResponse({
-                'success': False,
-                'error': str(e)
-            })
-    return JsonResponse({'success': False, 'error': 'Invalid request method'})
+            messages.error(request, f'Error resolving emergency: {str(e)}')
+            return redirect('admin_panel:manage_emergencies')
+    
+    messages.error(request, 'Invalid request method.')
+    return redirect('admin_panel:manage_emergencies')
 
 
 @login_required

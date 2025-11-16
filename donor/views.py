@@ -341,15 +341,52 @@ def edit_profile(request):
     
     if request.method == 'POST':
         try:
+            # Get and validate form data
+            first_name = request.POST.get('first_name', '').strip()
+            last_name = request.POST.get('last_name', '').strip()
+            email = request.POST.get('email', '').strip()
+            phone_number = request.POST.get('phone_number', '').strip()
+            
+            # Validate required fields
+            if not first_name:
+                messages.error(request, 'First name is required.')
+                return render(request, 'donor/edit_profile.html', {'donor': donor})
+            
+            if not email:
+                messages.error(request, 'Email address is required.')
+                return render(request, 'donor/edit_profile.html', {'donor': donor})
+            
+            # Validate email format
+            from django.core.validators import validate_email
+            from django.core.exceptions import ValidationError
+            from django.contrib.auth.models import User
+            try:
+                validate_email(email)
+            except ValidationError:
+                messages.error(request, 'Please enter a valid email address.')
+                return render(request, 'donor/edit_profile.html', {'donor': donor})
+            
+            # Check if email is already used by another user
+            if User.objects.filter(email=email).exclude(id=donor.user.id).exists():
+                messages.error(request, 'This email address is already registered to another account.')
+                return render(request, 'donor/edit_profile.html', {'donor': donor})
+            
+            # Validate phone number format
+            if phone_number:
+                import re
+                if not re.match(r'^\\+?[\\d\\s\\-\\(\\)]{10,15}$', phone_number):
+                    messages.error(request, 'Please enter a valid phone number (10-15 digits).')
+                    return render(request, 'donor/edit_profile.html', {'donor': donor})
+            
             # Update user information
             user = donor.user
-            user.first_name = request.POST.get('first_name', '')
-            user.last_name = request.POST.get('last_name', '')
-            user.email = request.POST.get('email', '')
+            user.first_name = first_name
+            user.last_name = last_name
+            user.email = email
             user.save()
             
             # Update donor information
-            donor.phone_number = request.POST.get('phone_number', '')
+            donor.phone_number = phone_number
             donor.address = request.POST.get('address', '')
 
             # Update location information
@@ -384,7 +421,7 @@ def edit_profile(request):
                     pass  # Keep existing date if invalid
             
             donor.save()
-            messages.success(request, 'Profile updated successfully!')
+            messages.success(request, f'Profile updated successfully, {first_name}! Your information has been saved.')
             return redirect('donor:edit_profile')
             
         except Exception as e:
@@ -406,25 +443,44 @@ def change_password(request):
         return redirect('accounts:login')
     
     if request.method == 'POST':
-        old_password = request.POST.get('old_password')
-        new_password1 = request.POST.get('new_password1')
-        new_password2 = request.POST.get('new_password2')
+        old_password = request.POST.get('old_password', '')
+        new_password1 = request.POST.get('new_password1', '')
+        new_password2 = request.POST.get('new_password2', '')
+        
+        # Validate inputs
+        if not old_password:
+            messages.error(request, 'Please enter your current password.')
+            return redirect('donor:edit_profile')
+        
+        if not new_password1 or not new_password2:
+            messages.error(request, 'Please enter and confirm your new password.')
+            return redirect('donor:edit_profile')
         
         if not request.user.check_password(old_password):
-            messages.error(request, 'Current password is incorrect.')
+            messages.error(request, 'Current password is incorrect. Please try again.')
             return redirect('donor:edit_profile')
         
         if new_password1 != new_password2:
-            messages.error(request, 'New passwords do not match.')
+            messages.error(request, 'New passwords do not match. Please make sure both passwords are identical.')
             return redirect('donor:edit_profile')
         
         if len(new_password1) < 8:
-            messages.error(request, 'Password must be at least 8 characters long.')
+            messages.error(request, 'Password must be at least 8 characters long for security.')
+            return redirect('donor:edit_profile')
+        
+        # Additional password strength validation
+        import re
+        if not re.search(r'[A-Za-z]', new_password1):
+            messages.error(request, 'Password must contain at least one letter.')
+            return redirect('donor:edit_profile')
+        
+        if not re.search(r'[0-9]', new_password1):
+            messages.error(request, 'Password must contain at least one number.')
             return redirect('donor:edit_profile')
         
         request.user.set_password(new_password1)
         request.user.save()
-        messages.success(request, 'Password changed successfully!')
+        messages.success(request, 'Password changed successfully! Your account is now more secure.')
         
         # Keep user logged in and redirect back to edit profile
         from django.contrib.auth import update_session_auth_hash
@@ -446,18 +502,29 @@ def update_location(request):
             form = SimpleLocationForm(request.POST)
             if form.is_valid():
                 location_choice = form.cleaned_data['location_choice']
-                custom_city = form.cleaned_data['custom_city']
-                custom_address = form.cleaned_data['custom_address']
+                custom_city = form.cleaned_data.get('custom_city', '').strip()
+                custom_address = form.cleaned_data.get('custom_address', '').strip()
 
                 if location_choice == 'other':
+                    # Validate custom input
+                    if not custom_city:
+                        messages.error(request, 'Please enter your city name when selecting "Other".')
+                        context = {
+                            'donor': donor,
+                            'simple_form': form,
+                            'detailed_form': LocationUpdateForm(instance=donor),
+                        }
+                        return render(request, 'donor/update_location.html', context)
+                    
                     # Use custom input
-                    if custom_city:
-                        donor.city = custom_city
-                        donor.address = custom_address or f"{custom_city}, Nepal"
+                    donor.city = custom_city
+                    donor.address = custom_address or f"{custom_city}, Nepal"
+                    donor.state = 'Nepal'
 
-                        # Set basic coordinates for Nepal (can be updated via GPS later)
-                        donor.latitude = 27.7172  # Default to Kathmandu coordinates
-                        donor.longitude = 85.3240
+                    # Set basic coordinates for Nepal (can be updated via GPS later)
+                    donor.latitude = 27.7172  # Default to Kathmandu coordinates
+                    donor.longitude = 85.3240
+                    
                 elif location_choice:
                     # Use predefined location with basic coordinates
                     location_map = {
@@ -477,27 +544,68 @@ def update_location(request):
                     if location_data:
                         donor.city = location_data['name']
                         donor.address = f"{location_data['name']}, Nepal"
+                        donor.state = 'Nepal'
                         donor.latitude = location_data['lat']
                         donor.longitude = location_data['lng']
+                    else:
+                        messages.error(request, 'Invalid location selected. Please try again.')
+                        context = {
+                            'donor': donor,
+                            'simple_form': form,
+                            'detailed_form': LocationUpdateForm(instance=donor),
+                        }
+                        return render(request, 'donor/update_location.html', context)
+                else:
+                    messages.error(request, 'Please select a location.')
+                    context = {
+                        'donor': donor,
+                        'simple_form': form,
+                        'detailed_form': LocationUpdateForm(instance=donor),
+                    }
+                    return render(request, 'donor/update_location.html', context)
 
                 donor.save()
 
                 # Create notification for location update
-                NotificationService.notify_location_updated(donor)
+                try:
+                    NotificationService.notify_location_updated(donor)
+                except Exception as e:
+                    print(f"Notification error: {e}")
 
-                messages.success(request, 'Location updated successfully!')
+                messages.success(request, f'Location updated to {donor.city} successfully! You can now be located by emergency blood requests in your area.')
                 return redirect('donor:update_location')
+            else:
+                # Form validation errors
+                messages.error(request, 'Please correct the errors in the form.')
 
         elif form_type == 'detailed':
             form = LocationUpdateForm(request.POST, instance=donor)
             if form.is_valid():
+                # Validate city and address
+                if not form.cleaned_data.get('city'):
+                    messages.error(request, 'City is required for detailed location update.')
+                    context = {
+                        'donor': donor,
+                        'simple_form': SimpleLocationForm(),
+                        'detailed_form': form,
+                    }
+                    return render(request, 'donor/update_location.html', context)
+                
                 form.save()
 
                 # Create notification for location update
-                NotificationService.notify_location_updated(donor)
+                try:
+                    NotificationService.notify_location_updated(donor)
+                except Exception as e:
+                    print(f"Notification error: {e}")
 
-                messages.success(request, 'Detailed location updated successfully!')
+                messages.success(request, f'Detailed location updated successfully! Your full address: {donor.full_location}')
                 return redirect('donor:update_location')
+            else:
+                # Form validation errors
+                for field, errors in form.errors.items():
+                    for error in errors:
+                        messages.error(request, f'{field.replace("_", " ").title()}: {error}')
     else:
         simple_form = SimpleLocationForm()
         detailed_form = LocationUpdateForm(instance=donor)
@@ -1090,11 +1198,83 @@ def update_medical_info(request):
     if request.method == 'POST':
         form = MedicalInfoUpdateForm(request.POST, instance=donor)
         if form.is_valid():
+            # Additional validation
+            weight = form.cleaned_data.get('weight')
+            height = form.cleaned_data.get('height')
+            emergency_contact_name = form.cleaned_data.get('emergency_contact_name', '').strip()
+            emergency_contact_phone = form.cleaned_data.get('emergency_contact_phone', '').strip()
+            
+            # Get blood pressure and heart rate from POST data
+            bp_systolic = request.POST.get('blood_pressure_systolic', '').strip()
+            bp_diastolic = request.POST.get('blood_pressure_diastolic', '').strip()
+            heart_rate = request.POST.get('resting_heart_rate', '').strip()
+            
+            # Validate weight for donation eligibility
+            if weight and weight < 45:
+                messages.warning(request, 'Your weight is below the minimum requirement (45 kg) for blood donation. Please consult with our medical team.')
+            
+            # Validate emergency contact consistency
+            if (emergency_contact_name and not emergency_contact_phone) or (emergency_contact_phone and not emergency_contact_name):
+                messages.warning(request, 'Please provide both emergency contact name and phone number, or leave both empty.')
+                context = {
+                    'donor': donor,
+                    'form': form,
+                }
+                return render(request, 'donor/update_medical_info.html', context)
+            
+            # Save the form
             form.save()
-            messages.success(request, 'Medical information updated successfully!')
+            
+            # Save blood pressure and heart rate if provided
+            if bp_systolic or bp_diastolic or heart_rate:
+                try:
+                    # Create health metrics record
+                    health_data = {
+                        'donor': donor,
+                        'weight': weight if weight else donor.weight,
+                    }
+                    
+                    if bp_systolic:
+                        health_data['blood_pressure_systolic'] = int(bp_systolic)
+                    if bp_diastolic:
+                        health_data['blood_pressure_diastolic'] = int(bp_diastolic)
+                    if heart_rate:
+                        health_data['resting_heart_rate'] = int(heart_rate)
+                    
+                    # Validate blood pressure
+                    if bp_systolic and bp_diastolic:
+                        sys_val = int(bp_systolic)
+                        dia_val = int(bp_diastolic)
+                        if sys_val <= dia_val:
+                            messages.error(request, 'Systolic blood pressure must be higher than diastolic.')
+                            return render(request, 'donor/update_medical_info.html', {'donor': donor, 'form': form})
+                    
+                    HealthMetrics.objects.create(**health_data)
+                    messages.success(request, '✅ Medical information and health metrics updated successfully!')
+                except ValueError:
+                    messages.warning(request, 'Medical info saved, but invalid health metrics values were provided.')
+            else:
+                # Provide helpful feedback
+                if weight and weight >= 50:
+                    messages.success(request, 'Medical information updated successfully! Your health profile is complete and you meet the weight requirement for donation.')
+                else:
+                    messages.success(request, 'Medical information updated successfully!')
+            
             return redirect('donor:medical_reports')
+        else:
+            # Form validation errors
+            for field, errors in form.errors.items():
+                for error in errors:
+                    messages.error(request, f'{field.replace("_", " ").title()}: {error}')
     else:
         form = MedicalInfoUpdateForm(instance=donor)
+        
+        # Get latest health metrics for pre-filling
+        latest_metrics = HealthMetrics.objects.filter(donor=donor).order_by('-recorded_at').first()
+        if latest_metrics:
+            donor.latest_bp_systolic = latest_metrics.blood_pressure_systolic
+            donor.latest_bp_diastolic = latest_metrics.blood_pressure_diastolic
+            donor.latest_heart_rate = latest_metrics.resting_heart_rate
 
     context = {
         'donor': donor,
@@ -1110,23 +1290,68 @@ def add_health_metrics(request):
     if request.method == 'POST':
         form = HealthMetricsForm(request.POST)
         if form.is_valid():
+            # Validate blood pressure readings
+            systolic = form.cleaned_data.get('blood_pressure_systolic')
+            diastolic = form.cleaned_data.get('blood_pressure_diastolic')
+            
+            if systolic and diastolic:
+                if systolic <= diastolic:
+                    messages.error(request, 'Systolic blood pressure must be higher than diastolic pressure. Please check your readings.')
+                    context = {
+                        'donor': donor,
+                        'form': form,
+                        'recent_metrics': HealthMetrics.objects.filter(donor=donor).order_by('-recorded_at')[:5],
+                    }
+                    return render(request, 'donor/add_health_metrics.html', context)
+                
+                # Health warnings
+                if systolic > 140 or diastolic > 90:
+                    messages.warning(request, 'Your blood pressure readings are high. Please consult a doctor before donating blood.')
+                elif systolic < 90 or diastolic < 60:
+                    messages.warning(request, 'Your blood pressure readings are low. This may affect your eligibility to donate.')
+            
+            # Validate heart rate
+            heart_rate = form.cleaned_data.get('resting_heart_rate')
+            if heart_rate:
+                if heart_rate < 50:
+                    messages.info(request, 'Your resting heart rate is quite low. If you\'re an athlete, this is normal. Otherwise, please consult a doctor.')
+                elif heart_rate > 100:
+                    messages.warning(request, 'Your resting heart rate is elevated. Please ensure you are relaxed when measuring, or consult a doctor.')
+            
+            # Validate weight
+            weight = form.cleaned_data.get('current_weight')
+            if weight:
+                if weight < 45:
+                    messages.warning(request, 'Your weight is below the minimum requirement (45 kg) for blood donation.')
+                elif weight < 50:
+                    messages.info(request, 'Your weight is at the lower range. Please ensure you are well-nourished before donating.')
+            
             # Create new health metrics record
-            health_metrics = HealthMetrics.objects.create(
-                donor=donor,
-                weight=form.cleaned_data['current_weight'],
-                blood_pressure_systolic=form.cleaned_data['blood_pressure_systolic'],
-                blood_pressure_diastolic=form.cleaned_data['blood_pressure_diastolic'],
-                resting_heart_rate=form.cleaned_data['resting_heart_rate'],
-                notes=form.cleaned_data['notes']
-            )
+            try:
+                health_metrics = HealthMetrics.objects.create(
+                    donor=donor,
+                    weight=weight,
+                    blood_pressure_systolic=systolic,
+                    blood_pressure_diastolic=diastolic,
+                    resting_heart_rate=heart_rate,
+                    notes=form.cleaned_data.get('notes', '')
+                )
 
-            # Update donor's weight if provided
-            if form.cleaned_data['current_weight']:
-                donor.weight = form.cleaned_data['current_weight']
-                donor.save()
+                # Update donor's weight if provided
+                if weight:
+                    donor.weight = weight
+                    donor.save()
 
-            messages.success(request, 'Health metrics recorded successfully!')
-            return redirect('donor:medical_reports')
+                messages.success(request, f'Health metrics recorded successfully! Date: {health_metrics.recorded_at.strftime("%Y-%m-%d %H:%M")}')
+                return redirect('donor:medical_reports')
+            
+            except Exception as e:
+                messages.error(request, f'Error saving health metrics: {str(e)}. Please try again.')
+        else:
+            # Form validation errors
+            for field, errors in form.errors.items():
+                for error in errors:
+                    messages.error(request, f'{field.replace("_", " ").title()}: {error}')
     else:
         # Pre-fill with current donor data
         initial_data = {}
@@ -1135,7 +1360,7 @@ def add_health_metrics(request):
         form = HealthMetricsForm(initial=initial_data)
 
     # Get recent health metrics for reference
-    recent_metrics = HealthMetrics.objects.filter(donor=donor)[:5]
+    recent_metrics = HealthMetrics.objects.filter(donor=donor).order_by('-recorded_at')[:5]
 
     context = {
         'donor': donor,
@@ -1254,15 +1479,46 @@ def respond_to_emergency(request, emergency_id):
 
 @login_required
 def cancel_request(request, request_id):
-    donor = get_object_or_404(Donor, user=request.user)
-    donation_request = get_object_or_404(DonationRequest, id=request_id, donor=donor)
+    """Cancel a pending donation request"""
+    if request.method != 'POST':
+        messages.error(request, 'Invalid request method. Please use the cancel button.')
+        return redirect('donor:donor_dashboard')
     
-    if donation_request.status == 'pending':
-        donation_request.status = 'cancelled'
-        donation_request.save()
-        messages.success(request, 'Donation request cancelled successfully.')
-    else:
-        messages.error(request, 'Cannot cancel this request.')
+    try:
+        donor = get_object_or_404(Donor, user=request.user)
+        donation_request = get_object_or_404(DonationRequest, id=request_id, donor=donor)
+        
+        # Check if request can be cancelled
+        if donation_request.status == 'pending':
+            donation_request.status = 'cancelled'
+            donation_request.notes = f"Cancelled by donor at {timezone.now().strftime('%Y-%m-%d %H:%M')}"
+            donation_request.save()
+            
+            # Notify admin about cancellation
+            try:
+                NotificationService.create_system_notification(
+                    title=f'Donation Request Cancelled',
+                    message=f'Donor {donor.name} cancelled their donation scheduled for {donation_request.requested_date}',
+                    notification_type='warning',
+                    target_audience='admins'
+                )
+            except Exception as e:
+                print(f"Error creating notification: {e}")
+            
+            messages.success(request, f'Donation request for {donation_request.requested_date} cancelled successfully. You can schedule a new appointment anytime.')
+        elif donation_request.status == 'approved':
+            messages.warning(request, 'This request has been approved. Please contact the donation center directly to cancel.')
+        elif donation_request.status == 'completed':
+            messages.error(request, 'Cannot cancel a completed donation.')
+        elif donation_request.status == 'cancelled':
+            messages.info(request, 'This request has already been cancelled.')
+        else:
+            messages.error(request, f'Cannot cancel a {donation_request.status} request.')
+    
+    except Donor.DoesNotExist:
+        messages.error(request, 'Donor profile not found. Please contact support.')
+    except Exception as e:
+        messages.error(request, f'Error cancelling request: {str(e)}')
     
     return redirect('donor:donor_dashboard')
 

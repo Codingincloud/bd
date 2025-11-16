@@ -498,6 +498,21 @@
             {% block breadcrumb %}
             {% endblock %}
             
+            <!-- Global Message Display -->
+            {% if messages %}
+            <div class="messages-container" style="margin-bottom: 1.5rem;">
+                {% for message in messages %}
+                <div class="alert alert-{{ message.tags }}" role="alert" style="padding: 1rem; border-radius: 8px; margin-bottom: 0.5rem; border-left: 4px solid; {% if message.tags == 'success' %}background: #d1fae5; border-color: #10b981; color: #065f46;{% elif message.tags == 'error' or message.tags == 'danger' %}background: #fee2e2; border-color: #ef4444; color: #991b1b;{% elif message.tags == 'warning' %}background: #fef3c7; border-color: #f59e0b; color: #92400e;{% else %}background: #dbeafe; border-color: #3b82f6; color: #1e40af;{% endif %}">
+                    <div style="display: flex; align-items: start; gap: 0.75rem;">
+                        <i class="fas {% if message.tags == 'success' %}fa-check-circle{% elif message.tags == 'error' or message.tags == 'danger' %}fa-exclamation-circle{% elif message.tags == 'warning' %}fa-exclamation-triangle{% else %}fa-info-circle{% endif %}" style="margin-top: 2px;"></i>
+                        <div style="flex: 1;">{{ message }}</div>
+                        <button type="button" class="close-message" onclick="this.parentElement.parentElement.remove()" style="background: none; border: none; font-size: 1.25rem; cursor: pointer; opacity: 0.6; padding: 0; line-height: 1;" aria-label="Close">&times;</button>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+            {% endif %}
+            
             {% block content %}{% endblock %}
         </div>
     </main>

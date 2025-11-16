@@ -1,43 +1,29 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Update Medical Information | Blood Donor System</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
+{% extends 'donor/base_donor.html' %}
+{% load static %}
 
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            line-height: 1.6;
-            background: #f5f5f5;
-            min-height: 100vh;
-        }
+{% block title %}Update Medical Information - Blood Donor System{% endblock %}
 
-        .container {
-            max-width: 800px;
-            margin: 0 auto;
-            padding: 20px;
-        }
+{% block extra_css %}
+<style>
+    .medical-info-container {
+        max-width: 800px;
+        margin: 0 auto;
+        padding: 20px;
+    }
 
-        .header {
-            background: rgba(255, 255, 255, 0.95);
-            padding: 20px;
-            border-radius: 15px;
-            margin-bottom: 30px;
-            text-align: center;
-            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
-        }
+    .medical-header {
+        background: rgba(255, 255, 255, 0.95);
+        padding: 20px;
+        border-radius: 15px;
+        margin-bottom: 30px;
+        text-align: center;
+        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+    }
 
-        .header h1 {
-            color: #d32f2f;
-            margin-bottom: 10px;
-        }
+    .medical-header h1 {
+        color: #d32f2f;
+        margin-bottom: 10px;
+    }
 
         .form-container {
             background: rgba(255, 255, 255, 0.95);
@@ -217,6 +203,25 @@
                     </div>
                 </div>
 
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="id_blood_pressure_systolic">Blood Pressure - Systolic (mmHg)</label>
+                        <input type="number" name="blood_pressure_systolic" id="id_blood_pressure_systolic" class="form-control" min="80" max="200" placeholder="e.g., 120" value="{{ donor.latest_bp_systolic|default:'' }}">
+                        <div class="help-text">Top number (normal: 90-120 mmHg)</div>
+                    </div>
+                    <div class="form-group">
+                        <label for="id_blood_pressure_diastolic">Blood Pressure - Diastolic (mmHg)</label>
+                        <input type="number" name="blood_pressure_diastolic" id="id_blood_pressure_diastolic" class="form-control" min="50" max="120" placeholder="e.g., 80" value="{{ donor.latest_bp_diastolic|default:'' }}">
+                        <div class="help-text">Bottom number (normal: 60-80 mmHg)</div>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="id_resting_heart_rate">Resting Heart Rate (bpm)</label>
+                    <input type="number" name="resting_heart_rate" id="id_resting_heart_rate" class="form-control" min="40" max="150" placeholder="e.g., 72" value="{{ donor.latest_heart_rate|default:'' }}">
+                    <div class="help-text">Beats per minute when at rest (normal: 60-100 bpm)</div>
+                </div>
+
                 <div class="form-group">
                     {{ form.medical_conditions.label_tag }}
                     {{ form.medical_conditions }}
@@ -271,6 +276,5 @@
                 <li>You can update or remove your information at any time</li>
             </ul>
         </div>
-    </div>
-</body>
-</html>
+</div>
+{% endblock %}
