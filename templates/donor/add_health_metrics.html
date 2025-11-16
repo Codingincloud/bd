@@ -15,7 +15,7 @@
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             line-height: 1.6;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: #f5f5f5;
             min-height: 100vh;
         }
 
@@ -192,8 +192,8 @@
 <body>
     <div class="container">
         <div class="header">
-            <h1><i class="fas fa-heartbeat"></i> Add Health Metrics</h1>
-            <p>Record your current health measurements for donation tracking</p>
+            <h1><i class="fas fa-heartbeat"></i> {% if is_update %}Update{% else %}Add{% endif %} Health Metrics</h1>
+            <p>{% if is_update %}Update{% else %}Record{% endif %} your current health measurements for donation tracking</p>
         </div>
 
         <a href="{% url 'donor:medical_reports' %}" class="nav-link">
@@ -209,9 +209,9 @@
         {% endif %}
 
         <div class="card">
-            <h3><i class="fas fa-plus-circle"></i> Record Current Health Metrics</h3>
+            <h3><i class="fas fa-{% if is_update %}edit{% else %}plus-circle{% endif %}"></i> {% if is_update %}Update{% else %}Record{% endif %} Current Health Metrics</h3>
             <p style="color: #666; margin-bottom: 25px;">
-                Enter your current health measurements. These help track your health over time and ensure safe donation.
+                {% if is_update %}Update{% else %}Enter{% endif %} your current health measurements. These help track your health over time and ensure safe donation.
             </p>
 
             <form method="POST">
@@ -250,7 +250,7 @@
 
                 <div style="margin-top: 30px;">
                     <button type="submit" class="btn">
-                        <i class="fas fa-save"></i> Record Health Metrics
+                        <i class="fas fa-save"></i> {% if is_update %}Update{% else %}Record{% endif %} Health Metrics
                     </button>
                     <a href="{% url 'donor:medical_reports' %}" class="btn btn-secondary">
                         <i class="fas fa-times"></i> Cancel

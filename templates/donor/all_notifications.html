@@ -1,67 +1,11 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>All Notifications - Blood Donation System</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
+{% extends 'donor/base_donor.html' %}
 
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            min-height: 100vh;
-            padding: 20px;
-        }
+{% block title %}All Notifications - Blood Donation System{% endblock %}
 
-        .container {
-            max-width: 800px;
-            margin: 0 auto;
-            background: white;
-            border-radius: 15px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
-            overflow: hidden;
-        }
-
-        .header {
-            background: linear-gradient(135deg, #d32f2f 0%, #b71c1c 100%);
-            color: white;
-            padding: 30px;
-            text-align: center;
-        }
-
-        .header h1 {
-            font-size: 2rem;
-            margin-bottom: 10px;
-        }
-
-        .header p {
-            opacity: 0.9;
-            font-size: 1.1rem;
-        }
-
-        .nav-back {
-            padding: 20px;
-            border-bottom: 1px solid #eee;
-        }
-
-        .nav-back a {
-            color: #d32f2f;
-            text-decoration: none;
-            font-weight: 500;
-            display: inline-flex;
-            align-items: center;
-            gap: 8px;
-            transition: color 0.3s;
-        }
-
-        .nav-back a:hover {
-            color: #b71c1c;
+{% block extra_css %}
+<style>
+        .notifications-page .container {
+            max-width: 1000px;
         }
 
         .notifications-container {
@@ -78,7 +22,7 @@
         }
 
         .notifications-title {
-            font-size: 1.5rem;
+            font-size: var(--text-2xl);
             color: #333;
             display: flex;
             align-items: center;
@@ -90,10 +34,10 @@
             color: white;
             border: none;
             padding: 10px 20px;
-            border-radius: 8px;
+            border-radius: var(--radius-lg);
             cursor: pointer;
-            font-weight: 500;
-            transition: background-color 0.3s;
+            font-weight: var(--font-weight-medium);
+            transition: var(--transition-base);
         }
 
         .mark-all-btn:hover {
@@ -107,7 +51,7 @@
             margin-bottom: 15px;
             border: 1px solid #e9ecef;
             border-radius: 10px;
-            transition: all 0.3s ease;
+            transition: var(--transition-base);
             cursor: pointer;
         }
 
@@ -157,9 +101,9 @@
         }
 
         .notification-title {
-            font-weight: 600;
+            font-weight: var(--font-weight-semibold);
             color: #212529;
-            margin-bottom: 8px;
+            margin-bottom: var(--space-2);
             font-size: 1.1rem;
         }
 
@@ -187,7 +131,7 @@
             display: flex;
             align-items: center;
             gap: 5px;
-            font-weight: 500;
+            font-weight: var(--font-weight-medium);
         }
 
         .notification-status.read {
@@ -227,8 +171,8 @@
             background: white;
             border-radius: 25px;
             cursor: pointer;
-            transition: all 0.3s;
-            font-weight: 500;
+            transition: var(--transition-base);
+            font-weight: var(--font-weight-medium);
         }
 
         .filter-tab.active {
@@ -252,7 +196,7 @@
             }
 
             .header h1 {
-                font-size: 1.5rem;
+                font-size: var(--text-2xl);
             }
 
             .notifications-header {
@@ -270,19 +214,18 @@
             }
         }
     </style>
-</head>
-<body>
-    <div class="container">
-        <div class="header">
-            <h1><i class="fas fa-bell"></i> All Notifications</h1>
-            <p>Stay updated with your blood donation activities</p>
-        </div>
+{% endblock %}
 
-        <div class="nav-back">
-            <a href="{% url 'donor:donor_dashboard' %}">
-                <i class="fas fa-arrow-left"></i> Back to Dashboard
-            </a>
-        </div>
+{% block content %}
+<div class="page-header">
+    <h1 class="page-title">
+        <i class="fas fa-bell"></i>
+        All Notifications
+    </h1>
+    <p class="page-subtitle">Stay updated with your blood donation activities</p>
+</div>
+
+<div class="content-container">
 
         <div class="notifications-container">
             <div class="notifications-header">
@@ -320,7 +263,7 @@
                         <div class="notification-item {% if not notification.is_read %}unread{% endif %}"
                              data-notification-id="{{ notification.id }}"
                              data-read-status="{% if notification.is_read %}read{% else %}unread{% endif %}"
-                             onclick="{% if not notification.is_read %}markAsRead({{ notification.id }}){% endif %}">
+                             onclick="{% if not notification.is_read %}markAsRead('{{ notification.id }}'){% endif %}">
                             <div class="notification-icon {% if notification.notification_type == 'donation_scheduled' or notification.notification_type == 'donation_completed' %}success{% elif notification.notification_type == 'donation_reminder' %}warning{% elif notification.notification_type == 'emergency_request' %}danger{% else %}info{% endif %}">
                                 {% if notification.notification_type == 'donation_scheduled' %}
                                     <i class="fas fa-calendar-check"></i>
@@ -368,9 +311,12 @@
                 {% endif %}
             </div>
         </div>
-    </div>
+</div>
+</div>
+{% endblock %}
 
-    <script>
+{% block extra_js %}
+<script>
         function markAsRead(notificationId) {
             fetch(`/donor/notifications/mark-read/${notificationId}/`, {
                 method: 'POST',
@@ -482,9 +428,5 @@
                 `;
             }
         }
-    </script>
-
-    <!-- CSRF Token for AJAX requests -->
-    {% csrf_token %}
-</body>
-</html>
+</script>
+{% endblock %}

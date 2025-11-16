@@ -1,0 +1,384 @@
+{% extends 'admin_panel/base_admin.html' %}
+
+{% block title %}Edit Admin Profile | Blood Donor Information Management System{% endblock %}
+
+{% block extra_css %}
+<style>
+    .edit-form {
+        background: white;
+        padding: var(--space-8);
+        border-radius: var(--radius-xl);
+        box-shadow: var(--shadow-md);
+        margin-bottom: var(--space-8);
+    }
+
+    .form-title {
+        font-size: var(--text-2xl);
+        font-weight: var(--font-weight-bold);
+        color: var(--color-gray-800);
+        margin-bottom: var(--space-6);
+        display: flex;
+        align-items: center;
+        gap: var(--space-2);
+        border-bottom: 2px solid var(--color-primary-600);
+        padding-bottom: var(--space-2);
+    }
+
+    .form-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+        gap: var(--space-6);
+    }
+
+    .form-group {
+        display: flex;
+        flex-direction: column;
+        gap: var(--space-2);
+    }
+
+    .form-group label {
+        font-weight: var(--font-weight-semibold);
+        color: var(--color-gray-700);
+        font-size: var(--text-sm);
+    }
+
+    .form-group input,
+    .form-group select,
+    .form-group textarea {
+        padding: var(--space-3);
+        border: 2px solid var(--color-gray-200);
+        border-radius: var(--radius-lg);
+        font-size: var(--text-base);
+        transition: var(--transition-base);
+    }
+
+    .form-group input:focus,
+    .form-group select:focus,
+    .form-group textarea:focus {
+        outline: none;
+        border-color: var(--color-primary-600);
+        box-shadow: 0 0 0 3px rgba(211, 47, 47, 0.1);
+    }
+
+    .form-group.full-width {
+        grid-column: 1 / -1;
+    }
+
+    .form-actions {
+        display: flex;
+        gap: var(--space-4);
+        justify-content: flex-end;
+        margin-top: var(--space-8);
+        padding-top: var(--space-8);
+        border-top: 1px solid var(--color-gray-200);
+    }
+
+    .btn-save {
+        background: var(--color-success-600);
+        color: white;
+        padding: var(--space-3) var(--space-8);
+        border-radius: var(--radius-lg);
+        border: none;
+        font-weight: var(--font-weight-semibold);
+        cursor: pointer;
+        transition: var(--transition-base);
+        display: inline-flex;
+        align-items: center;
+        gap: var(--space-2);
+    }
+
+    .btn-save:hover {
+        background: #2e7d32;
+        transform: translateY(-1px);
+    }
+
+    .btn-cancel {
+        background: var(--color-gray-500);
+        color: white;
+        padding: var(--space-3) var(--space-8);
+        border-radius: var(--radius-lg);
+        text-decoration: none;
+        font-weight: var(--font-weight-semibold);
+        transition: var(--transition-base);
+        display: inline-flex;
+        align-items: center;
+        gap: var(--space-2);
+    }
+
+    .btn-cancel:hover {
+        background: var(--color-gray-600);
+        transform: translateY(-1px);
+        text-decoration: none;
+        color: white;
+    }
+
+    .profile-preview {
+        background: var(--color-gray-50);
+        padding: var(--space-6);
+        border-radius: var(--radius-lg);
+        border: 1px solid var(--color-gray-200);
+        margin-bottom: var(--space-8);
+    }
+
+    .preview-title {
+        font-size: var(--text-lg);
+        font-weight: var(--font-weight-semibold);
+        color: var(--color-gray-700);
+        margin-bottom: var(--space-4);
+        display: flex;
+        align-items: center;
+        gap: var(--space-2);
+    }
+
+    .preview-content {
+        display: flex;
+        align-items: center;
+        gap: var(--space-4);
+    }
+
+    .preview-avatar {
+        width: 60px;
+        height: 60px;
+        border-radius: var(--radius-full);
+        background: linear-gradient(135deg, var(--color-primary-600), #c62828);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-size: var(--text-2xl);
+        font-weight: var(--font-weight-bold);
+    }
+
+    .preview-info h4 {
+        color: var(--color-gray-800);
+        margin-bottom: var(--space-1);
+    }
+
+    .preview-info p {
+        color: var(--color-gray-600);
+        font-size: var(--text-sm);
+    }
+
+    .help-text {
+        font-size: var(--text-xs);
+        color: var(--color-gray-500);
+        margin-top: var(--space-1);
+    }
+
+    .required {
+        color: var(--color-danger-600);
+    }
+</style>
+{% endblock %}
+
+{% block breadcrumb %}
+<nav aria-label="Breadcrumb" class="breadcrumb">
+    <ol>
+        <li><a href="{% url 'admin_panel:dashboard' %}"><i class="fas fa-home"></i> Dashboard</a></li>
+        <li><a href="{% url 'admin_panel:admin_profile' %}">Admin Profile</a></li>
+        <li aria-current="page">Edit Profile</li>
+    </ol>
+</nav>
+{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <h1 class="page-title">
+        <i class="fas fa-user-edit"></i>
+        Edit Admin Profile
+    </h1>
+    <p class="page-subtitle">Update your admin account information and settings</p>
+</div>
+
+<div class="content-container">
+    <!-- Profile Preview -->
+    <div class="profile-preview">
+        <h3 class="preview-title">
+            <i class="fas fa-eye"></i>
+            Profile Preview
+        </h3>
+        <div class="preview-content">
+            <div class="preview-avatar" id="previewAvatar">
+                {{ user.get_full_name|first|default:user.username|first|upper }}
+            </div>
+            <div class="preview-info">
+                <h4 id="previewName">{{ user.get_full_name|default:user.username }}</h4>
+                <p id="previewEmail">{{ user.email }}</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Edit Form -->
+    <div class="edit-form">
+        <h2 class="form-title">
+            <i class="fas fa-edit"></i>
+            Edit Profile Information
+        </h2>
+        <form method="POST" class="form-grid">
+            {% csrf_token %}
+            <div class="form-group">
+                <label for="first_name">First Name <span class="required">*</span></label>
+                <input type="text" id="first_name" name="first_name" value="{{ user.first_name }}" placeholder="Enter first name" required>
+                <div class="help-text">Your first name as it appears on official documents</div>
+            </div>
+            <div class="form-group">
+                <label for="last_name">Last Name <span class="required">*</span></label>
+                <input type="text" id="last_name" name="last_name" value="{{ user.last_name }}" placeholder="Enter last name" required>
+                <div class="help-text">Your last name as it appears on official documents</div>
+            </div>
+            <div class="form-group">
+                <label for="email">Email Address <span class="required">*</span></label>
+                <input type="email" id="email" name="email" value="{{ user.email }}" placeholder="Enter email address" required>
+                <div class="help-text">This will be used for system notifications and login</div>
+            </div>
+            <div class="form-group">
+                <label for="username">Username</label>
+                <input type="text" id="username" name="username" value="{{ user.username }}" placeholder="Enter username" readonly>
+                <div class="help-text">Username cannot be changed</div>
+            </div>
+            <div class="form-group">
+                <label for="name">Full Name</label>
+                <input type="text" id="name" name="name" value="{{ admin_profile.name|default:'' }}" placeholder="Enter full name">
+                <div class="help-text">Your full name for admin profile</div>
+            </div>
+            <div class="form-group">
+                <label for="contact_no">Contact Number</label>
+                <input type="tel" id="contact_no" name="contact_no" value="{{ admin_profile.contact_no|default:'' }}" placeholder="Enter contact number">
+                <div class="help-text">Your primary contact number</div>
+            </div>
+            <div class="form-group full-width">
+                <label for="address">Address</label>
+                <textarea id="address" name="address" rows="3" placeholder="Enter your address">{{ admin_profile.address|default:'' }}</textarea>
+                <div class="help-text">Your complete address</div>
+            </div>
+            <div class="form-group">
+                <label for="city">City</label>
+                <input type="text" id="city" name="city" value="{{ admin_profile.city|default:'' }}" placeholder="Enter city">
+            </div>
+            <div class="form-group">
+                <label for="state">State/Province</label>
+                <input type="text" id="state" name="state" value="{{ admin_profile.state|default:'' }}" placeholder="Enter state">
+            </div>
+            <div class="form-group">
+                <label for="postal_code">Postal Code</label>
+                <input type="text" id="postal_code" name="postal_code" value="{{ admin_profile.postal_code|default:'' }}" placeholder="Enter postal code">
+            </div>
+            <div class="form-group">
+                <label for="country">Country</label>
+                <select id="country" name="country">
+                    <option value="Nepal" {% if admin_profile.country == 'Nepal' %}selected{% endif %}>Nepal</option>
+                    <option value="India" {% if admin_profile.country == 'India' %}selected{% endif %}>India</option>
+                    <option value="China" {% if admin_profile.country == 'China' %}selected{% endif %}>China</option>
+                    <option value="Bangladesh" {% if admin_profile.country == 'Bangladesh' %}selected{% endif %}>Bangladesh</option>
+                    <option value="Other" {% if admin_profile.country == 'Other' %}selected{% endif %}>Other</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="latitude">Latitude (Optional)</label>
+                <input type="number" id="latitude" name="latitude" step="any" value="{{ admin_profile.latitude|default:'' }}" placeholder="e.g., 27.7172">
+                <div class="help-text">Geographic latitude for location services</div>
+            </div>
+            <div class="form-group">
+                <label for="longitude">Longitude (Optional)</label>
+                <input type="number" id="longitude" name="longitude" step="any" value="{{ admin_profile.longitude|default:'' }}" placeholder="e.g., 85.3240">
+                <div class="help-text">Geographic longitude for location services</div>
+            </div>
+            <div class="form-actions">
+                <a href="{% url 'admin_panel:admin_profile' %}" class="btn-cancel">
+                    <i class="fas fa-times"></i> Cancel
+                </a>
+                <button type="submit" class="btn-save">
+                    <i class="fas fa-save"></i> Save Changes
+                </button>
+            </div>
+        </form>
+    </div>
+
+    <!-- Change Password Section -->
+    <div class="edit-form">
+        <h2 class="form-title">
+            <i class="fas fa-lock"></i>
+            Change Password
+        </h2>
+        <form method="POST" action="{% url 'admin_panel:change_password' %}" class="form-grid">
+            {% csrf_token %}
+            <div class="form-group">
+                <label for="old_password">Current Password <span class="required">*</span></label>
+                <input type="password" id="old_password" name="old_password" placeholder="Enter current password" required>
+                <div class="help-text">Enter your current password to verify your identity</div>
+            </div>
+            <div class="form-group">
+                <label for="new_password1">New Password <span class="required">*</span></label>
+                <input type="password" id="new_password1" name="new_password1" placeholder="Enter new password" required>
+                <div class="help-text">Password must be at least 8 characters long</div>
+            </div>
+            <div class="form-group">
+                <label for="new_password2">Confirm New Password <span class="required">*</span></label>
+                <input type="password" id="new_password2" name="new_password2" placeholder="Confirm new password" required>
+                <div class="help-text">Re-enter your new password to confirm</div>
+            </div>
+            <div class="form-actions">
+                <button type="submit" class="btn-save">
+                    <i class="fas fa-key"></i> Change Password
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    // Update preview as user types
+    document.getElementById('first_name').addEventListener('input', updatePreview);
+    document.getElementById('last_name').addEventListener('input', updatePreview);
+    document.getElementById('email').addEventListener('input', updatePreview);
+
+    function updatePreview() {
+        const firstName = document.getElementById('first_name').value;
+        const lastName = document.getElementById('last_name').value;
+        const email = document.getElementById('email').value;
+        
+        const fullName = `${firstName} ${lastName}`.trim() || '{{ user.username }}';
+        const firstLetter = fullName.charAt(0).toUpperCase();
+        
+        document.getElementById('previewName').textContent = fullName;
+        document.getElementById('previewEmail').textContent = email;
+        document.getElementById('previewAvatar').textContent = firstLetter;
+    }
+
+    // Form validation
+    document.querySelectorAll('form').forEach(form => {
+        form.addEventListener('submit', function(e) {
+            const passwordForm = this.action.includes('change_password');
+            if (passwordForm) {
+                const newPassword1 = document.getElementById('new_password1').value;
+                const newPassword2 = document.getElementById('new_password2').value;
+                
+                if (newPassword1 !== newPassword2) {
+                    e.preventDefault();
+                    alert('New passwords do not match!');
+                    return false;
+                }
+                
+                if (newPassword1.length < 8) {
+                    e.preventDefault();
+                    alert('Password must be at least 8 characters long!');
+                    return false;
+                }
+            }
+        });
+    });
+
+    // Add input focus effects
+    document.querySelectorAll('input, textarea, select').forEach(input => {
+        input.addEventListener('focus', function() {
+            this.parentElement.style.transform = 'translateY(-2px)';
+        });
+        
+        input.addEventListener('blur', function() {
+            this.parentElement.style.transform = 'translateY(0)';
+        });
+    });
+</script>
+{% endblock %}

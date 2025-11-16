@@ -1,132 +1,71 @@
+{% load static %}
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Register | Blood Donor Information Management System</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
+    <link rel="stylesheet" href="{% static 'css/main.css' %}">
+    <link rel="stylesheet" href="{% static 'css/components.css' %}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     <style>
-        :root {
-            --primary-color: #e74c3c;
-            --secondary-color: #c0392b;
-            --light-color: #f5f5f5;
-            --dark-color: #333;
-            --success-color: #2ecc71;
-        }
-
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-        }
-
-        body {
-            background-color: #f9f9f9;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            min-height: 100vh;
-            background-image: linear-gradient(rgba(255, 255, 255, 0.9), rgba(255, 255, 255, 0.9)),
-                              url('https://images.unsplash.com/photo-1530026186672-2cd00ffc50fe?ixlib=rb-1.2.1&auto=format&fit=crop&w=1350&q=80');
-            background-size: cover;
-            background-position: center;
-        }
-
-        .register-container {
-            background-color: white;
-            padding: 2.5rem;
-            border-radius: 10px;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
-            width: 100%;
-            max-width: 500px;
-            transform: translateY(0);
-            transition: transform 0.3s ease, box-shadow 0.3s ease;
-            overflow: hidden;
-        }
-
-        .register-container:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.15);
-        }
-
-        h1 {
-            color: var(--primary-color);
-            text-align: center;
-            margin-bottom: 1.5rem;
-            font-weight: 600;
-        }
-
-        .error-message {
-            color: white;
-            background-color: var(--primary-color);
-            padding: 0.75rem;
-            border-radius: 5px;
-            margin-bottom: 1.5rem;
-            text-align: center;
-            animation: fadeIn 0.5s ease;
-        }
-
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(-10px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-
-        .form-group {
-            margin-bottom: 1.25rem;
-            position: relative;
-        }
-
-        .form-row {
-            display: flex;
-            gap: 1rem;
-            margin-bottom: 1.25rem;
-        }
-
-        .form-group.half-width {
-            flex: 1;
-            margin-bottom: 0;
-            position: relative;
-        }
-
+        /* Specific styles for autocomplete suggestions */
         .suggestions-dropdown {
             position: absolute;
             top: 100%;
             left: 0;
             right: 0;
             background: white;
-            border: 1px solid #ddd;
+            border: 1px solid var(--color-gray-300);
             border-top: none;
-            border-radius: 0 0 5px 5px;
-            max-height: 150px;
+            border-radius: 0 0 var(--radius-md) var(--radius-md);
+            max-height: 200px;
             overflow-y: auto;
-            z-index: 1000;
+            z-index: var(--z-dropdown);
             display: none;
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+            box-shadow: var(--shadow-lg);
         }
 
         .suggestion-item {
-            padding: 10px 12px;
+            padding: var(--space-3) var(--space-4);
             cursor: pointer;
-            border-bottom: 1px solid #f0f0f0;
-            transition: background-color 0.2s;
-            font-size: 0.9rem;
+            border-bottom: 1px solid var(--color-gray-100);
+            transition: var(--transition-fast);
+            font-size: var(--font-size-sm);
         }
 
         .suggestion-item:hover {
-            background: #f8f9fa;
+            background: var(--color-gray-50);
         }
 
         .suggestion-item:last-child {
             border-bottom: none;
         }
 
-        label {
-            display: block;
-            margin-bottom: 0.5rem;
-            color: var(--dark-color);
-            font-weight: 500;
+        .form-row {
+            display: flex;
+            gap: var(--space-4);
         }
+
+        .form-row .form-group {
+            flex: 1;
+        }
+    </style>
+</head>
+<body>
+    <div class="auth-page">
+        <div class="auth-container" style="max-width: 600px;">
+            <div class="auth-logo">
+                <i class="fas fa-heartbeat"></i>
+            </div>
+            
+            <div class="auth-header">
+                <h1 class="auth-title">Create Account</h1>
+                <p class="auth-subtitle">Join us and start saving lives</p>
+            </div>
 
         input, select {
             width: 100%;
@@ -270,189 +209,261 @@
         </div>
         <h1>Blood Donor Information Management System</h1>
         <p style="text-align: center; color: #666; margin-bottom: 1.5rem;">Create an Account</p>
-        {% if error %}
-            <div class="error-message">{{ error }}</div>
-        {% endif %}
-        <form method="post" enctype="multipart/form-data" id="registerForm">
-            {% csrf_token %}
-            <div class="form-group">
-                <label for="username">Username</label>
-                <input type="text" id="username" name="username" required placeholder="Choose a username">
-            </div>
-            <div class="form-group">
-                <label for="password">Password</label>
-                <input type="password" id="password" name="password" required placeholder="Create a password" oninput="checkPasswordStrength(this.value)">
-                <div class="password-strength">
-                    <div class="strength-meter" id="strengthMeter"></div>
+
+            <!-- Display Django messages -->
+            {% if messages %}
+                {% for message in messages %}
+                    <div class="alert alert-{% if message.tags == 'error' %}danger{% elif message.tags == 'success' %}success{% else %}info{% endif %}">
+                        <i class="fas fa-{% if message.tags == 'error' %}exclamation-circle{% elif message.tags == 'success' %}check-circle{% else %}info-circle{% endif %} alert-icon"></i>
+                        <div class="alert-content">
+                            <p class="alert-description">{{ message }}</p>
+                        </div>
+                    </div>
+                {% endfor %}
+            {% endif %}
+
+            {% if error %}
+                <div class="alert alert-danger">
+                    <i class="fas fa-exclamation-circle alert-icon"></i>
+                    <div class="alert-content">
+                        <p class="alert-description">{{ error }}</p>
+                    </div>
                 </div>
-            </div>
-            <div class="form-group">
-                <label for="email">Email Address</label>
-                <input type="email" id="email" name="email" required placeholder="Enter your email address">
-            </div>
-            <div class="form-group">
-                <label for="role">Register as</label>
-                <select id="role" name="role" required onchange="toggleDonorFields()">
-                    <option value="" disabled selected>Select your role</option>
-                    <option value="donor">Donor</option>
-                    <option value="admin">Admin</option>
-                </select>
-            </div>
-            <div id="donor-fields" class="donor-fields">
-                <div class="form-group">
-                    <label for="name">Full Name</label>
-                    <input type="text" id="name" name="name" placeholder="Your full name">
+            {% endif %}
+
+            {% if errors %}
+                <div class="alert alert-danger">
+                    <i class="fas fa-exclamation-circle alert-icon"></i>
+                    <div class="alert-content">
+                        <p class="alert-title">Please fix the following errors:</p>
+                        <ul style="margin: var(--space-2) 0 0 var(--space-6); padding: 0;">
+                            {% for error in errors %}
+                                <li>{{ error }}</li>
+                            {% endfor %}
+                        </ul>
+                    </div>
                 </div>
+            {% endif %}
+
+            <form method="post" enctype="multipart/form-data" class="auth-form" id="registerForm">
+                {% csrf_token %}
+                
                 <div class="form-group">
-                    <label for="blood_group">Blood Group</label>
-                    <select id="blood_group" name="blood_group">
-                        <option value="" disabled selected>Select your blood group</option>
-                        <option value="A+">A+</option>
-                        <option value="A-">A-</option>
-                        <option value="B+">B+</option>
-                        <option value="B-">B-</option>
-                        <option value="AB+">AB+</option>
-                        <option value="AB-">AB-</option>
-                        <option value="O+">O+</option>
-                        <option value="O-">O-</option>
+                    <label for="username" class="form-label form-label-required">Username</label>
+                    <input type="text" id="username" name="username" class="form-input" required placeholder="Choose a username" value="{{ form_data.username|default:'' }}" autocomplete="username">
+                </div>
+
+                <div class="form-group">
+                    <label for="password" class="form-label form-label-required">Password</label>
+                    <input type="password" id="password" name="password" class="form-input" required placeholder="Create a strong password" oninput="checkPasswordStrength(this.value)" autocomplete="new-password">
+                    <div class="password-strength" style="height: 4px; background: var(--color-gray-200); border-radius: var(--radius-full); margin-top: var(--space-2); overflow: hidden;">
+                        <div class="strength-meter" id="strengthMeter" style="height: 100%; width: 0%; transition: width 0.3s ease, background-color 0.3s ease;"></div>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="email" class="form-label form-label-required">Email Address</label>
+                    <input type="email" id="email" name="email" class="form-input" required placeholder="your.email@example.com" value="{{ form_data.email|default:'' }}" autocomplete="email">
+                </div>
+
+                <div class="form-group">
+                    <label for="role" class="form-label form-label-required">Register as</label>
+                    <select id="role" name="role" class="form-select" required onchange="toggleDonorFields()">
+                        <option value="" disabled {% if not form_data.role %}selected{% endif %}>Select your role</option>
+                        <option value="donor" {% if form_data.role == 'donor' %}selected{% endif %}>Donor</option>
+                        <option value="admin" {% if form_data.role == 'admin' %}selected{% endif %}>Admin</option>
                     </select>
                 </div>
-                <div class="form-group">
-                    <label for="contact_no">Contact No</label>
-                    <input type="text" id="contact_no" name="contact_no" placeholder="Your phone number">
-                </div>
-                <div class="form-group">
-                    <label for="address">Street Address</label>
-                    <input type="text" id="address" name="address" placeholder="Your street address">
-                </div>
-                <div class="form-row">
-                    <div class="form-group half-width">
-                        <label for="city">City</label>
-                        <select id="city" name="city">
-                            <option value="">Select City</option>
-                            <option value="Kathmandu">Kathmandu</option>
-                            <option value="Pokhara">Pokhara</option>
-                            <option value="Lalitpur">Lalitpur</option>
-                            <option value="Bhaktapur">Bhaktapur</option>
-                            <option value="Biratnagar">Biratnagar</option>
-                            <option value="Birgunj">Birgunj</option>
-                            <option value="Dharan">Dharan</option>
-                            <option value="Hetauda">Hetauda</option>
-                            <option value="Janakpur">Janakpur</option>
-                            <option value="Butwal">Butwal</option>
-                            <option value="Chitwan">Chitwan</option>
-                            <option value="Bharatpur">Bharatpur</option>
-                            <option value="Nepalgunj">Nepalgunj</option>
-                            <option value="Dhangadhi">Dhangadhi</option>
-                            <option value="Other">Other</option>
+
+                <div id="donor-fields" class="donor-fields" style="display: none;">
+                    <div class="form-group">
+                        <label for="name" class="form-label">Full Name</label>
+                        <input type="text" id="name" name="name" class="form-input" placeholder="Your full name" value="{{ form_data.name|default:'' }}">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="blood_group" class="form-label">Blood Group</label>
+                        <select id="blood_group" name="blood_group" class="form-select">
+                            <option value="" disabled {% if not form_data.blood_group %}selected{% endif %}>Select your blood group</option>
+                            <option value="A+" {% if form_data.blood_group == 'A+' %}selected{% endif %}>A+</option>
+                            <option value="A-" {% if form_data.blood_group == 'A-' %}selected{% endif %}>A-</option>
+                            <option value="B+" {% if form_data.blood_group == 'B+' %}selected{% endif %}>B+</option>
+                            <option value="B-" {% if form_data.blood_group == 'B-' %}selected{% endif %}>B-</option>
+                            <option value="AB+" {% if form_data.blood_group == 'AB+' %}selected{% endif %}>AB+</option>
+                            <option value="AB-" {% if form_data.blood_group == 'AB-' %}selected{% endif %}>AB-</option>
+                            <option value="O+" {% if form_data.blood_group == 'O+' %}selected{% endif %}>O+</option>
+                            <option value="O-" {% if form_data.blood_group == 'O-' %}selected{% endif %}>O-</option>
                         </select>
                     </div>
-                    <div class="form-group half-width">
-                        <label for="state">State/Province</label>
-                        <input type="text" id="state" name="state" placeholder="State or Province">
+
+                    <div class="form-group">
+                        <label for="contact_no" class="form-label">Contact Number</label>
+                        <input type="tel" id="contact_no" name="contact_no" class="form-input" placeholder="Your phone number" value="{{ form_data.contact_no|default:'' }}">
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="date_of_birth" class="form-label">Date of Birth</label>
+                            <input type="date" id="date_of_birth" name="date_of_birth" class="form-input" value="{{ form_data.date_of_birth|default:'' }}">
+                        </div>
+                        <div class="form-group">
+                            <label for="gender" class="form-label">Gender</label>
+                            <select id="gender" name="gender" class="form-select">
+                                <option value="M" {% if form_data.gender == 'M' %}selected{% endif %}>Male</option>
+                                <option value="F" {% if form_data.gender == 'F' %}selected{% endif %}>Female</option>
+                                <option value="O" {% if form_data.gender == 'O' %}selected{% endif %}>Other</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="weight" class="form-label">Weight (kg)</label>
+                        <input type="number" id="weight" name="weight" class="form-input" placeholder="Minimum 45kg required" min="45" max="200" step="0.1" value="{{ form_data.weight|default:'' }}">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="address" class="form-label">Street Address</label>
+                        <input type="text" id="address" name="address" class="form-input" placeholder="Your street address" value="{{ form_data.address|default:'' }}">
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="city" class="form-label">City</label>
+                            <select id="city" name="city" class="form-select">
+                                <option value="" {% if not form_data.city %}selected{% endif %}>Select City</option>
+                                <option value="Kathmandu" {% if form_data.city == 'Kathmandu' %}selected{% endif %}>Kathmandu</option>
+                                <option value="Pokhara" {% if form_data.city == 'Pokhara' %}selected{% endif %}>Pokhara</option>
+                                <option value="Lalitpur" {% if form_data.city == 'Lalitpur' %}selected{% endif %}>Lalitpur</option>
+                                <option value="Bhaktapur" {% if form_data.city == 'Bhaktapur' %}selected{% endif %}>Bhaktapur</option>
+                                <option value="Biratnagar" {% if form_data.city == 'Biratnagar' %}selected{% endif %}>Biratnagar</option>
+                                <option value="Birgunj" {% if form_data.city == 'Birgunj' %}selected{% endif %}>Birgunj</option>
+                                <option value="Dharan" {% if form_data.city == 'Dharan' %}selected{% endif %}>Dharan</option>
+                                <option value="Hetauda" {% if form_data.city == 'Hetauda' %}selected{% endif %}>Hetauda</option>
+                                <option value="Janakpur" {% if form_data.city == 'Janakpur' %}selected{% endif %}>Janakpur</option>
+                                <option value="Butwal" {% if form_data.city == 'Butwal' %}selected{% endif %}>Butwal</option>
+                                <option value="Chitwan" {% if form_data.city == 'Chitwan' %}selected{% endif %}>Chitwan</option>
+                                <option value="Bharatpur" {% if form_data.city == 'Bharatpur' %}selected{% endif %}>Bharatpur</option>
+                                <option value="Nepalgunj" {% if form_data.city == 'Nepalgunj' %}selected{% endif %}>Nepalgunj</option>
+                                <option value="Dhangadhi" {% if form_data.city == 'Dhangadhi' %}selected{% endif %}>Dhangadhi</option>
+                                <option value="Other" {% if form_data.city == 'Other' %}selected{% endif %}>Other</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="state" class="form-label">State/Province</label>
+                            <input type="text" id="state" name="state" class="form-input" placeholder="State or Province" value="{{ form_data.state|default:'' }}">
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="postal_code" class="form-label">Postal Code</label>
+                            <input type="text" id="postal_code" name="postal_code" class="form-input" placeholder="ZIP/Postal Code" value="{{ form_data.postal_code|default:'' }}">
+                        </div>
+                        <div class="form-group">
+                            <label for="country" class="form-label">Country</label>
+                            <select id="country" name="country" class="form-select">
+                                <option value="Nepal" {% if form_data.country == 'Nepal' or not form_data.country %}selected{% endif %}>Nepal</option>
+                                <option value="India" {% if form_data.country == 'India' %}selected{% endif %}>India</option>
+                                <option value="China" {% if form_data.country == 'China' %}selected{% endif %}>China</option>
+                                <option value="Bangladesh" {% if form_data.country == 'Bangladesh' %}selected{% endif %}>Bangladesh</option>
+                                <option value="Other">Other</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="photo" class="form-label">Profile Photo (Optional)</label>
+                        <div style="display: flex; align-items: center; gap: var(--space-3);">
+                            <label for="photo" class="btn btn-secondary" style="margin: 0; cursor: pointer;">
+                                <i class="fas fa-cloud-upload-alt"></i> Choose Photo
+                            </label>
+                            <span id="fileName" style="color: var(--color-gray-600); font-size: var(--text-sm);">No file chosen</span>
+                        </div>
+                        <input type="file" id="photo" name="photo" accept="image/*" style="display: none;" onchange="updateFileName(this)">
                     </div>
                 </div>
-                <div class="form-row">
-                    <div class="form-group half-width">
-                        <label for="postal_code">Postal Code</label>
-                        <input type="text" id="postal_code" name="postal_code" placeholder="ZIP/Postal Code">
+
+                <!-- Admin Fields (Hidden by default) -->
+                <div id="admin-fields" style="display: none;">
+                    <div class="form-group">
+                        <label for="admin_name" class="form-label">Full Name</label>
+                        <input type="text" id="admin_name" name="admin_name" class="form-input" placeholder="Your full name" value="{{ form_data.admin_name|default:'' }}">
                     </div>
-                    <div class="form-group half-width">
-                        <label for="country">Country</label>
-                        <select id="country" name="country">
-                            <option value="Nepal" selected>Nepal</option>
-                            <option value="India">India</option>
-                            <option value="China">China</option>
-                            <option value="Bangladesh">Bangladesh</option>
-                            <option value="Other">Other</option>
-                        </select>
+
+                    <div class="form-group">
+                        <label for="admin_contact_no" class="form-label">Contact Number</label>
+                        <input type="tel" id="admin_contact_no" name="admin_contact_no" class="form-input" placeholder="Your phone number" value="{{ form_data.admin_contact_no|default:'' }}">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="admin_address" class="form-label">Street Address</label>
+                        <input type="text" id="admin_address" name="admin_address" class="form-input" placeholder="Your street address" value="{{ form_data.admin_address|default:'' }}">
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="admin_city" class="form-label">City</label>
+                            <select id="admin_city" name="admin_city" class="form-select">
+                                <option value="" {% if not form_data.admin_city %}selected{% endif %}>Select City</option>
+                                <option value="Kathmandu" {% if form_data.admin_city == 'Kathmandu' %}selected{% endif %}>Kathmandu</option>
+                                <option value="Pokhara" {% if form_data.admin_city == 'Pokhara' %}selected{% endif %}>Pokhara</option>
+                                <option value="Lalitpur" {% if form_data.admin_city == 'Lalitpur' %}selected{% endif %}>Lalitpur</option>
+                                <option value="Bhaktapur" {% if form_data.admin_city == 'Bhaktapur' %}selected{% endif %}>Bhaktapur</option>
+                                <option value="Biratnagar" {% if form_data.admin_city == 'Biratnagar' %}selected{% endif %}>Biratnagar</option>
+                                <option value="Birgunj" {% if form_data.admin_city == 'Birgunj' %}selected{% endif %}>Birgunj</option>
+                                <option value="Dharan" {% if form_data.admin_city == 'Dharan' %}selected{% endif %}>Dharan</option>
+                                <option value="Hetauda" {% if form_data.admin_city == 'Hetauda' %}selected{% endif %}>Hetauda</option>
+                                <option value="Janakpur" {% if form_data.admin_city == 'Janakpur' %}selected{% endif %}>Janakpur</option>
+                                <option value="Butwal" {% if form_data.admin_city == 'Butwal' %}selected{% endif %}>Butwal</option>
+                                <option value="Chitwan" {% if form_data.admin_city == 'Chitwan' %}selected{% endif %}>Chitwan</option>
+                                <option value="Bharatpur" {% if form_data.admin_city == 'Bharatpur' %}selected{% endif %}>Bharatpur</option>
+                                <option value="Nepalgunj" {% if form_data.admin_city == 'Nepalgunj' %}selected{% endif %}>Nepalgunj</option>
+                                <option value="Dhangadhi" {% if form_data.admin_city == 'Dhangadhi' %}selected{% endif %}>Dhangadhi</option>
+                                <option value="Other" {% if form_data.admin_city == 'Other' %}selected{% endif %}>Other</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="admin_state" class="form-label">State/Province</label>
+                            <input type="text" id="admin_state" name="admin_state" class="form-input" placeholder="State or Province" value="{{ form_data.admin_state|default:'' }}">
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="admin_postal_code" class="form-label">Postal Code</label>
+                            <input type="text" id="admin_postal_code" name="admin_postal_code" class="form-input" placeholder="ZIP/Postal Code" value="{{ form_data.admin_postal_code|default:'' }}">
+                        </div>
+                        <div class="form-group">
+                            <label for="admin_country" class="form-label">Country</label>
+                            <select id="admin_country" name="admin_country" class="form-select">
+                                <option value="Nepal" {% if form_data.admin_country == 'Nepal' or not form_data.admin_country %}selected{% endif %}>Nepal</option>
+                                <option value="India" {% if form_data.admin_country == 'India' %}selected{% endif %}>India</option>
+                                <option value="China" {% if form_data.admin_country == 'China' %}selected{% endif %}>China</option>
+                                <option value="Bangladesh" {% if form_data.admin_country == 'Bangladesh' %}selected{% endif %}>Bangladesh</option>
+                                <option value="Other">Other</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="admin_photo" class="form-label">Profile Photo (Optional)</label>
+                        <div style="display: flex; align-items: center; gap: var(--space-3);">
+                            <label for="admin_photo" class="btn btn-secondary" style="margin: 0; cursor: pointer;">
+                                <i class="fas fa-cloud-upload-alt"></i> Choose Photo
+                            </label>
+                            <span id="adminFileName" style="color: var(--color-gray-600); font-size: var(--text-sm);">No file chosen</span>
+                        </div>
+                        <input type="file" id="admin_photo" name="admin_photo" accept="image/*" style="display: none;" onchange="updateAdminFileName(this)">
                     </div>
                 </div>
-                <div class="form-group">
-                    <label>Photo</label>
-                    <div class="file-upload">
-                        <label for="photo" class="file-upload-label" id="fileLabel">
-                            <i class="fas fa-cloud-upload-alt"></i> Choose a photo
-                        </label>
-                        <span class="file-name" id="fileName">No file chosen</span>
-                    </div>
-                    <input type="file" id="photo" name="photo" accept="image/*" style="display: none;" onchange="updateFileName(this)">
-                    <div class="progress-bar" id="progressBar">
-                        <div class="progress" id="progress"></div>
-                    </div>
-                </div>
+
+                <button type="submit" id="registerButton" class="btn btn-primary btn-lg" style="width: 100%; margin-top: var(--space-6);">
+                    <i class="fas fa-user-plus"></i> Create Account
+                </button>
+            </form>
+
+            <div class="auth-footer">
+                Already have an account? <a href="{% url 'accounts:login' %}">Login here</a>
             </div>
-            <div id="admin-fields" class="donor-fields hidden">
-                <div class="form-group">
-                    <label for="admin_name">Full Name</label>
-                    <input type="text" id="admin_name" name="admin_name" placeholder="Your full name">
-                </div>
-                <div class="form-group">
-                    <label for="admin_contact_no">Contact No</label>
-                    <input type="text" id="admin_contact_no" name="admin_contact_no" placeholder="Your phone number">
-                </div>
-                <div class="form-group">
-                    <label for="admin_address">Street Address</label>
-                    <input type="text" id="admin_address" name="admin_address" placeholder="Your street address">
-                </div>
-                <div class="form-row">
-                    <div class="form-group half-width">
-                        <label for="admin_city">City</label>
-                        <select id="admin_city" name="admin_city">
-                            <option value="">Select City</option>
-                            <option value="Kathmandu">Kathmandu</option>
-                            <option value="Pokhara">Pokhara</option>
-                            <option value="Lalitpur">Lalitpur</option>
-                            <option value="Bhaktapur">Bhaktapur</option>
-                            <option value="Biratnagar">Biratnagar</option>
-                            <option value="Birgunj">Birgunj</option>
-                            <option value="Dharan">Dharan</option>
-                            <option value="Hetauda">Hetauda</option>
-                            <option value="Janakpur">Janakpur</option>
-                            <option value="Butwal">Butwal</option>
-                            <option value="Chitwan">Chitwan</option>
-                            <option value="Bharatpur">Bharatpur</option>
-                            <option value="Nepalgunj">Nepalgunj</option>
-                            <option value="Dhangadhi">Dhangadhi</option>
-                            <option value="Other">Other</option>
-                        </select>
-                    </div>
-                    <div class="form-group half-width">
-                        <label for="admin_state">State/Province</label>
-                        <input type="text" id="admin_state" name="admin_state" placeholder="State or Province">
-                    </div>
-                </div>
-                <div class="form-row">
-                    <div class="form-group half-width">
-                        <label for="admin_postal_code">Postal Code</label>
-                        <input type="text" id="admin_postal_code" name="admin_postal_code" placeholder="ZIP/Postal Code">
-                    </div>
-                    <div class="form-group half-width">
-                        <label for="admin_country">Country</label>
-                        <select id="admin_country" name="admin_country">
-                            <option value="Nepal" selected>Nepal</option>
-                            <option value="India">India</option>
-                            <option value="China">China</option>
-                            <option value="Bangladesh">Bangladesh</option>
-                            <option value="Other">Other</option>
-                        </select>
-                    </div>
-                </div>
-                <div class="form-group">
-                    <label>Photo</label>
-                    <div class="file-upload">
-                        <label for="admin_photo" class="file-upload-label" id="adminFileLabel">
-                            <i class="fas fa-cloud-upload-alt"></i> Choose a photo
-                        </label>
-                        <span class="file-name" id="adminFileName">No file chosen</span>
-                    </div>
-                    <input type="file" id="admin_photo" name="admin_photo" accept="image/*" style="display: none;" onchange="updateAdminFileName(this)">
-                </div>
-            </div>
-            <button type="submit" id="registerButton">Register</button>
-        </form>
-        <div class="login-link">
-            Already have an account? <a href="{% url 'accounts:login' %}">Login here</a>.
         </div>
     </div>
 
@@ -461,73 +472,67 @@
             // Initialize form with donor fields hidden if not selected
             toggleDonorFields();
 
-            // Add animation to form elements
-            const formGroups = document.querySelectorAll('.form-group');
-            formGroups.forEach((group, index) => {
-                group.style.opacity = '0';
-                group.style.transform = 'translateY(20px)';
-                group.style.transition = `all 0.5s ease ${index * 0.1}s`;
-
+            // Auto-dismiss alerts after 5 seconds
+            const alerts = document.querySelectorAll('.alert');
+            alerts.forEach(alert => {
                 setTimeout(() => {
-                    group.style.opacity = '1';
-                    group.style.transform = 'translateY(0)';
-                }, 100);
+                    alert.style.opacity = '0';
+                    alert.style.transform = 'translateY(-10px)';
+                    setTimeout(() => alert.remove(), 300);
+                }, 5000);
             });
 
-            // Form submission animation
+            // Form submission handling
             const registerForm = document.getElementById('registerForm');
             const registerButton = document.getElementById('registerButton');
+            const originalButtonContent = registerButton.innerHTML;
 
             registerForm.addEventListener('submit', function(e) {
                 registerButton.disabled = true;
-                registerButton.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Creating account...';
+                registerButton.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Creating Account...';
 
-                // Simulate file upload progress
-                const photoInput = document.getElementById('photo');
-                if (photoInput.files.length > 0) {
-                    const progressBar = document.getElementById('progressBar');
-                    const progress = document.getElementById('progress');
-
-                    progressBar.style.display = 'block';
-
-                    let progressValue = 0;
-                    const interval = setInterval(() => {
-                        progressValue += Math.random() * 10;
-                        if (progressValue >= 100) {
-                            progressValue = 100;
-                            clearInterval(interval);
-                        }
-                        progress.style.width = progressValue + '%';
-                    }, 200);
-                }
+                // If the form doesn't submit after 10 seconds, re-enable the button
+                setTimeout(function() {
+                    if (registerButton.disabled) {
+                        registerButton.disabled = false;
+                        registerButton.innerHTML = originalButtonContent;
+                    }
+                }, 10000);
             });
 
-            // Add focus effects
-            const inputs = document.querySelectorAll('input, select');
+            // Focus effects for labels
+            const inputs = document.querySelectorAll('.form-input, .form-select');
             inputs.forEach(input => {
                 input.addEventListener('focus', function() {
-                    this.parentElement.querySelector('label').style.color = 'var(--primary-color)';
+                    const label = this.parentElement.querySelector('.form-label');
+                    if (label) {
+                        label.style.color = 'var(--color-primary-600)';
+                    }
                 });
 
                 input.addEventListener('blur', function() {
-                    this.parentElement.querySelector('label').style.color = 'var(--dark-color)';
+                    const label = this.parentElement.querySelector('.form-label');
+                    if (label) {
+                        label.style.color = '';
+                    }
                 });
             });
         });
 
         function toggleDonorFields() {
-            var role = document.getElementById('role').value;
-            var donorFields = document.getElementById('donor-fields');
-            var adminFields = document.getElementById('admin-fields');
+            const role = document.getElementById('role').value;
+            const donorFields = document.getElementById('donor-fields');
+            const adminFields = document.getElementById('admin-fields');
+            
             if (role === 'donor') {
-                donorFields.classList.remove('hidden');
-                adminFields.classList.add('hidden');
+                donorFields.style.display = 'block';
+                adminFields.style.display = 'none';
             } else if (role === 'admin') {
-                donorFields.classList.add('hidden');
-                adminFields.classList.remove('hidden');
+                donorFields.style.display = 'none';
+                adminFields.style.display = 'block';
             } else {
-                donorFields.classList.add('hidden');
-                adminFields.classList.add('hidden');
+                donorFields.style.display = 'none';
+                adminFields.style.display = 'none';
             }
         }
 
@@ -540,8 +545,6 @@
             const fileName = input.files[0] ? input.files[0].name : 'No file chosen';
             document.getElementById('adminFileName').textContent = fileName;
         }
-
-        // Simple form handling - no complex JavaScript needed
 
         function checkPasswordStrength(password) {
             const strengthMeter = document.getElementById('strengthMeter');
@@ -562,26 +565,26 @@
 
             // Update strength meter
             let width = 0;
-            let color = '#e74c3c'; // Red
+            let color = 'var(--color-danger-600)';
 
             switch(strength) {
                 case 0:
                 case 1:
                     width = 25;
-                    color = '#e74c3c'; // Red
+                    color = 'var(--color-danger-600)';
                     break;
                 case 2:
                     width = 50;
-                    color = '#f39c12'; // Orange
+                    color = 'var(--color-warning-600)';
                     break;
                 case 3:
                     width = 75;
-                    color = '#f1c40f'; // Yellow
+                    color = 'var(--color-warning-500)';
                     break;
                 case 4:
                 case 5:
                     width = 100;
-                    color = '#2ecc71'; // Green
+                    color = 'var(--color-success-600)';
                     break;
             }
 

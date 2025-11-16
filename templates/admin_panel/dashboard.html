@@ -1,503 +1,467 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Admin Dashboard | Blood Donation System</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+{% extends 'admin_panel/base_admin.html' %}
+
+{% block title %}Admin Dashboard | Blood Donor Information Management System{% endblock %}
+
+{% block extra_css %}
     <style>
-        :root {
-            --primary-color: #dc2626;
-            --primary-dark: #b91c1c;
-            --secondary-color: #f8fafc;
-            --accent-color: #059669;
-            --warning-color: #d97706;
-            --danger-color: #dc2626;
-            --text-primary: #1f2937;
-            --text-secondary: #6b7280;
-            --border-color: #e5e7eb;
-            --shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1);
-            --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
-        }
-
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
-        body {
-            font-family: 'Inter', sans-serif;
-            background-color: var(--secondary-color);
-            color: var(--text-primary);
-            line-height: 1.6;
-        }
-
-        .header {
-            background: linear-gradient(135deg, var(--primary-color), var(--primary-dark));
+        .welcome-section {
+            background: linear-gradient(135deg, #c62828 0%, #b71c1c 100%);
             color: white;
-            padding: 1.5rem 2rem;
+            padding: var(--space-8);
+            border-radius: var(--radius-xl);
+            margin-bottom: var(--space-8);
             box-shadow: var(--shadow-lg);
         }
 
-        .header-content {
-            max-width: 1400px;
-            margin: 0 auto;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-
-        .header h1 {
-            font-size: 1.875rem;
+        .welcome-section h1 {
+            font-size: var(--text-3xl);
             font-weight: 700;
+            margin-bottom: var(--space-2);
+            color: white;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
         }
 
-        .admin-info {
-            display: flex;
-            align-items: center;
-            gap: 1rem;
+        .welcome-section p {
+            font-size: var(--text-lg);
+            color: rgba(255, 255, 255, 0.95);
+            text-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
         }
 
-        .nav {
-            background: white;
-            border-bottom: 1px solid var(--border-color);
-            padding: 0 2rem;
-        }
-
-        .nav-container {
-            max-width: 1400px;
-            margin: 0 auto;
-        }
-
-        .nav-list {
-            list-style: none;
-            display: flex;
-            gap: 0;
-        }
-
-        .nav-list a {
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-            padding: 1rem 1.5rem;
-            color: var(--text-secondary);
-            text-decoration: none;
-            font-weight: 500;
-            transition: all 0.2s;
-            border-bottom: 2px solid transparent;
-        }
-
-        .nav-list a:hover,
-        .nav-list a.active {
-            color: var(--primary-color);
-            border-bottom-color: var(--primary-color);
-        }
-
-        .main-container {
-            max-width: 1400px;
-            margin: 0 auto;
-            padding: 2rem;
-        }
-
-        .stats-grid {
+    .quick-actions {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-            gap: 1.5rem;
-            margin-bottom: 2rem;
+            gap: var(--space-6);
+            margin-bottom: var(--space-8);
+        }
+
+    .action-card {
+            background: white;
+        padding: var(--space-8);
+            border-radius: var(--radius-xl);
+            box-shadow: var(--shadow-md);
+        text-align: center;
+        transition: all 0.3s ease;
+        cursor: pointer;
+        text-decoration: none;
+        color: inherit;
+        border: 2px solid transparent;
+    }
+
+    .action-card:hover {
+        transform: translateY(-4px);
+            box-shadow: var(--shadow-xl);
+        text-decoration: none;
+        color: inherit;
+        border-color: var(--color-primary-600);
+    }
+
+    .action-icon {
+        width: 80px;
+        height: 80px;
+        border-radius: 50%;
+        background: linear-gradient(135deg, var(--color-primary-600), var(--color-primary-700));
+        color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        font-size: var(--text-3xl);
+        margin: 0 auto var(--space-6);
+    }
+
+    .action-title {
+        font-weight: 600;
+            color: var(--color-gray-900);
+        margin-bottom: var(--space-2);
+        font-size: var(--text-xl);
+        }
+
+    .action-description {
+            color: var(--color-gray-600);
+            font-size: var(--text-sm);
+        line-height: 1.5;
+        font-weight: 500;
+    }
+
+    .recent-activities {
+            background: white;
+            padding: var(--space-8);
+            border-radius: var(--radius-xl);
+            box-shadow: var(--shadow-md);
+        }
+
+        .section-title {
+            font-size: var(--text-2xl);
+            font-weight: 700;
+            color: var(--color-gray-800);
+            margin-bottom: var(--space-6);
+            display: flex;
+            align-items: center;
+            gap: var(--space-2);
+        }
+
+        .activity-list {
+            list-style: none;
+        }
+
+        .activity-item {
+            display: flex;
+            align-items: center;
+            gap: var(--space-4);
+            padding: var(--space-4) 0;
+            border-bottom: 1px solid var(--color-gray-200);
+        }
+
+        .activity-item:last-child {
+            border-bottom: none;
+        }
+
+        .activity-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: var(--color-primary-600);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: var(--text-base);
+        }
+
+        .activity-content {
+            flex: 1;
+        }
+
+        .activity-title {
+            font-weight: 600;
+            color: var(--color-gray-900);
+            margin-bottom: var(--space-1);
+            font-size: var(--text-base);
+        }
+
+        .activity-description {
+            color: var(--color-gray-600);
+            font-size: var(--text-sm);
+        }
+
+        .activity-time {
+            color: var(--color-gray-500);
+            font-size: var(--text-xs);
+            font-weight: 500;
+        }
+
+        /* Stats Grid */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: var(--space-6);
+            margin-bottom: var(--space-8);
         }
 
         .stat-card {
             background: white;
-            border-radius: 12px;
-            padding: 1.5rem;
-            box-shadow: var(--shadow);
-            transition: transform 0.2s;
+            padding: var(--space-6);
+            border-radius: var(--radius-xl);
+            box-shadow: var(--shadow-md);
+            text-align: center;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
         }
 
         .stat-card:hover {
             transform: translateY(-2px);
+            box-shadow: var(--shadow-xl);
         }
 
-        .stat-header {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            margin-bottom: 1rem;
-        }
-
-        .stat-icon {
-            width: 48px;
-            height: 48px;
-            border-radius: 12px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 1.5rem;
-        }
-
-        .stat-icon.donors {
-            background: rgba(5, 150, 105, 0.1);
-            color: var(--accent-color);
-        }
-
-        .stat-icon.donations {
-            background: rgba(239, 68, 68, 0.1);
-            color: var(--primary-color);
-        }
-
-        .stat-icon.pending {
-            background: rgba(217, 119, 6, 0.1);
-            color: var(--warning-color);
-        }
-
-        .stat-icon.emergency {
-            background: rgba(220, 38, 38, 0.1);
-            color: var(--danger-color);
-        }
-
-        .stat-value {
-            font-size: 2rem;
+        .stat-number {
+            font-size: var(--text-4xl);
             font-weight: 700;
-            color: var(--text-primary);
+            color: var(--color-primary-700);
+            margin-bottom: var(--space-2);
+            line-height: 1.2;
         }
 
         .stat-label {
-            color: var(--text-secondary);
-            font-size: 0.875rem;
-            font-weight: 500;
-        }
-
-        .card {
-            background: white;
-            border-radius: 12px;
-            padding: 1.5rem;
-            box-shadow: var(--shadow);
-            margin-bottom: 1.5rem;
-        }
-
-        .card-title {
-            font-size: 1.125rem;
+            color: var(--color-gray-700);
             font-weight: 600;
-            margin-bottom: 1rem;
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
+            font-size: var(--text-base);
         }
 
-        .card-title i {
-            color: var(--primary-color);
-        }
-
-        .btn {
-            display: inline-flex;
-            align-items: center;
-            gap: 0.5rem;
-            padding: 0.75rem 1.5rem;
-            border-radius: 8px;
-            font-weight: 500;
-            text-decoration: none;
-            transition: all 0.2s;
-            border: none;
-            cursor: pointer;
-        }
-
-        .btn-primary {
-            background: var(--primary-color);
-            color: white;
-        }
-
-        .btn-primary:hover {
-            background: var(--primary-dark);
-        }
-
-        .btn-sm {
-            padding: 0.5rem 1rem;
-            font-size: 0.875rem;
-        }
-
-        .blood-inventory-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
-            gap: 1rem;
-            margin-top: 1rem;
-        }
-
-        .blood-type-card {
-            text-align: center;
-            padding: 1rem;
-            background: var(--secondary-color);
-            border-radius: 8px;
-            border-left: 4px solid var(--primary-color);
-        }
-
-        .blood-type-card h4 {
-            color: var(--primary-color);
-            font-size: 1.2rem;
-            margin-bottom: 0.5rem;
-        }
-
-        .blood-type-card span {
-            font-size: 1.5rem;
-            font-weight: 700;
-            color: var(--text-primary);
-        }
-
-        @media (max-width: 768px) {
-            .header-content {
-                flex-direction: column;
-                gap: 1rem;
+        /* Animations */
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
             }
-
-            .nav-list {
-                flex-wrap: wrap;
+            to {
+                opacity: 1;
+                transform: translateY(0);
             }
+        }
 
-            .stats-grid {
-                grid-template-columns: 1fr;
-            }
+        .fade-in-up {
+            animation: fadeInUp 0.6s ease-out;
         }
     </style>
-</head>
-<body>
-    <header class="header">
-        <div class="header-content">
-            <div>
-                <h1>Admin Dashboard</h1>
-                <p>Blood Donation Management System</p>
-            </div>
-            <div class="admin-info">
-                <span>Welcome, {{ user.get_full_name|default:user.username }}</span>
-                <form action="{% url 'accounts:logout' %}" method="POST" style="display: inline;">
-                    {% csrf_token %}
-                    <button type="submit" class="btn btn-primary btn-sm">
-                        <i class="fas fa-sign-out-alt"></i> Logout
-                    </button>
-                </form>
-            </div>
-        </div>
-    </header>
+{% endblock %}
 
-    <nav class="nav">
-        <div class="nav-container">
-            <ul class="nav-list">
-                <li><a href="{% url 'admin_panel:dashboard' %}" class="active">📊 Dashboard</a></li>
-                <li><a href="{% url 'admin_panel:manage_donors' %}">👥 Manage Donors</a></li>
-                <li><a href="{% url 'admin_panel:manage_requests' %}">📋 Donation Requests</a></li>
-                <li><a href="{% url 'admin_panel:manage_inventory' %}">📦 Blood Inventory</a></li>
-                <li><a href="{% url 'admin_panel:manage_emergencies' %}">🚨 Emergency Requests</a></li>
-                <li><a href="{% url 'admin_panel:create_emergency_request' %}">➕ Create Emergency</a></li>
-                <li><a href="{% url 'admin_panel:manage_blood_centers' %}">🏥 Blood Centers</a></li>
-                <li><a href="{% url 'admin_panel:donor_tracking' %}">📍 Track Donors</a></li>
-            </ul>
-        </div>
-    </nav>
 
-    <main class="main-container">
-        <!-- Statistics Grid -->
-        <div class="stats-grid">
-            <div class="stat-card">
-                <div class="stat-header">
-                    <div class="stat-icon donors">
-                        <i class="fas fa-users"></i>
-                    </div>
-                </div>
-                <div class="stat-value">{{ total_donors|default:0 }}</div>
+
+{% block content %}
+        <!-- Welcome Section -->
+        <div class="welcome-section fade-in-up">
+            <h1>Admin Dashboard</h1>
+    <p>Welcome back, {{ user.get_full_name|default:user.username }}! Manage your blood donation system efficiently.</p>
+        </div>
+
+<!-- Stats Overview -->
+        <div class="stats-grid fade-in-up">
+    <div class="stat-card">
+        <div class="stat-number">{{ total_donors|default:"0" }}</div>
                 <div class="stat-label">Total Donors</div>
             </div>
-
-            <div class="stat-card">
-                <div class="stat-header">
-                    <div class="stat-icon donations">
-                        <i class="fas fa-tint"></i>
+    <div class="stat-card">
+        <div class="stat-number">{{ active_donors|default:"0" }}</div>
+        <div class="stat-label">Active Donors</div>
                     </div>
+    <div class="stat-card">
+        <div class="stat-number">{{ pending_requests|default:"0" }}</div>
+        <div class="stat-label">Pending Requests</div>
                 </div>
-                <div class="stat-value">{{ total_donations|default:0 }}</div>
+    <div class="stat-card">
+        <div class="stat-number">{{ total_donations|default:"0" }}</div>
                 <div class="stat-label">Total Donations</div>
             </div>
-
-            <div class="stat-card">
-                <div class="stat-header">
-                    <div class="stat-icon pending">
-                        <i class="fas fa-clock"></i>
-                    </div>
-                </div>
-                <div class="stat-value">{{ pending_requests|default:0 }}</div>
-                <div class="stat-label">Pending Requests</div>
-            </div>
-
-            <div class="stat-card">
-                <div class="stat-header">
-                    <div class="stat-icon emergency">
-                        <i class="fas fa-exclamation-triangle"></i>
-                    </div>
-                </div>
-                <div class="stat-value">{{ active_emergencies|default:0 }}</div>
-                <div class="stat-label">Active Emergencies</div>
-            </div>
         </div>
 
-        <!-- Blood Inventory -->
-        <div class="card">
-            <div class="card-title">
-                <i class="fas fa-boxes"></i>
-                Blood Inventory
+        <!-- Blood Group Distribution Chart -->
+        <div class="dashboard-section fade-in-up" style="margin-bottom: var(--space-8);">
+            <div class="section-header" style="background: white; padding: var(--space-4); border-radius: var(--radius-lg) var(--radius-lg) 0 0; border-bottom: 2px solid var(--color-gray-100);">
+                <h3 style="display: flex; align-items: center; gap: var(--space-2); color: var(--color-gray-800); font-size: var(--text-xl); font-weight: 600; margin: 0;">
+                    <i class="fas fa-chart-pie" style="color: var(--admin-primary-600);"></i>
+                    Blood Group Distribution
+                </h3>
             </div>
-            <div class="blood-inventory-grid">
-                {% for blood_group, units in blood_inventory.items %}
-                <div class="blood-type-card">
-                    <h4>{{ blood_group }}</h4>
-                    <span>{{ units }}</span>
-                    <div style="font-size: 0.75rem; color: var(--text-secondary);">units</div>
-                </div>
-                {% empty %}
-                <div style="grid-column: 1 / -1; text-align: center; color: var(--text-secondary);">
-                    No inventory data available
-                </div>
-                {% endfor %}
+            <div class="chart-container" style="background: white; padding: var(--space-6); border-radius: 0 0 var(--radius-lg) var(--radius-lg); box-shadow: var(--shadow-md);">
+                <canvas id="bloodGroupChart" style="max-height: 350px;"></canvas>
             </div>
         </div>
-
-        <!-- Location Statistics -->
-        <div class="card">
-            <div class="card-title">
-                <i class="fas fa-map-marker-alt"></i>
-                Location Statistics
-            </div>
-            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 1.5rem;">
-                <div>
-                    <h4 style="color: var(--primary-color); margin-bottom: 1rem;">Geographic Coverage</h4>
-                    <div style="background: var(--card-bg); padding: 1rem; border-radius: 8px; border: 1px solid var(--border-color);">
-                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
-                            <span>Donors with GPS coordinates:</span>
-                            <strong>{{ location_stats.total_with_coordinates }}</strong>
-                        </div>
-                        <div style="font-size: 0.875rem; color: var(--text-secondary);">
-                            {{ location_stats.total_with_coordinates|floatformat:0 }} of {{ total_donors }} donors have location data
-                        </div>
-                    </div>
-                </div>
-
-                <div>
-                    <h4 style="color: var(--primary-color); margin-bottom: 1rem;">Top Cities</h4>
-                    {% for city_stat in location_stats.top_cities %}
-                    <div style="display: flex; justify-content: space-between; align-items: center; padding: 0.5rem 0; border-bottom: 1px solid var(--border-color);">
-                        <span>{{ city_stat.city }}</span>
-                        <span style="background: var(--primary-color); color: white; padding: 0.25rem 0.5rem; border-radius: 12px; font-size: 0.75rem;">
-                            {{ city_stat.count }}
-                        </span>
-                    </div>
-                    {% empty %}
-                    <p style="color: var(--text-secondary); text-align: center;">No city data available</p>
-                    {% endfor %}
-                </div>
-
-                <div>
-                    <h4 style="color: var(--primary-color); margin-bottom: 1rem;">Top States</h4>
-                    {% for state_stat in location_stats.top_states %}
-                    <div style="display: flex; justify-content: space-between; align-items: center; padding: 0.5rem 0; border-bottom: 1px solid var(--border-color);">
-                        <span>{{ state_stat.state }}</span>
-                        <span style="background: var(--primary-color); color: white; padding: 0.25rem 0.5rem; border-radius: 12px; font-size: 0.75rem;">
-                            {{ state_stat.count }}
-                        </span>
-                    </div>
-                    {% empty %}
-                    <p style="color: var(--text-secondary); text-align: center;">No state data available</p>
-                    {% endfor %}
-                </div>
-            </div>
-        </div>
-
-        <!-- Recent Activities -->
-        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 2rem;">
-            <div class="card">
-                <div class="card-title">
-                    <i class="fas fa-history"></i>
-                    Recent Donations
-                </div>
-                {% if recent_donations %}
-                    {% for donation in recent_donations %}
-                    <div style="padding: 0.75rem; border-bottom: 1px solid var(--border-color); margin-bottom: 0.5rem;">
-                        <h5 style="font-weight: 600;">{{ donation.donor.name }}</h5>
-                        <p style="color: var(--text-secondary); font-size: 0.875rem;">
-                            {{ donation.donation_date|date:"M d, Y" }} • {{ donation.units_donated }}L
-                        </p>
-                    </div>
-                    {% endfor %}
-                {% else %}
-                    <p style="color: var(--text-secondary); text-align: center; padding: 2rem;">
-                        No recent donations
-                    </p>
-                {% endif %}
-            </div>
-
-            <div class="card">
-                <div class="card-title">
-                    <i class="fas fa-calendar-alt"></i>
-                    Recent Requests
-                </div>
-                {% if recent_requests %}
-                    {% for request in recent_requests %}
-                    <div style="padding: 0.75rem; border-bottom: 1px solid var(--border-color); margin-bottom: 0.5rem;">
-                        <h5 style="font-weight: 600;">{{ request.donor.name }}</h5>
-                        <p style="color: var(--text-secondary); font-size: 0.875rem;">
-                            {{ request.requested_date|date:"M d, Y" }} • {{ request.get_status_display }}
-                        </p>
-                    </div>
-                    {% endfor %}
-                {% else %}
-                    <p style="color: var(--text-secondary); text-align: center; padding: 2rem;">
-                        No recent requests
-                    </p>
-                {% endif %}
-            </div>
-        </div>
-
-        <!-- Admin Notifications -->
-        {% if admin_notifications %}
-        <div class="card">
-            <div class="card-title">
-                🔔 System Notifications
-            </div>
-            <div style="max-height: 200px; overflow-y: auto;">
-                {% for notification in admin_notifications %}
-                    <div style="padding: 0.75rem; margin-bottom: 0.5rem; background: #f8f9fa; border-radius: 4px; border-left: 3px solid {% if notification.priority == 'critical' %}#dc3545{% elif notification.priority == 'high' %}#fd7e14{% elif notification.priority == 'medium' %}#ffc107{% else %}#17a2b8{% endif %};">
-                        <strong>{{ notification.title }}</strong>
-                        <p style="margin: 0.25rem 0 0 0; color: #6c757d; font-size: 0.9rem;">{{ notification.message }}</p>
-                        <small style="color: #adb5bd;">{{ notification.created_at|timesince }} ago</small>
-                    </div>
-                {% endfor %}
-            </div>
-        </div>
-        {% endif %}
 
         <!-- Quick Actions -->
-        <div class="card">
-            <div class="card-title">
-                Quick Actions
-            </div>
-            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem;">
-                <a href="{% url 'admin_panel:manage_requests' %}" class="btn btn-primary">
-                    Manage Requests
-                </a>
-                <a href="{% url 'admin_panel:manage_donors' %}" class="btn btn-primary">
-                    Manage Donors
-                </a>
-                <a href="{% url 'admin_panel:manage_inventory' %}" class="btn btn-primary">
-                    Update Inventory
-                </a>
-                <a href="{% url 'admin_panel:manage_emergencies' %}" class="btn btn-primary">
-                    Emergency Requests
-                </a>
-                <a href="{% url 'admin_panel:create_emergency_request' %}" class="btn btn-primary">
-                    Create Emergency Request
-                </a>
-                <a href="{% url 'admin_panel:manage_blood_centers' %}" class="btn btn-primary">
-                    Manage Blood Centers
-                </a>
-            </div>
+        <div class="quick-actions fade-in-up">
+    <a href="{% url 'admin_panel:donor_tracking' %}" class="action-card">
+        <div class="action-icon">
+            <i class="fas fa-users"></i>
         </div>
-    </main>
-</body>
-</html>
+        <div class="action-title">Track Donor</div>
+        <div class="action-description">View and manage donor profiles, search by blood group or location</div>
+    </a>
+
+            <a href="{% url 'admin_panel:manage_requests' %}" class="action-card">
+                <div class="action-icon">
+            <i class="fas fa-clipboard-list"></i>
+                </div>
+        <div class="action-title">Manage Requests</div>
+        <div class="action-description">Review and approve donation requests from donors</div>
+    </a>
+
+    <a href="{% url 'admin_panel:create_emergency_request' %}" class="action-card" style="border: 2px solid var(--color-danger-600); background: linear-gradient(135deg, rgba(220, 38, 38, 0.05), rgba(220, 38, 38, 0.1));">
+        <div class="action-icon" style="background: var(--color-danger-600);">
+            <i class="fas fa-plus-circle"></i>
+        </div>
+        <div class="action-title" style="color: var(--color-danger-600);">Create Emergency Request</div>
+        <div class="action-description">Quickly create urgent blood request and notify donors</div>
+    </a>
+
+    <a href="{% url 'admin_panel:manage_emergencies' %}" class="action-card">
+        <div class="action-icon">
+            <i class="fas fa-exclamation-triangle"></i>
+        </div>
+        <div class="action-title">Manage Emergencies</div>
+        <div class="action-description">View and handle existing emergency blood requests</div>
+    </a>
+
+            <a href="{% url 'admin_panel:reports' %}" class="action-card">
+                <div class="action-icon">
+                    <i class="fas fa-chart-bar"></i>
+                </div>
+                <div class="action-title">View Reports</div>
+        <div class="action-description">Access system analytics, blood group distribution, and statistics</div>
+    </a>
+
+    <a href="{% url 'admin_panel:manage_inventory' %}" class="action-card">
+        <div class="action-icon">
+            <i class="fas fa-tint"></i>
+        </div>
+        <div class="action-title">Blood Inventory</div>
+        <div class="action-description">Monitor blood stock levels and manage inventory</div>
+    </a>
+
+    <a href="{% url 'admin_panel:manage_blood_centers' %}" class="action-card" style="border: 2px solid var(--color-info-600);">
+        <div class="action-icon" style="background: var(--color-info-600);">
+            <i class="fas fa-hospital"></i>
+        </div>
+        <div class="action-title">Manage Donation Centers</div>
+        <div class="action-description">Add and manage blood donation centers</div>
+    </a>
+
+    <a href="{% url 'admin_panel:admin_profile' %}" class="action-card">
+        <div class="action-icon">
+            <i class="fas fa-user-shield"></i>
+        </div>
+        <div class="action-title">View Profile</div>
+        <div class="action-description">View your admin profile and account information</div>
+    </a>
+
+    <a href="{% url 'admin_panel:edit_admin_profile' %}" class="action-card">
+        <div class="action-icon">
+            <i class="fas fa-user-edit"></i>
+        </div>
+        <div class="action-title">Edit Profile</div>
+        <div class="action-description">Update your admin profile and account settings</div>
+    </a>
+</div>
+
+<!-- Recent Activities -->
+<div class="recent-activities fade-in-up">
+    <h2 class="section-title">
+        <i class="fas fa-history"></i>
+        Recent System Activities
+    </h2>
+    <ul class="activity-list">
+        {% if recent_activities %}
+            {% for activity in recent_activities %}
+            <li class="activity-item">
+                <div class="activity-icon">
+                    <i class="fas fa-{{ activity.icon|default:'info-circle' }}"></i>
+                </div>
+                <div class="activity-content">
+                    <div class="activity-title">{{ activity.title }}</div>
+                    <div class="activity-description">{{ activity.description }}</div>
+                </div>
+                <div class="activity-time">{{ activity.time|default:"Just now" }}</div>
+            </li>
+            {% endfor %}
+        {% else %}
+            <li class="activity-item">
+                <div class="activity-icon">
+                    <i class="fas fa-info-circle"></i>
+                </div>
+                <div class="activity-content">
+                    <div class="activity-title">System Ready</div>
+                    <div class="activity-description">Blood Donation Management System is running smoothly</div>
+                </div>
+                <div class="activity-time">Just now</div>
+            </li>
+        {% endif %}
+    </ul>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+    <!-- Chart.js CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    
+    <script>
+        // Blood Group Distribution Chart
+        const ctx = document.getElementById('bloodGroupChart');
+        
+        // Blood group data from backend
+        const bloodGroupLabels = [
+            {% for label in blood_group_labels %}'{{ label }}'{% if not forloop.last %}, {% endif %}{% endfor %}
+        ];
+        
+        const bloodGroupCounts = [
+            {% for count in blood_group_counts %}{{ count }}{% if not forloop.last %}, {% endif %}{% endfor %}
+        ];
+        
+        new Chart(ctx, {
+            type: 'doughnut',
+            data: {
+                labels: bloodGroupLabels,
+                datasets: [{
+                    label: 'Donors',
+                    data: bloodGroupCounts,
+                    backgroundColor: [
+                        '#2563eb', // A+ - Blue
+                        '#60a5fa', // A- - Light Blue
+                        '#16a34a', // B+ - Green
+                        '#4ade80', // B- - Light Green
+                        '#dc2626', // AB+ - Red
+                        '#f87171', // AB- - Light Red
+                        '#ea580c', // O+ - Orange
+                        '#fb923c'  // O- - Light Orange
+                    ],
+                    borderColor: '#ffffff',
+                    borderWidth: 3,
+                    hoverOffset: 10
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: true,
+                plugins: {
+                    legend: {
+                        display: true,
+                        position: 'right',
+                        labels: {
+                            font: {
+                                size: 14,
+                                weight: 600
+                            },
+                            color: '#374151',
+                            padding: 15,
+                            generateLabels: function(chart) {
+                                const data = chart.data;
+                                return data.labels.map((label, i) => {
+                                    const value = data.datasets[0].data[i];
+                                    return {
+                                        text: `${label}: ${value} donor${value !== 1 ? 's' : ''}`,
+                                        fillStyle: data.datasets[0].backgroundColor[i],
+                                        hidden: false,
+                                        index: i
+                                    };
+                                });
+                            }
+                        }
+                    },
+                    tooltip: {
+                        backgroundColor: 'rgba(0, 0, 0, 0.8)',
+                        padding: 12,
+                        titleFont: {
+                            size: 14,
+                            weight: 'bold'
+                        },
+                        bodyFont: {
+                            size: 13
+                        },
+                        callbacks: {
+                            label: function(context) {
+                                const total = context.dataset.data.reduce((a, b) => a + b, 0);
+                                const percentage = total > 0 ? ((context.parsed / total) * 100).toFixed(1) : 0;
+                                return `${context.label}: ${context.parsed} donor${context.parsed !== 1 ? 's' : ''} (${percentage}%)`;
+                            }
+                        }
+                    }
+                }
+            }
+        });
+        
+        // Add smooth animations
+        document.addEventListener('DOMContentLoaded', function() {
+            const elements = document.querySelectorAll('.fade-in-up');
+            elements.forEach((element, index) => {
+                element.style.animationDelay = `${index * 0.1}s`;
+            });
+        });
+
+        // Add hover effects to action cards
+        document.querySelectorAll('.action-card').forEach(card => {
+            card.addEventListener('mouseenter', function() {
+                this.style.transform = 'translateY(-4px)';
+            });
+            
+            card.addEventListener('mouseleave', function() {
+                this.style.transform = 'translateY(0)';
+            });
+        });
+    </script>
+{% endblock %}

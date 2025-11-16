@@ -1,0 +1,494 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Donor Details - {{ donor.name }}</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #f5f5f5;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #e74c3c, #c0392b);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+        }
+
+        .nav-back {
+            padding: 20px;
+            background: #f8f9fa;
+            border-bottom: 1px solid #dee2e6;
+        }
+
+        .nav-back a {
+            color: #007bff;
+            text-decoration: none;
+            font-weight: 500;
+        }
+
+        .nav-back a:hover {
+            text-decoration: underline;
+        }
+
+        .content {
+            padding: 30px;
+        }
+
+        .donor-info {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 30px;
+            margin-bottom: 40px;
+        }
+
+        .info-card {
+            background: #f8f9fa;
+            border-radius: 10px;
+            padding: 25px;
+            border-left: 5px solid #007bff;
+        }
+
+        .info-card h3 {
+            color: #333;
+            margin-bottom: 20px;
+            font-size: 1.3rem;
+            border-bottom: 2px solid #007bff;
+            padding-bottom: 10px;
+        }
+
+        .info-row {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 15px;
+            padding: 10px 0;
+            border-bottom: 1px solid #e9ecef;
+        }
+
+        .info-row:last-child {
+            border-bottom: none;
+        }
+
+        .info-label {
+            font-weight: 600;
+            color: #495057;
+        }
+
+        .info-value {
+            color: #212529;
+        }
+
+        .blood-group {
+            background: #dc3545;
+            color: white;
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-weight: bold;
+            font-size: 1.1rem;
+        }
+
+        .status-badge {
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-weight: bold;
+            font-size: 0.9rem;
+        }
+
+        .status-eligible {
+            background: #28a745;
+            color: white;
+        }
+
+        .status-not-eligible {
+            background: #dc3545;
+            color: white;
+        }
+
+        .section {
+            margin-bottom: 40px;
+        }
+
+        .section h2 {
+            color: #333;
+            margin-bottom: 20px;
+            font-size: 1.5rem;
+            border-bottom: 3px solid #007bff;
+            padding-bottom: 10px;
+        }
+
+        .table {
+            width: 100%;
+            border-collapse: collapse;
+            background: white;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+
+        .table th,
+        .table td {
+            padding: 15px;
+            text-align: left;
+            border-bottom: 1px solid #dee2e6;
+        }
+
+        .table th {
+            background: #007bff;
+            color: white;
+            font-weight: 600;
+        }
+
+        .table tr:hover {
+            background: #f8f9fa;
+        }
+
+        .btn {
+            display: inline-block;
+            padding: 10px 20px;
+            background: #007bff;
+            color: white;
+            text-decoration: none;
+            border-radius: 5px;
+            border: none;
+            cursor: pointer;
+            font-size: 1rem;
+            transition: background 0.3s;
+        }
+
+        .btn:hover {
+            background: #0056b3;
+        }
+
+        .btn-success {
+            background: #28a745;
+        }
+
+        .btn-success:hover {
+            background: #1e7e34;
+        }
+
+        .btn-warning {
+            background: #ffc107;
+            color: #212529;
+        }
+
+        .btn-warning:hover {
+            background: #e0a800;
+        }
+
+        .btn-danger {
+            background: #dc3545;
+        }
+
+        .btn-danger:hover {
+            background: #c82333;
+        }
+
+        .emergency-card {
+            background: #fff3cd;
+            border: 1px solid #ffeaa7;
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 15px;
+            border-left: 5px solid #ffc107;
+        }
+
+        .emergency-card.critical {
+            background: #f8d7da;
+            border-color: #f5c6cb;
+            border-left-color: #dc3545;
+        }
+
+        .emergency-card.high {
+            background: #fff3cd;
+            border-color: #ffeaa7;
+            border-left-color: #fd7e14;
+        }
+
+        .urgency-badge {
+            padding: 5px 10px;
+            border-radius: 15px;
+            font-size: 0.8rem;
+            font-weight: bold;
+        }
+
+        .urgency-critical {
+            background: #dc3545;
+            color: white;
+        }
+
+        .urgency-high {
+            background: #fd7e14;
+            color: white;
+        }
+
+        .urgency-medium {
+            background: #ffc107;
+            color: black;
+        }
+
+        .urgency-low {
+            background: #28a745;
+            color: white;
+        }
+
+        @media (max-width: 768px) {
+            .donor-info {
+                grid-template-columns: 1fr;
+            }
+            
+            .info-row {
+                flex-direction: column;
+                gap: 5px;
+            }
+            
+            .table {
+                font-size: 0.9rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>👤 Donor Details</h1>
+            <p>Complete information for {{ donor.name }}</p>
+        </div>
+
+        <div class="nav-back">
+            <a href="{% url 'admin_panel:donor_tracking' %}">← Back to Manage Donors</a>
+        </div>
+
+        <div class="content">
+            <!-- Basic Information -->
+            <div class="donor-info">
+                <div class="info-card">
+                    <h3>Personal Information</h3>
+                    <div class="info-row">
+                        <span class="info-label">Full Name:</span>
+                        <span class="info-value">{{ donor.name }}</span>
+                    </div>
+                    <div class="info-row">
+                        <span class="info-label">Username:</span>
+                        <span class="info-value">{{ donor.user.username }}</span>
+                    </div>
+                    <div class="info-row">
+                        <span class="info-label">Email:</span>
+                        <span class="info-value">{{ donor.user.email }}</span>
+                    </div>
+                    <div class="info-row">
+                        <span class="info-label">Blood Group:</span>
+                        <span class="blood-group">{{ donor.blood_group }}</span>
+                    </div>
+                    <div class="info-row">
+                        <span class="info-label">Age:</span>
+                        <span class="info-value">{{ donor.age|default:"N/A" }}</span>
+                    </div>
+                    <div class="info-row">
+                        <span class="info-label">Gender:</span>
+                        <span class="info-value">{{ donor.get_gender_display }}</span>
+                    </div>
+                    <div class="info-row">
+                        <span class="info-label">Phone:</span>
+                        <span class="info-value">{{ donor.phone_number }}</span>
+                    </div>
+                </div>
+
+                <div class="info-card">
+                    <h3>Location & Contact</h3>
+                    <div class="info-row">
+                        <span class="info-label">Address:</span>
+                        <span class="info-value">{{ donor.address }}</span>
+                    </div>
+                    <div class="info-row">
+                        <span class="info-label">City:</span>
+                        <span class="info-value">{{ donor.city|default:"N/A" }}</span>
+                    </div>
+                    <div class="info-row">
+                        <span class="info-label">State:</span>
+                        <span class="info-value">{{ donor.state|default:"N/A" }}</span>
+                    </div>
+                    <div class="info-row">
+                        <span class="info-label">Country:</span>
+                        <span class="info-value">{{ donor.country|default:"N/A" }}</span>
+                    </div>
+                    <div class="info-row">
+                        <span class="info-label">Emergency Contact:</span>
+                        <span class="info-value">{{ donor.emergency_contact_name|default:"N/A" }}</span>
+                    </div>
+                    <div class="info-row">
+                        <span class="info-label">Emergency Phone:</span>
+                        <span class="info-value">{{ donor.emergency_contact_phone|default:"N/A" }}</span>
+                    </div>
+                </div>
+
+                <div class="info-card">
+                    <h3>Medical Information</h3>
+                    <div class="info-row">
+                        <span class="info-label">Weight:</span>
+                        <span class="info-value">{{ donor.weight|default:"N/A" }} kg</span>
+                    </div>
+                    <div class="info-row">
+                        <span class="info-label">Height:</span>
+                        <span class="info-value">{{ donor.height|default:"N/A" }} cm</span>
+                    </div>
+                    <div class="info-row">
+                        <span class="info-label">Medical Conditions:</span>
+                        <span class="info-value">{{ donor.medical_conditions|default:"None reported" }}</span>
+                    </div>
+                    <div class="info-row">
+                        <span class="info-label">Last Donation:</span>
+                        <span class="info-value">{{ donor.last_donation_date|default:"Never" }}</span>
+                    </div>
+                    <div class="info-row">
+                        <span class="info-label">Eligibility Status:</span>
+                        <span class="status-badge {% if can_donate %}status-eligible{% else %}status-not-eligible{% endif %}">
+                            {% if can_donate %}Eligible{% else %}Not Eligible{% endif %}
+                        </span>
+                    </div>
+                    {% if not can_donate %}
+                    <div class="info-row">
+                        <span class="info-label">Reason:</span>
+                        <span class="info-value">{{ eligibility_message }}</span>
+                    </div>
+                    {% endif %}
+                </div>
+
+                <div class="info-card">
+                    <h3>Donation Statistics</h3>
+                    <div class="info-row">
+                        <span class="info-label">Total Donations:</span>
+                        <span class="info-value">{{ donor.total_donations }}</span>
+                    </div>
+                    <div class="info-row">
+                        <span class="info-label">Compatible Blood Groups:</span>
+                        <span class="info-value">{{ compatible_groups|join:", " }}</span>
+                    </div>
+                    <div class="info-row">
+                        <span class="info-label">Allow Emergency Contact:</span>
+                        <span class="info-value">{% if donor.allow_emergency_contact %}Yes{% else %}No{% endif %}</span>
+                    </div>
+                    <div class="info-row">
+                        <span class="info-label">Joined:</span>
+                        <span class="info-value">{{ donor.created_at|date:"M d, Y" }}</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Donation History -->
+            <div class="section">
+                <h2>📋 Recent Donation History</h2>
+                {% if donation_history %}
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>Date</th>
+                                <th>Units Donated</th>
+                                <th>Donation Center</th>
+                                <th>Notes</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for donation in donation_history %}
+                            <tr>
+                                <td>{{ donation.donation_date }}</td>
+                                <td>{{ donation.units_donated }}</td>
+                                <td>{{ donation.donation_center_name|default:"N/A" }}</td>
+                                <td>{{ donation.notes|default:"No notes" }}</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                {% else %}
+                    <p>No donation history found.</p>
+                {% endif %}
+            </div>
+
+            <!-- Donation Requests -->
+            <div class="section">
+                <h2>📅 Recent Donation Requests</h2>
+                {% if donation_requests %}
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>Requested Date</th>
+                                <th>Preferred Time</th>
+                                <th>Status</th>
+                                <th>Notes</th>
+                                <th>Created</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for request in donation_requests %}
+                            <tr>
+                                <td>{{ request.requested_date }}</td>
+                                <td>{{ request.preferred_time }}</td>
+                                <td>
+                                    <span class="status-badge 
+                                        {% if request.status == 'approved' %}status-eligible
+                                        {% elif request.status == 'completed' %}status-eligible
+                                        {% else %}status-not-eligible{% endif %}">
+                                        {{ request.get_status_display }}
+                                    </span>
+                                </td>
+                                <td>{{ request.notes|default:"No notes" }}</td>
+                                <td>{{ request.created_at|date:"M d, Y" }}</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                {% else %}
+                    <p>No donation requests found.</p>
+                {% endif %}
+            </div>
+
+            <!-- Compatible Emergency Requests -->
+            <div class="section">
+                <h2>🚨 Compatible Emergency Requests</h2>
+                {% if emergency_requests %}
+                    {% for emergency in emergency_requests %}
+                    <div class="emergency-card {{ emergency.urgency_level }}">
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+                            <h4>{{ emergency.hospital_name }}</h4>
+                            <span class="urgency-badge urgency-{{ emergency.urgency_level }}">
+                                {{ emergency.get_urgency_level_display }}
+                            </span>
+                        </div>
+                        <p><strong>Blood Type:</strong> {{ emergency.blood_group_needed }}</p>
+                        <p><strong>Units Needed:</strong> {{ emergency.units_needed }}</p>
+                        <p><strong>Contact:</strong> {{ emergency.contact_person }} - {{ emergency.contact_phone }}</p>
+                        <p><strong>Required By:</strong> {{ emergency.required_by }}</p>
+                    </div>
+                    {% endfor %}
+                {% else %}
+                    <p>No active emergency requests for compatible blood types.</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</body>
+</html>

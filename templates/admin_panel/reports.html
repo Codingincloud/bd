@@ -1,130 +1,405 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Reports | Admin Panel</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <style>
-        body { margin: 0; font-family: Arial, sans-serif; background: #f9f9f9; }
-        .navbar {
-            background: #e74c3c;
-            color: #fff;
-            padding: 1rem 2rem;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-        .navbar .logo { font-size: 1.5rem; font-weight: bold; }
-        .navbar nav a {
-            color: #fff;
-            text-decoration: none;
-            margin-left: 2rem;
-            font-weight: 500;
-        }
-        .container {
-            max-width: 1200px;
-            margin: 2rem auto;
-            background: #fff;
-            border-radius: 10px;
-            box-shadow: 0 4px 16px rgba(0,0,0,0.07);
-            padding: 2rem;
-        }
-        .reports-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 2rem;
-            margin-top: 2rem;
-        }
-        .report-section {
-            background: #f8f9fa;
-            padding: 1.5rem;
-            border-radius: 8px;
-        }
-        .table {
-            width: 100%;
-            border-collapse: collapse;
-            margin-top: 1rem;
-        }
-        .table th, .table td {
-            padding: 0.75rem;
-            text-align: left;
-            border-bottom: 1px solid #ddd;
-        }
-        .table th {
-            background: #e9ecef;
-            font-weight: 600;
-        }
-        .btn {
-            display: inline-block;
-            padding: 0.5rem 1rem;
-            background: #e74c3c;
-            color: white;
-            text-decoration: none;
-            border-radius: 5px;
-            margin: 0.25rem;
-        }
-        .btn:hover { background: #c0392b; }
-    </style>
-</head>
-<body>
-    <div class="navbar">
-        <div class="logo">Admin Panel</div>
-        <nav>
-            <a href="{% url 'admin_panel:dashboard' %}">Dashboard</a>
-            <a href="{% url 'admin_panel:manage_donors' %}">Donors</a>
-            <a href="{% url 'admin_panel:manage_requests' %}">Requests</a>
-            <a href="{% url 'accounts:logout' %}">Logout</a>
-        </nav>
+{% extends 'admin_panel/base_admin.html' %}
+
+{% block title %}System Reports | Blood Donor Information Management System{% endblock %}
+
+{% block extra_css %}
+<style>
+    .report-section {
+        background: white;
+        padding: var(--space-8);
+        border-radius: var(--radius-xl);
+        box-shadow: var(--shadow);
+        margin-bottom: var(--space-8);
+    }
+
+    .section-title {
+        font-size: var(--text-2xl);
+        font-weight: var(--font-weight-bold);
+        color: var(--color-gray-800);
+        margin-bottom: var(--space-6);
+        display: flex;
+        align-items: center;
+        gap: var(--space-2);
+        border-bottom: 2px solid var(--color-primary-600);
+        padding-bottom: var(--space-2);
+    }
+
+    .chart-container {
+        background: var(--color-gray-50);
+        padding: var(--space-6);
+        border-radius: var(--radius-lg);
+        margin-bottom: var(--space-4);
+        border: 1px solid var(--color-gray-200);
+    }
+
+    .chart-title {
+        font-size: var(--text-lg);
+        font-weight: var(--font-weight-semibold);
+        color: var(--color-gray-700);
+        margin-bottom: var(--space-4);
+        text-align: center;
+    }
+
+    .simple-chart {
+        display: flex;
+        flex-direction: column;
+        gap: var(--space-3);
+    }
+
+    .chart-item {
+        display: flex;
+        align-items: center;
+        gap: var(--space-4);
+        padding: var(--space-3);
+        background: white;
+        border-radius: var(--radius-md);
+        border-left: 4px solid var(--color-primary-600);
+    }
+
+    .chart-item.O_positive { border-left-color: #e74c3c; }
+    .chart-item.A_positive { border-left-color: #3498db; }
+    .chart-item.B_positive { border-left-color: #2ecc71; }
+    .chart-item.AB_positive { border-left-color: #f39c12; }
+    .chart-item.O_negative { border-left-color: #9b59b6; }
+    .chart-item.A_negative { border-left-color: #1abc9c; }
+    .chart-item.B_negative { border-left-color: #e67e22; }
+    .chart-item.AB_negative { border-left-color: #34495e; }
+
+    .chart-label {
+        font-weight: var(--font-weight-semibold);
+        color: var(--color-gray-800);
+        min-width: 80px;
+    }
+
+    .chart-bar {
+        flex: 1;
+        height: 20px;
+        background: var(--color-gray-200);
+        border-radius: 10px;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .chart-fill {
+        height: 100%;
+        background: var(--color-primary-600);
+        border-radius: 10px;
+        transition: var(--transition-base);
+    }
+
+    .chart-item.O_positive .chart-fill { background: #e74c3c; }
+    .chart-item.A_positive .chart-fill { background: #3498db; }
+    .chart-item.B_positive .chart-fill { background: #2ecc71; }
+    .chart-item.AB_positive .chart-fill { background: #f39c12; }
+    .chart-item.O_negative .chart-fill { background: #9b59b6; }
+    .chart-item.A_negative .chart-fill { background: #1abc9c; }
+    .chart-item.B_negative .chart-fill { background: #e67e22; }
+    .chart-item.AB_negative .chart-fill { background: #34495e; }
+
+    .chart-value {
+        font-weight: var(--font-weight-semibold);
+        color: var(--color-gray-700);
+        min-width: 40px;
+        text-align: right;
+    }
+
+    .stats-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: var(--space-4);
+        margin-bottom: var(--space-8);
+    }
+
+    .stat-card {
+        background: white;
+        padding: var(--space-6);
+        border-radius: var(--radius-lg);
+        text-align: center;
+        box-shadow: var(--shadow-sm);
+        border-left: 4px solid var(--color-primary-600);
+        transition: var(--transition-base);
+    }
+
+    .stat-card:hover {
+        transform: translateY(-2px);
+    }
+
+    .stat-number {
+        font-size: var(--text-3xl);
+        font-weight: var(--font-weight-bold);
+        color: var(--color-primary-600);
+        margin-bottom: var(--space-2);
+    }
+
+    .stat-label {
+        color: var(--color-gray-600);
+        font-weight: var(--font-weight-medium);
+    }
+
+    .export-section {
+        background: var(--color-gray-50);
+        padding: var(--space-6);
+        border-radius: var(--radius-lg);
+        border: 1px solid var(--color-gray-200);
+        text-align: center;
+    }
+
+    .export-buttons {
+        display: flex;
+        gap: var(--space-4);
+        justify-content: center;
+        flex-wrap: wrap;
+    }
+
+    .btn-export {
+        background: var(--color-success-600);
+        color: white;
+        padding: var(--space-3) var(--space-6);
+        border-radius: var(--radius-lg);
+        text-decoration: none;
+        font-weight: var(--font-weight-semibold);
+        display: inline-flex;
+        align-items: center;
+        gap: var(--space-2);
+        transition: var(--transition-base);
+    }
+
+    .btn-export:hover {
+        background: #2e7d32;
+        transform: translateY(-1px);
+        text-decoration: none;
+        color: white;
+    }
+
+    .date-range {
+        display: flex;
+        gap: var(--space-4);
+        align-items: center;
+        margin-bottom: var(--space-4);
+        flex-wrap: wrap;
+    }
+
+    .date-input {
+        padding: var(--space-2);
+        border: 1px solid var(--color-gray-300);
+        border-radius: var(--radius-md);
+        font-size: var(--text-sm);
+    }
+
+    .date-input:focus {
+        outline: none;
+        border-color: var(--color-primary-600);
+        box-shadow: 0 0 0 2px rgba(211, 47, 47, 0.1);
+    }
+
+    .no-data {
+        text-align: center;
+        padding: var(--space-8);
+        color: var(--color-gray-500);
+    }
+
+    .no-data i {
+        font-size: var(--text-4xl);
+        color: var(--color-gray-400);
+        margin-bottom: var(--space-4);
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <h1 class="page-title">
+        <i class="fas fa-chart-bar"></i>
+        System Reports & Analytics
+    </h1>
+    <p class="page-subtitle">Comprehensive insights into your blood donation system performance</p>
+</div>
+
+<div class="content-container">
+    <!-- Date Range Filter -->
+    <div class="date-range">
+        <label for="start_date">From:</label>
+        <input type="date" id="start_date" class="date-input" value="{{ start_date|default:'' }}">
+        <label for="end_date">To:</label>
+        <input type="date" id="end_date" class="date-input" value="{{ end_date|default:'' }}">
+        <button class="btn" onclick="filterReports()">
+            <i class="fas fa-filter"></i> Filter
+        </button>
     </div>
-    <div class="container">
-        <h1><i class="fas fa-chart-bar"></i> Reports & Analytics</h1>
-        
-        <div class="reports-grid">
-            <div class="report-section">
-                <h3>Monthly Donation Statistics</h3>
-                <table class="table">
-                    <thead>
-                        <tr>
-                            <th>Month</th>
-                            <th>Donations</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {% for stat in monthly_stats %}
-                        <tr>
-                            <td>{{ stat.month }}</td>
-                            <td>{{ stat.donations }}</td>
-                        </tr>
-                        {% endfor %}
-                    </tbody>
-                </table>
+
+    <!-- Overview Statistics -->
+    <div class="report-section">
+        <h2 class="section-title">
+            <i class="fas fa-tachometer-alt"></i>
+            System Overview
+        </h2>
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-number">{{ total_donors|default:"0" }}</div>
+                <div class="stat-label">Total Donors</div>
             </div>
-            
-            <div class="report-section">
-                <h3>Blood Group Statistics</h3>
-                <table class="table">
-                    <thead>
-                        <tr>
-                            <th>Blood Group</th>
-                            <th>Donors</th>
-                            <th>Donations</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {% for stat in blood_group_stats %}
-                        <tr>
-                            <td><strong>{{ stat.blood_group }}</strong></td>
-                            <td>{{ stat.donors }}</td>
-                            <td>{{ stat.donations }}</td>
-                        </tr>
-                        {% endfor %}
-                    </tbody>
-                </table>
+            <div class="stat-card">
+                <div class="stat-number">{{ total_donations|default:"0" }}</div>
+                <div class="stat-label">Total Donations</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number">{{ active_donors|default:"0" }}</div>
+                <div class="stat-label">Active Donors</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number">{{ monthly_donations|default:"0" }}</div>
+                <div class="stat-label">This Month</div>
             </div>
         </div>
-        
-        <a href="{% url 'admin_panel:dashboard' %}" class="btn">Back to Dashboard</a>
     </div>
-</body>
-</html>
+
+    <!-- Blood Group Distribution -->
+    <div class="report-section">
+        <h2 class="section-title">
+            <i class="fas fa-tint"></i>
+            Blood Group Distribution
+        </h2>
+        <div class="chart-container">
+            <div class="chart-title">Donor Distribution by Blood Group</div>
+            <div class="simple-chart">
+                {% for blood_group, count in blood_group_stats.items %}
+                <div class="chart-item {{ blood_group }}">
+                    <div class="chart-label">{{ blood_group|upper }}</div>
+                    <div class="chart-bar">
+                        <div class="chart-fill" style="width: {% widthratio count max_count 100 %}%"></div>
+                    </div>
+                    <div class="chart-value">{{ count }}</div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+
+    <!-- Monthly Donations -->
+    <div class="report-section">
+        <h2 class="section-title">
+            <i class="fas fa-calendar"></i>
+            Monthly Donation Trends
+        </h2>
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-number">{{ monthly_donations|default:"0" }}</div>
+                <div class="stat-label">This Month</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number">{{ last_month_donations|default:"0" }}</div>
+                <div class="stat-label">Last Month</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number">{{ yearly_donations|default:"0" }}</div>
+                <div class="stat-label">This Year</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number">{{ average_monthly|default:"0" }}</div>
+                <div class="stat-label">Monthly Average</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Location Distribution -->
+    <div class="report-section">
+        <h2 class="section-title">
+            <i class="fas fa-map-marker-alt"></i>
+            Geographic Distribution
+        </h2>
+        <div class="chart-container">
+            <div class="chart-title">Donors by Location</div>
+            {% if location_stats %}
+            <div class="simple-chart">
+                {% for location, count in location_stats.items %}
+                <div class="chart-item">
+                    <div class="chart-label">{{ location }}</div>
+                    <div class="chart-bar">
+                        <div class="chart-fill" style="width: {% widthratio count max_location_count 100 %}%"></div>
+                    </div>
+                    <div class="chart-value">{{ count }}</div>
+                </div>
+                {% endfor %}
+            </div>
+            {% else %}
+            <div class="no-data">
+                <i class="fas fa-map"></i>
+                <p>No location data available</p>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- Donation Centers Performance -->
+    <div class="report-section">
+        <h2 class="section-title">
+            <i class="fas fa-hospital"></i>
+            Donation Centers Performance
+        </h2>
+        <div class="chart-container">
+            <div class="chart-title">Donations by Center</div>
+            {% if center_stats %}
+            <div class="simple-chart">
+                {% for center, count in center_stats.items %}
+                <div class="chart-item">
+                    <div class="chart-label">{{ center }}</div>
+                    <div class="chart-bar">
+                        <div class="chart-fill" style="width: {% widthratio count max_center_count 100 %}%"></div>
+                    </div>
+                    <div class="chart-value">{{ count }}</div>
+                </div>
+                {% endfor %}
+            </div>
+            {% else %}
+            <div class="no-data">
+                <i class="fas fa-hospital"></i>
+                <p>No center data available</p>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- Export Section -->
+    <div class="export-section">
+        <h3 style="margin-bottom: 1rem; color: var(--gray-700);">Export Reports</h3>
+        <div class="export-buttons">
+            <a href="{% url 'admin_panel:export_donors' %}" class="btn-export">
+                <i class="fas fa-file-excel"></i> Export Donors
+            </a>
+            <a href="{% url 'admin_panel:export_donations' %}" class="btn-export">
+                <i class="fas fa-file-csv"></i> Export Donations
+            </a>
+            <a href="{% url 'admin_panel:export_reports' %}" class="btn-export">
+                <i class="fas fa-file-pdf"></i> Full Report
+            </a>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    function filterReports() {
+        const startDate = document.getElementById('start_date').value;
+        const endDate = document.getElementById('end_date').value;
+        
+        let url = window.location.pathname + '?';
+        if (startDate) url += 'start_date=' + startDate + '&';
+        if (endDate) url += 'end_date=' + endDate + '&';
+        
+        // Remove trailing & and navigate
+        url = url.replace(/&$/, '');
+        window.location.href = url;
+    }
+
+    // Animate chart bars on load
+    document.addEventListener('DOMContentLoaded', function() {
+        const chartFills = document.querySelectorAll('.chart-fill');
+        chartFills.forEach((fill, index) => {
+            setTimeout(() => {
+                fill.style.width = fill.style.width;
+            }, index * 100);
+        });
+    });
+</script>
+{% endblock %}

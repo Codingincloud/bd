@@ -1,0 +1,376 @@
+{% extends 'admin_panel/base_admin.html' %}
+
+{% block title %}All Notifications - Admin Panel{% endblock %}
+
+{% block extra_css %}
+<style>
+    .notifications-page .container {
+        max-width: 1000px;
+    }
+
+    .notifications-container {
+        padding: 20px;
+    }
+
+    .notifications-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 20px;
+        padding-bottom: 15px;
+        border-bottom: 2px solid #f1f3f4;
+    }
+
+    .notifications-title {
+        font-size: 1.5rem;
+        color: #333;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+
+    .mark-all-btn {
+        background: #28a745;
+        color: white;
+        border: none;
+        padding: 10px 20px;
+        border-radius: 8px;
+        cursor: pointer;
+        font-weight: 500;
+        transition: background-color 0.3s;
+    }
+
+    .mark-all-btn:hover {
+        background: #218838;
+    }
+
+    .notification-item {
+        display: flex;
+        align-items: flex-start;
+        padding: 20px;
+        margin-bottom: 15px;
+        border: 1px solid #e9ecef;
+        border-radius: 10px;
+        transition: all 0.3s ease;
+        cursor: pointer;
+    }
+
+    .notification-item:hover {
+        box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        transform: translateY(-2px);
+    }
+
+    .notification-item.unread {
+        background: linear-gradient(135deg, #e7f3ff 0%, #f0f8ff 100%);
+        border-left: 4px solid #007bff;
+    }
+
+    .notification-icon {
+        margin-right: 15px;
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.2rem;
+    }
+
+    .notification-icon.success {
+        background: #d4edda;
+        color: #28a745;
+    }
+
+    .notification-icon.warning {
+        background: #fff3cd;
+        color: #ffc107;
+    }
+
+    .notification-icon.danger {
+        background: #f8d7da;
+        color: #dc3545;
+    }
+
+    .notification-icon.info {
+        background: #d1ecf1;
+        color: #17a2b8;
+    }
+
+    .notification-content {
+        flex: 1;
+    }
+
+    .notification-title {
+        font-weight: 600;
+        color: #212529;
+        margin-bottom: 8px;
+        font-size: 1.1rem;
+    }
+
+    .notification-message {
+        color: #6c757d;
+        line-height: 1.5;
+        margin-bottom: 10px;
+    }
+
+    .notification-meta {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        font-size: 0.9rem;
+        color: #adb5bd;
+    }
+
+    .notification-time {
+        display: flex;
+        align-items: center;
+        gap: 5px;
+    }
+
+    .notification-status {
+        display: flex;
+        align-items: center;
+        gap: 5px;
+        font-weight: 500;
+    }
+
+    .notification-status.read {
+        color: #28a745;
+    }
+
+    .notification-status.unread {
+        color: #007bff;
+    }
+
+    .no-notifications {
+        text-align: center;
+        padding: 60px 20px;
+        color: #6c757d;
+    }
+
+    .no-notifications i {
+        font-size: 4rem;
+        margin-bottom: 20px;
+        opacity: 0.3;
+    }
+
+    .no-notifications h3 {
+        margin-bottom: 10px;
+        color: #495057;
+    }
+
+    .filter-tabs {
+        display: flex;
+        gap: 10px;
+        margin-bottom: 20px;
+    }
+
+    .filter-tab {
+        padding: 10px 20px;
+        border: 2px solid #dee2e6;
+        background: white;
+        border-radius: 25px;
+        cursor: pointer;
+        transition: all 0.3s;
+        font-weight: 500;
+    }
+
+    .filter-tab.active {
+        background: #007bff;
+        color: white;
+        border-color: #007bff;
+    }
+
+    .filter-tab:hover {
+        border-color: #007bff;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <h1 class="page-title">
+        <i class="fas fa-bell"></i>
+        All Notifications
+    </h1>
+    <p class="page-subtitle">Stay updated with system activities and donor management</p>
+</div>
+
+<div class="content-container">
+    <div class="notifications-container">
+        <div class="notifications-header">
+            <div class="notifications-title">
+                <i class="fas fa-list"></i>
+                System Notifications
+                {% if unread_count > 0 %}
+                    <span style="background: #dc3545; color: white; padding: 4px 8px; border-radius: 12px; font-size: 0.8rem;">
+                        {{ unread_count }} unread
+                    </span>
+                {% endif %}
+            </div>
+            {% if unread_count > 0 %}
+                <button class="mark-all-btn" onclick="markAllAsRead()">
+                    <i class="fas fa-check-double"></i> Mark All as Read
+                </button>
+            {% endif %}
+        </div>
+
+        <div class="filter-tabs">
+            <div class="filter-tab active" onclick="filterNotifications('all')">
+                All Notifications
+            </div>
+            <div class="filter-tab" onclick="filterNotifications('unread')">
+                Unread Only
+            </div>
+            <div class="filter-tab" onclick="filterNotifications('read')">
+                Read Only
+            </div>
+        </div>
+
+        <div class="notifications-list">
+            {% if admin_notifications %}
+                {% for notification in admin_notifications %}
+                    <div class="notification-item {% if not notification.is_read %}unread{% endif %}"
+                         data-notification-id="{{ notification.id }}"
+                         data-read-status="{% if notification.is_read %}read{% else %}unread{% endif %}"
+                         onclick="{% if not notification.is_read %}markAsRead('{{ notification.id }}'){% endif %}">
+                        <div class="notification-icon {% if notification.notification_type == 'donation_approved' or notification.notification_type == 'donation_completed' %}success{% elif notification.notification_type == 'emergency_created' %}danger{% elif notification.notification_type == 'inventory_low' %}warning{% else %}info{% endif %}">
+                            {% if notification.notification_type == 'donation_approved' %}
+                                <i class="fas fa-check-circle"></i>
+                            {% elif notification.notification_type == 'donation_completed' %}
+                                <i class="fas fa-heart"></i>
+                            {% elif notification.notification_type == 'emergency_created' %}
+                                <i class="fas fa-exclamation-triangle"></i>
+                            {% elif notification.notification_type == 'inventory_low' %}
+                                <i class="fas fa-tint"></i>
+                            {% elif notification.notification_type == 'new_donor' %}
+                                <i class="fas fa-user-plus"></i>
+                            {% else %}
+                                <i class="fas fa-info-circle"></i>
+                            {% endif %}
+                        </div>
+                        <div class="notification-content">
+                            <div class="notification-title">{{ notification.title }}</div>
+                            <div class="notification-message">{{ notification.message }}</div>
+                            <div class="notification-meta">
+                                <div class="notification-time">
+                                    <i class="fas fa-clock"></i>
+                                    {{ notification.created_at|timesince }} ago
+                                </div>
+                                <div class="notification-status {% if notification.is_read %}read{% else %}unread{% endif %}">
+                                    {% if notification.is_read %}
+                                        <i class="fas fa-check-circle"></i> Read
+                                    {% else %}
+                                        <i class="fas fa-circle"></i> Unread
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                {% endfor %}
+            {% else %}
+                <div class="no-notifications">
+                    <i class="fas fa-bell-slash"></i>
+                    <h3>No Notifications Yet</h3>
+                    <p>System notifications and updates will appear here.</p>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    function markAsRead(notificationId) {
+        fetch(`/admin-panel/notifications/mark-read/${notificationId}/`, {
+            method: 'POST',
+            headers: {
+                'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value,
+                'Content-Type': 'application/json',
+            },
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                const notificationItem = document.querySelector(`[data-notification-id="${notificationId}"]`);
+                if (notificationItem) {
+                    notificationItem.classList.remove('unread');
+                    notificationItem.setAttribute('data-read-status', 'read');
+                    notificationItem.onclick = null;
+
+                    const statusElement = notificationItem.querySelector('.notification-status');
+                    statusElement.className = 'notification-status read';
+                    statusElement.innerHTML = '<i class="fas fa-check-circle"></i> Read';
+
+                    updateUnreadCount();
+                }
+            }
+        })
+        .catch(error => console.error('Error:', error));
+    }
+
+    function markAllAsRead() {
+        fetch('/admin-panel/notifications/mark-all-read/', {
+            method: 'POST',
+            headers: {
+                'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value,
+                'Content-Type': 'application/json',
+            },
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                document.querySelectorAll('.notification-item.unread').forEach(item => {
+                    item.classList.remove('unread');
+                    item.setAttribute('data-read-status', 'read');
+                    item.onclick = null;
+
+                    const statusElement = item.querySelector('.notification-status');
+                    statusElement.className = 'notification-status read';
+                    statusElement.innerHTML = '<i class="fas fa-check-circle"></i> Read';
+                });
+
+                const markAllBtn = document.querySelector('.mark-all-btn');
+                if (markAllBtn) markAllBtn.style.display = 'none';
+                updateUnreadCount();
+            }
+        })
+        .catch(error => console.error('Error:', error));
+    }
+
+    function filterNotifications(filter) {
+        const tabs = document.querySelectorAll('.filter-tab');
+        const notifications = document.querySelectorAll('.notification-item');
+
+        tabs.forEach(tab => tab.classList.remove('active'));
+        event.target.classList.add('active');
+
+        notifications.forEach(notification => {
+            const readStatus = notification.getAttribute('data-read-status');
+
+            if (filter === 'all') {
+                notification.style.display = 'flex';
+            } else if (filter === 'unread' && readStatus === 'unread') {
+                notification.style.display = 'flex';
+            } else if (filter === 'read' && readStatus === 'read') {
+                notification.style.display = 'flex';
+            } else {
+                notification.style.display = 'none';
+            }
+        });
+    }
+
+    function updateUnreadCount() {
+        const unreadCount = document.querySelectorAll('.notification-item[data-read-status="unread"]').length;
+        const unreadBadge = document.querySelector('.notifications-title span');
+
+        if (unreadCount === 0 && unreadBadge) {
+            unreadBadge.remove();
+        } else if (unreadBadge) {
+            unreadBadge.textContent = `${unreadCount} unread`;
+        }
+    }
+</script>
+{% endblock %}

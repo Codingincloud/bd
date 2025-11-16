@@ -1,187 +1,100 @@
+{% load static %}
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Login | Blood Donor Information Management System</title>
-    <style>
-        :root {
-            --primary-color: #e74c3c;
-            --secondary-color: #c0392b;
-            --light-color: #f5f5f5;
-            --dark-color: #333;
-            --success-color: #2ecc71;
-        }
-
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-        }
-
-        body {
-            background-color: #f9f9f9;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            min-height: 100vh;
-            background-image: linear-gradient(rgba(255, 255, 255, 0.9), rgba(255, 255, 255, 0.9)),
-                              url('https://images.unsplash.com/photo-1530026186672-2cd00ffc50fe?ixlib=rb-1.2.1&auto=format&fit=crop&w=1350&q=80');
-            background-size: cover;
-            background-position: center;
-        }
-
-        .login-container {
-            background-color: white;
-            padding: 2.5rem;
-            border-radius: 10px;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
-            width: 100%;
-            max-width: 450px;
-            transform: translateY(0);
-            transition: transform 0.3s ease, box-shadow 0.3s ease;
-        }
-
-        .login-container:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.15);
-        }
-
-        h1 {
-            color: var(--primary-color);
-            text-align: center;
-            margin-bottom: 1.5rem;
-            font-weight: 600;
-        }
-
-        .error-message {
-            color: white;
-            background-color: var(--primary-color);
-            padding: 0.75rem;
-            border-radius: 5px;
-            margin-bottom: 1.5rem;
-            text-align: center;
-            animation: fadeIn 0.5s ease;
-        }
-
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(-10px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-
-        .form-group {
-            margin-bottom: 1.25rem;
-            position: relative;
-        }
-
-        label {
-            display: block;
-            margin-bottom: 0.5rem;
-            color: var(--dark-color);
-            font-weight: 500;
-        }
-
-        input, select {
-            width: 100%;
-            padding: 0.75rem;
-            border: 1px solid #ddd;
-            border-radius: 5px;
-            font-size: 1rem;
-            transition: border-color 0.3s ease, box-shadow 0.3s ease;
-        }
-
-        input:focus, select:focus {
-            outline: none;
-            border-color: var(--primary-color);
-            box-shadow: 0 0 0 3px rgba(231, 76, 60, 0.2);
-        }
-
-        button {
-            width: 100%;
-            padding: 0.75rem;
-            background-color: var(--primary-color);
-            color: white;
-            border: none;
-            border-radius: 5px;
-            font-size: 1rem;
-            font-weight: 600;
-            cursor: pointer;
-            transition: background-color 0.3s ease, transform 0.2s ease;
-        }
-
-        button:hover {
-            background-color: var(--secondary-color);
-            transform: translateY(-2px);
-        }
-
-        button:active {
-            transform: translateY(0);
-        }
-
-        .register-link {
-            text-align: center;
-            margin-top: 1.5rem;
-            color: var(--dark-color);
-        }
-
-        .register-link a {
-            color: var(--primary-color);
-            text-decoration: none;
-            font-weight: 600;
-            transition: color 0.3s ease;
-        }
-
-        .register-link a:hover {
-            color: var(--secondary-color);
-            text-decoration: underline;
-        }
-
-        .logo {
-            text-align: center;
-            margin-bottom: 1.5rem;
-        }
-
-        .logo img {
-            height: 60px;
-        }
-    </style>
+    <link rel="stylesheet" href="{% static 'css/main.css' %}">
+    <link rel="stylesheet" href="{% static 'css/components.css' %}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
 </head>
 <body>
-    <div class="login-container">
-        <div class="logo">
-            <img src="https://cdn-icons-png.flaticon.com/512/2516/2516383.png" alt="Blood Donation Logo">
-        </div>
-        <h1>Blood Donor Information Management System</h1>
-        <p style="text-align: center; color: #666; margin-bottom: 1.5rem;">Login to Your Account</p>
-        {% if error %}
-            <div class="error-message">{{ error }}</div>
-        {% endif %}
-        <form method="post" id="loginForm">
-            {% csrf_token %}
-            <div class="form-group">
-                <label for="username">Username</label>
-                <input type="text" id="username" name="username" required placeholder="Enter your username">
+    <div class="auth-page">
+        <div class="auth-container">
+            <div class="auth-logo">
+                <i class="fas fa-heartbeat"></i>
             </div>
-            <div class="form-group">
-                <label for="password">Password</label>
-                <input type="password" id="password" name="password" required placeholder="Enter your password">
-                <div style="text-align:right; margin-top:0.3rem;">
-                    <a href="{% url 'accounts:password_reset' %}" style="color: var(--primary-color); font-size: 0.95rem; text-decoration: none;">Forgot password?</a>
+            
+            <div class="auth-header">
+                <h1 class="auth-title">Welcome Back</h1>
+                <p class="auth-subtitle">Login to your Blood Donor account</p>
+            </div>
+
+            <!-- Display Django messages -->
+            {% if messages %}
+                {% for message in messages %}
+                    <div class="alert alert-{% if message.tags == 'error' %}danger{% elif message.tags == 'success' %}success{% else %}info{% endif %}">
+                        <i class="fas fa-{% if message.tags == 'error' %}exclamation-circle{% elif message.tags == 'success' %}check-circle{% else %}info-circle{% endif %} alert-icon"></i>
+                        <div class="alert-content">
+                            <p class="alert-description">{{ message }}</p>
+                        </div>
+                    </div>
+                {% endfor %}
+            {% endif %}
+
+            {% if error %}
+                <div class="alert alert-danger">
+                    <i class="fas fa-exclamation-circle alert-icon"></i>
+                    <div class="alert-content">
+                        <p class="alert-description">{{ error }}</p>
+                    </div>
                 </div>
+            {% endif %}
+
+            <form method="post" class="auth-form" id="loginForm">
+                {% csrf_token %}
+                
+                <div class="form-group">
+                    <label for="username" class="form-label form-label-required">Username</label>
+                    <input 
+                        type="text" 
+                        id="username" 
+                        name="username" 
+                        class="form-input" 
+                        required 
+                        placeholder="Enter your username"
+                        autocomplete="username">
+                </div>
+
+                <div class="form-group">
+                    <label for="password" class="form-label form-label-required">Password</label>
+                    <input 
+                        type="password" 
+                        id="password" 
+                        name="password" 
+                        class="form-input" 
+                        required 
+                        placeholder="Enter your password"
+                        autocomplete="current-password">
+                    <div style="text-align: right; margin-top: 0.5rem;">
+                        <a href="{% url 'accounts:password_reset' %}" class="text-sm" style="color: var(--color-primary-600); text-decoration: none;">
+                            Forgot password?
+                        </a>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="role" class="form-label form-label-required">Login as</label>
+                    <select id="role" name="role" class="form-select" required>
+                        <option value="" disabled selected>Select your role</option>
+                        <option value="donor">Donor</option>
+                        <option value="admin">Admin</option>
+                    </select>
+                </div>
+
+                <button type="submit" class="btn btn-primary btn-lg" id="loginButton" style="width: 100%;">
+                    <i class="fas fa-sign-in-alt"></i>
+                    Login to Account
+                </button>
+            </form>
+
+            <div class="auth-footer">
+                <p>Don't have an account? <a href="{% url 'accounts:register' %}">Register here</a></p>
             </div>
-            <div class="form-group">
-                <label for="role">Login as</label>
-                <select id="role" name="role" required>
-                    <option value="" disabled selected>Select your role</option>
-                    <option value="donor">Donor</option>
-                    <option value="admin">Admin</option>
-                </select>
-            </div>
-            <button type="submit" id="loginButton">Login</button>
-        </form>
-        <div class="register-link">
-            Don't have an account? <a href="{% url 'accounts:register' %}">Register here</a>.
         </div>
     </div>
 
@@ -189,36 +102,48 @@
         document.addEventListener('DOMContentLoaded', function() {
             const loginForm = document.getElementById('loginForm');
             const loginButton = document.getElementById('loginButton');
+            const originalButtonContent = loginButton.innerHTML;
 
-            // Add animation to form elements
-            const formGroups = document.querySelectorAll('.form-group');
-            formGroups.forEach((group, index) => {
-                group.style.opacity = '0';
-                group.style.transform = 'translateY(20px)';
-                group.style.transition = `all 0.5s ease ${index * 0.1}s`;
-
-                setTimeout(() => {
-                    group.style.opacity = '1';
-                    group.style.transform = 'translateY(0)';
-                }, 100);
-            });
-
-            // Form submission animation
+            // Form submission handling
             loginForm.addEventListener('submit', function(e) {
                 loginButton.disabled = true;
                 loginButton.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Logging in...';
+                
+                // Re-enable after 5 seconds if form hasn't submitted (fallback)
+                setTimeout(() => {
+                    if (loginButton.disabled) {
+                        loginButton.disabled = false;
+                        loginButton.innerHTML = originalButtonContent;
+                    }
+                }, 5000);
             });
 
-            // Add focus effects
-            const inputs = document.querySelectorAll('input, select');
+            // Add focus effects to labels
+            const inputs = document.querySelectorAll('.form-input, .form-select');
             inputs.forEach(input => {
                 input.addEventListener('focus', function() {
-                    this.parentElement.querySelector('label').style.color = 'var(--primary-color)';
+                    const label = this.parentElement.querySelector('.form-label');
+                    if (label) {
+                        label.style.color = 'var(--color-primary-600)';
+                    }
                 });
 
                 input.addEventListener('blur', function() {
-                    this.parentElement.querySelector('label').style.color = 'var(--dark-color)';
+                    const label = this.parentElement.querySelector('.form-label');
+                    if (label) {
+                        label.style.color = '';
+                    }
                 });
+            });
+
+            // Auto-dismiss alerts after 5 seconds
+            const alerts = document.querySelectorAll('.alert');
+            alerts.forEach(alert => {
+                setTimeout(() => {
+                    alert.style.opacity = '0';
+                    alert.style.transform = 'translateY(-10px)';
+                    setTimeout(() => alert.remove(), 300);
+                }, 5000);
             });
         });
     </script>

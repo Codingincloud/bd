@@ -6,6 +6,7 @@ from django.contrib.auth.models import User
 from django.utils import timezone
 from admin_panel.models import SystemNotification, UserNotification
 from donor.models import DonationRequest, EmergencyRequest
+from utils.constants import CAN_RECEIVE_FROM
 
 
 class NotificationService:
@@ -126,18 +127,21 @@ class NotificationService:
         """Notify compatible donors about emergency blood request"""
         blood_group = emergency_request.blood_group_needed
         
-        # Find compatible donors
+        # Find compatible donors using constants
         from donor.models import Donor
+        compatible_groups = CAN_RECEIVE_FROM.get(blood_group, [blood_group])
+        
         compatible_donors = Donor.objects.filter(
-            blood_group__in=Donor.get_compatible_donors(blood_group),
-            is_eligible=True
+            blood_group__in=compatible_groups,
+            is_eligible=True,
+            allow_emergency_contact=True
         )
         
         for donor in compatible_donors:
             NotificationService.create_user_notification(
                 user=donor.user,
                 title='🚨 Emergency Blood Request',
-                message=f'URGENT: {emergency_request.hospital_name} needs {blood_group} blood. Patient: {emergency_request.patient_name}. Required by: {emergency_request.required_by}',
+                message=f'URGENT: {emergency_request.hospital_name} needs {blood_group} blood. Contact: {emergency_request.contact_person}. Required by: {emergency_request.required_by}',
                 notification_type='emergency_request',
                 action_url='/donor/dashboard/',
                 related_emergency=emergency_request
@@ -148,7 +152,7 @@ class NotificationService:
         if admin_users.exists():
             NotificationService.create_system_notification(
                 title=f'Emergency: {blood_group} Blood Needed',
-                message=f'{emergency_request.hospital_name} urgently needs {emergency_request.units_needed} units of {blood_group} blood for {emergency_request.patient_name}',
+                message=f'{emergency_request.hospital_name} urgently needs {emergency_request.units_needed} units of {blood_group} blood. Contact: {emergency_request.contact_person}',
                 notification_type='emergency_request',
                 priority='critical',
                 target_audience='all',
@@ -338,23 +342,33 @@ class NotificationService:
         return notifications.count()
     
     @staticmethod
-    def cleanup_old_notifications(days=30):
-        """Clean up old notifications"""
-        cutoff_date = timezone.now() - timezone.timedelta(days=days)
+    def notify_emergency_response(emergency_request, donor, response_text='', selected_hospital=None):
+        """Notify admins when a donor responds to an emergency request"""
+        admin_users = User.objects.filter(is_staff=True)
         
-        # Delete old read notifications
-        old_user_notifications = UserNotification.objects.filter(
-            created_at__lt=cutoff_date,
-            is_read=True
+        message = f"Donor {donor.name} ({donor.blood_group}) responded to emergency request at {emergency_request.hospital_name}."
+        if response_text:
+            message += f" Response: {response_text}"
+        if selected_hospital:
+            message += f" Selected hospital: {selected_hospital.name}"
+        
+        for admin in admin_users:
+            NotificationService.create_user_notification(
+                user=admin,
+                title='Emergency Response Received',
+                message=message,
+                notification_type='emergency_response',
+                action_url='/admin-panel/emergencies/',
+                related_emergency=emergency_request
+            )
+        
+        # Also create system notification
+        NotificationService.create_system_notification(
+            title='Donor Responded to Emergency',
+            message=message,
+            notification_type='emergency_response',
+            priority='high',
+            target_audience='admins',
+            created_by=admin_users.first() if admin_users.exists() else None
         )
-        deleted_count = old_user_notifications.count()
-        old_user_notifications.delete()
-        
-        # Delete expired system notifications
-        expired_system_notifications = SystemNotification.objects.filter(
-            expires_at__lt=timezone.now()
-        )
-        expired_count = expired_system_notifications.count()
-        expired_system_notifications.delete()
-        
-        return deleted_count + expired_count
+

@@ -1,18 +1,68 @@
 from django.contrib import admin
 from django.contrib.auth.models import User
 from django.db.models import Q
-from .models import Donor, DonationCenter, DonationRequest, DonationHistory, EmergencyRequest, HealthMetrics
+from django.utils.html import format_html
+from .models import Donor, DonationCenter, DonationRequest, DonationHistory, EmergencyRequest, HealthMetrics, Hospital, BloodInventory
+
+@admin.register(Hospital)
+class HospitalAdmin(admin.ModelAdmin):
+    list_display = ['name', 'hospital_type', 'city', 'state', 'phone_number', 'has_blood_bank', 'accepts_donations', 'is_active']
+    list_filter = ['hospital_type', 'city', 'state', 'has_blood_bank', 'accepts_donations', 'is_active']
+    search_fields = ['name', 'address', 'city', 'state', 'phone_number', 'email']
+    list_editable = ['is_active']
+    list_per_page = 25
+    ordering = ['name']
+    
+    fieldsets = (
+        ('Basic Information', {
+            'fields': ('name', 'hospital_type', 'is_active')
+        }),
+        ('Contact Information', {
+            'fields': ('phone_number', 'email', 'emergency_contact')
+        }),
+        ('Location Information', {
+            'fields': ('address', 'city', 'state', 'latitude', 'longitude')
+        }),
+        ('Services', {
+            'fields': ('has_blood_bank', 'accepts_donations', 'operating_hours', 'services')
+        }),
+        ('Timestamps', {
+            'fields': ('created_at', 'updated_at'),
+            'classes': ('collapse',)
+        })
+    )
+    readonly_fields = ['created_at', 'updated_at']
+
+@admin.register(BloodInventory)
+class BloodInventoryAdmin(admin.ModelAdmin):
+    list_display = ['blood_group', 'units_available', 'units_reserved', 'last_updated', 'status']
+    list_filter = ['blood_group', 'last_updated']
+    search_fields = ['blood_group', 'notes']
+    list_editable = ['units_available', 'units_reserved']
+    list_per_page = 10
+    ordering = ['blood_group']
+    
+    fieldsets = (
+        ('Inventory Details', {
+            'fields': ('blood_group', 'units_available', 'units_reserved', 'notes')
+        }),
+        ('System Information', {
+            'fields': ('last_updated', 'updated_by'),
+            'classes': ('collapse',)
+        })
+    )
+    readonly_fields = ['last_updated']
 
 @admin.register(Donor)
 class DonorAdmin(admin.ModelAdmin):
-    list_display = ['name', 'blood_group', 'age', 'phone_number', 'city', 'is_eligible', 'last_donation_date', 'total_donations']
+    list_display = ['name', 'blood_group', 'age', 'phone_number', 'city', 'is_eligible', 'last_donation_date']
     list_filter = ['blood_group', 'gender', 'is_eligible', 'city', 'country', 'created_at']
     search_fields = [
         'user__first_name', 'user__last_name', 'user__username', 'user__email',
         'phone_number', 'address', 'city', 'country', 'emergency_contact_name',
         'emergency_contact_phone', 'medical_conditions'
     ]
-    readonly_fields = ['created_at', 'updated_at', 'age', 'bmi', 'total_donations']
+    readonly_fields = ['created_at', 'updated_at', 'age', 'bmi']
     list_per_page = 25
     date_hierarchy = 'created_at'
     ordering = ['-created_at']
@@ -34,7 +84,7 @@ class DonorAdmin(admin.ModelAdmin):
             'fields': ('emergency_contact_name', 'emergency_contact_phone', 'allow_emergency_contact')
         }),
         ('System Information', {
-            'fields': ('created_at', 'updated_at', 'age', 'total_donations'),
+            'fields': ('created_at', 'updated_at', 'age'),
             'classes': ('collapse',)
         })
     )
@@ -61,20 +111,21 @@ class DonorAdmin(admin.ModelAdmin):
 
 @admin.register(DonationCenter)
 class DonationCenterAdmin(admin.ModelAdmin):
-    list_display = ['name', 'city', 'state', 'phone_number', 'email', 'is_active', 'created_at']
+    list_display = ['name', 'hospital_link', 'city', 'state', 'phone_number', 'is_active', 'created_at']
     list_filter = ['city', 'state', 'is_active', 'created_at']
     search_fields = [
         'name', 'city', 'state', 'address', 'phone_number', 'email',
-        'contact_person', 'description'
+        'contact_person', 'description', 'hospital__name'
     ]
-    readonly_fields = ['created_at', 'updated_at']
+    list_select_related = ['hospital']
+    readonly_fields = ['created_at', 'updated_at', 'hospital_link']
     list_per_page = 20
     date_hierarchy = 'created_at'
     ordering = ['name']
 
     fieldsets = (
         ('Basic Information', {
-            'fields': ('name', 'description', 'is_active')
+            'fields': ('name', 'hospital', 'description', 'is_active')
         }),
         ('Contact Information', {
             'fields': ('contact_person', 'phone_number', 'email')
@@ -90,6 +141,14 @@ class DonationCenterAdmin(admin.ModelAdmin):
             'classes': ('collapse',)
         })
     )
+    
+    def hospital_link(self, obj):
+        if obj.hospital:
+            url = f'/admin/donor/hospital/{obj.hospital.id}/change/'
+            return format_html('<a href="{}">{}</a>', url, obj.hospital.name)
+        return "-"
+    hospital_link.short_description = 'Hospital'
+    hospital_link.admin_order_field = 'hospital__name'
 
 @admin.register(DonationRequest)
 class DonationRequestAdmin(admin.ModelAdmin):
@@ -116,11 +175,11 @@ class DonationRequestAdmin(admin.ModelAdmin):
 
 @admin.register(DonationHistory)
 class DonationHistoryAdmin(admin.ModelAdmin):
-    list_display = ['donor_name', 'donor_blood_group', 'donation_date', 'donation_center', 'units_donated']
-    list_filter = ['donation_date', 'donation_center', 'donor__blood_group', 'created_at']
+    list_display = ['donor_name', 'donor_blood_group', 'donation_date', 'donation_center_name', 'units_donated']
+    list_filter = ['donation_date', 'donation_center_name', 'donor__blood_group', 'created_at']
     search_fields = [
         'donor__user__first_name', 'donor__user__last_name', 'donor__user__username',
-        'donor__phone_number', 'donor__blood_group', 'donation_center',
+        'donor__phone_number', 'donor__blood_group', 'donation_center_name',
         'notes'
     ]
     readonly_fields = ['created_at']

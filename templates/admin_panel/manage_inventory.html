@@ -1,308 +1,463 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Blood Inventory Management - Admin Panel</title>
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
+{% extends 'admin_panel/base_admin.html' %}
 
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            min-height: 100vh;
-            padding: 20px;
-        }
+{% block title %}Blood Inventory Management | Blood Donor Information Management System{% endblock %}
 
-        .container {
-            max-width: 1400px;
-            margin: 0 auto;
-            background: white;
-            border-radius: 15px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
-            overflow: hidden;
-        }
+{% block extra_css %}
+<style>
+    .inventory-section {
+        background: white;
+        padding: var(--space-8);
+        border-radius: var(--radius-xl);
+        box-shadow: var(--shadow);
+        margin-bottom: var(--space-8);
+    }
 
-        .header {
-            background: linear-gradient(135deg, #d32f2f 0%, #b71c1c 100%);
-            color: white;
-            padding: 30px;
-            text-align: center;
-        }
+    .section-title {
+        font-size: var(--text-2xl);
+        font-weight: var(--font-weight-bold);
+        color: var(--color-gray-800);
+        margin-bottom: var(--space-6);
+        display: flex;
+        align-items: center;
+        gap: var(--space-2);
+        border-bottom: 2px solid var(--color-primary-600);
+        padding-bottom: var(--space-2);
+    }
 
-        .nav-back {
-            padding: 20px;
-            border-bottom: 1px solid #eee;
-        }
+    .blood-group-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: var(--space-6);
+        margin-bottom: var(--space-8);
+    }
 
-        .nav-back a {
-            color: #d32f2f;
-            text-decoration: none;
-            font-weight: 500;
-        }
+    .blood-group-card {
+        background: white;
+        border: 2px solid var(--color-gray-200);
+        border-radius: var(--radius-xl);
+        padding: var(--space-6);
+        text-align: center;
+        transition: var(--transition-base);
+        position: relative;
+    }
 
-        .content {
-            padding: 30px;
-        }
+    .blood-group-card:hover {
+        transform: translateY(-2px);
+        box-shadow: var(--shadow-lg);
+    }
 
-        .update-form {
-            background: #f8f9fa;
-            padding: 20px;
-            border-radius: 10px;
-            margin-bottom: 30px;
-        }
+    .blood-group-card.critical {
+        border-color: var(--color-danger-600);
+        background: var(--color-danger-50);
+    }
 
-        .form-row {
-            display: grid;
-            grid-template-columns: 1fr 1fr 1fr 1fr auto;
-            gap: 15px;
-            align-items: end;
-        }
+    .blood-group-card.low {
+        border-color: var(--color-warning-600);
+        background: var(--color-warning-50);
+    }
 
-        .form-group {
-            margin-bottom: 15px;
-        }
+    .blood-group-card.adequate {
+        border-color: var(--color-success-600);
+        background: var(--color-success-50);
+    }
 
-        .form-group label {
-            display: block;
-            margin-bottom: 5px;
-            font-weight: 600;
-            color: #333;
-        }
+    .blood-group-card::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 4px;
+        border-radius: var(--radius-xl) var(--radius-xl) 0 0;
+    }
 
-        .form-group select,
-        .form-group input {
-            width: 100%;
-            padding: 10px;
-            border: 2px solid #ddd;
-            border-radius: 5px;
-            font-size: 1rem;
-        }
+    .blood-group-card.O_positive::before { background: #e74c3c; }
+    .blood-group-card.A_positive::before { background: #3498db; }
+    .blood-group-card.B_positive::before { background: #2ecc71; }
+    .blood-group-card.AB_positive::before { background: #f39c12; }
+    .blood-group-card.O_negative::before { background: #9b59b6; }
+    .blood-group-card.A_negative::before { background: #1abc9c; }
+    .blood-group-card.B_negative::before { background: #e67e22; }
+    .blood-group-card.AB_negative::before { background: #34495e; }
 
-        .btn {
-            padding: 10px 20px;
-            border: none;
-            border-radius: 5px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.3s;
-        }
+    .blood-group-title {
+        font-size: var(--text-2xl);
+        font-weight: var(--font-weight-bold);
+        color: var(--color-gray-800);
+        margin-bottom: var(--space-2);
+    }
 
-        .btn-primary {
-            background: #d32f2f;
-            color: white;
-        }
+    .blood-group-units {
+        font-size: var(--text-4xl);
+        font-weight: var(--font-weight-bold);
+        margin-bottom: var(--space-2);
+    }
 
-        .btn-primary:hover {
-            background: #b71c1c;
-        }
+    .blood-group-card.critical .blood-group-units {
+        color: var(--color-danger-600);
+    }
 
-        .inventory-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-            gap: 20px;
-        }
+    .blood-group-card.low .blood-group-units {
+        color: var(--color-warning-600);
+    }
 
-        .blood-card {
-            border: 2px solid #ddd;
-            border-radius: 10px;
-            padding: 20px;
-            background: white;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-            transition: transform 0.3s;
-        }
+    .blood-group-card.adequate .blood-group-units {
+        color: var(--color-success-600);
+    }
 
-        .blood-card:hover {
-            transform: translateY(-5px);
-        }
+    .blood-group-status {
+        font-size: var(--text-sm);
+        font-weight: var(--font-weight-semibold);
+        text-transform: uppercase;
+        margin-bottom: var(--space-2);
+    }
 
-        .blood-card.critical {
-            border-color: #f44336;
-            background: #ffebee;
-        }
+    .blood-group-card.critical .blood-group-status {
+        color: var(--color-danger-600);
+    }
 
-        .blood-card.low {
-            border-color: #ff9800;
-            background: #fff3e0;
-        }
+    .blood-group-card.low .blood-group-status {
+        color: var(--color-warning-600);
+    }
 
-        .blood-card.medium {
-            border-color: #ffc107;
-            background: #fffde7;
-        }
+    .blood-group-card.adequate .blood-group-status {
+        color: var(--color-success-600);
+    }
 
-        .blood-card.good {
-            border-color: #4caf50;
-            background: #e8f5e8;
-        }
+    .blood-group-actions {
+        margin-top: var(--space-4);
+    }
 
-        .blood-type {
-            font-size: 2rem;
-            font-weight: bold;
-            color: #d32f2f;
-            margin-bottom: 10px;
-            text-align: center;
-        }
+    .btn-update {
+        background: var(--color-primary-600);
+        color: white;
+        padding: var(--space-2) var(--space-4);
+        border-radius: var(--radius-md);
+        border: none;
+        font-size: var(--text-xs);
+        font-weight: var(--font-weight-semibold);
+        cursor: pointer;
+        transition: var(--transition-base);
+    }
 
-        .units-available {
-            font-size: 1.5rem;
-            font-weight: bold;
-            text-align: center;
-            margin-bottom: 15px;
-        }
+    .btn-update:hover {
+        background: var(--color-primary-700);
+        transform: translateY(-1px);
+    }
 
-        .status-badge {
-            display: inline-block;
-            padding: 4px 12px;
-            border-radius: 20px;
-            font-size: 0.8rem;
-            font-weight: bold;
-            text-transform: uppercase;
-            margin-bottom: 15px;
-        }
+    .summary-stats {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+        gap: var(--space-4);
+        margin-bottom: var(--space-8);
+    }
 
-        .status-critical {
-            background: #f44336;
-            color: white;
-        }
+    .stat-item {
+        background: var(--color-gray-50);
+        padding: var(--space-4);
+        border-radius: var(--radius-lg);
+        text-align: center;
+        border-left: 4px solid var(--color-primary-600);
+    }
 
-        .status-low {
-            background: #ff9800;
-            color: white;
-        }
+    .stat-number {
+        font-size: var(--text-2xl);
+        font-weight: var(--font-weight-bold);
+        color: var(--color-primary-600);
+        margin-bottom: var(--space-1);
+    }
 
-        .status-medium {
-            background: #ffc107;
-            color: #333;
-        }
+    .stat-label {
+        color: var(--color-gray-600);
+        font-size: var(--text-sm);
+        font-weight: var(--font-weight-medium);
+    }
 
-        .status-good {
-            background: #4caf50;
-            color: white;
-        }
+    .alert-section {
+        background: var(--color-danger-50);
+        border: 2px solid var(--color-danger-600);
+        padding: var(--space-6);
+        border-radius: var(--radius-lg);
+        margin-bottom: var(--space-8);
+    }
 
-        .recent-info {
-            font-size: 0.9rem;
-            color: #666;
-            margin-top: 10px;
-        }
+    .alert-header {
+        display: flex;
+        align-items: center;
+        gap: var(--space-2);
+        margin-bottom: var(--space-4);
+    }
 
-        .last-updated {
-            font-size: 0.8rem;
-            color: #999;
-            margin-top: 5px;
-        }
+    .alert-header i {
+        color: var(--color-danger-600);
+        font-size: var(--text-2xl);
+    }
 
-        @media (max-width: 768px) {
-            .form-row {
-                grid-template-columns: 1fr;
-            }
-            
-            .inventory-grid {
-                grid-template-columns: 1fr;
-            }
-        }
-    </style>
-</head>
-<body>
-    <div class="container">
-        <div class="header">
-            <h1>📦 Blood Inventory Management</h1>
-            <p>Track and update blood bank inventory</p>
-        </div>
+    .alert-header h3 {
+        color: var(--color-danger-600);
+        font-weight: var(--font-weight-bold);
+    }
 
-        <div class="nav-back">
-            <a href="{% url 'admin_panel:dashboard' %}">← Back to Dashboard</a>
-        </div>
+    .alert-item {
+        background: white;
+        padding: var(--space-4);
+        border-radius: var(--radius-md);
+        margin-bottom: var(--space-2);
+        border-left: 4px solid var(--color-danger-600);
+    }
 
-        <div class="content">
-            <!-- Quick Update Form -->
-            <div class="update-form">
-                <h3>Quick Inventory Update</h3>
-                <form method="POST">
-                    {% csrf_token %}
-                    <div class="form-row">
-                        <div class="form-group">
-                            <label for="blood_group">Blood Group</label>
-                            <select name="blood_group" id="blood_group" required>
-                                <option value="">Select Blood Group</option>
-                                {% for value, label in blood_groups %}
-                                    <option value="{{ value }}">{{ label }}</option>
-                                {% endfor %}
-                            </select>
-                        </div>
-                        
-                        <div class="form-group">
-                            <label for="action">Action</label>
-                            <select name="action" id="action" required>
-                                <option value="">Select Action</option>
-                                <option value="add">Add Units</option>
-                                <option value="remove">Remove Units</option>
-                                <option value="set">Set Total</option>
-                            </select>
-                        </div>
-                        
-                        <div class="form-group">
-                            <label for="units">Units</label>
-                            <input type="number" name="units" id="units" step="0.1" min="0" required>
-                        </div>
-                        
-                        <div class="form-group">
-                            <label for="notes">Notes</label>
-                            <input type="text" name="notes" id="notes" placeholder="Optional notes...">
-                        </div>
-                        
-                        <div class="form-group">
-                            <button type="submit" class="btn btn-primary">Update</button>
-                        </div>
-                    </div>
-                </form>
+    .alert-item:last-child {
+        margin-bottom: 0;
+    }
+
+    .alert-title {
+        font-weight: var(--font-weight-semibold);
+        color: var(--color-gray-800);
+        margin-bottom: var(--space-1);
+    }
+
+    .alert-description {
+        color: var(--color-gray-600);
+        font-size: var(--text-sm);
+    }
+
+    .update-form {
+        background: var(--color-gray-50);
+        padding: var(--space-6);
+        border-radius: var(--radius-lg);
+        border: 1px solid var(--color-gray-200);
+        margin-bottom: var(--space-8);
+    }
+
+    .form-title {
+        font-size: var(--text-lg);
+        font-weight: var(--font-weight-semibold);
+        color: var(--color-gray-700);
+        margin-bottom: var(--space-4);
+        display: flex;
+        align-items: center;
+        gap: var(--space-2);
+    }
+
+    .form-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: var(--space-4);
+        align-items: end;
+    }
+
+    .form-group {
+        display: flex;
+        flex-direction: column;
+        gap: var(--space-2);
+    }
+
+    .form-group label {
+        font-weight: var(--font-weight-medium);
+        color: var(--color-gray-700);
+        font-size: var(--text-sm);
+    }
+
+    .form-group input,
+    .form-group select {
+        padding: var(--space-2);
+        border: 1px solid var(--color-gray-300);
+        border-radius: var(--radius-md);
+        font-size: var(--text-sm);
+    }
+
+    .form-group input:focus,
+    .form-group select:focus {
+        outline: none;
+        border-color: var(--color-primary-600);
+        box-shadow: 0 0 0 2px rgba(211, 47, 47, 0.1);
+    }
+
+    .last-updated {
+        text-align: center;
+        color: var(--color-gray-500);
+        font-size: var(--text-sm);
+        margin-top: var(--space-8);
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <h1 class="page-title">
+        <i class="fas fa-tint"></i>
+        Blood Inventory Management
+    </h1>
+    <p class="page-subtitle">Monitor and manage blood stock levels across all donation centers</p>
+</div>
+
+<div class="content-container">
+    <!-- Summary Statistics -->
+    <div class="inventory-section">
+        <h2 class="section-title">
+            <i class="fas fa-chart-pie"></i>
+            Inventory Overview
+        </h2>
+        <div class="summary-stats">
+            <div class="stat-item">
+                <div class="stat-number">{{ total_units|default:"0" }}</div>
+                <div class="stat-label">Total Units</div>
             </div>
-
-            <!-- Current Inventory -->
-            <h3>Current Blood Inventory</h3>
-            
-            <div class="inventory-grid">
-                {% for item in inventory_data %}
-                    <div class="blood-card {{ item.status }}">
-                        <div class="blood-type">{{ item.blood_group_display }}</div>
-                        <div class="units-available">{{ item.units_available }} units</div>
-                        
-                        <div class="status-badge status-{{ item.status }}">
-                            {% if item.status == 'critical' %}
-                                Critical - Need Urgent Donations
-                            {% elif item.status == 'low' %}
-                                Low Stock
-                            {% elif item.status == 'medium' %}
-                                Adequate Stock
-                            {% else %}
-                                Good Stock
-                            {% endif %}
-                        </div>
-                        
-                        <div class="recent-info">
-                            Recent donations (35 days): {{ item.recent_donations }}
-                        </div>
-                        
-                        {% if item.last_updated %}
-                            <div class="last-updated">
-                                Last updated: {{ item.last_updated|date:"M d, Y H:i" }}
-                            </div>
-                        {% endif %}
-                        
-                        {% if item.notes and item.notes != 'No inventory record' %}
-                            <div class="recent-info">
-                                <strong>Notes:</strong> {{ item.notes }}
-                            </div>
-                        {% endif %}
-                    </div>
-                {% endfor %}
+            <div class="stat-item">
+                <div class="stat-number">{{ critical_groups|default:"0" }}</div>
+                <div class="stat-label">Critical Levels</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-number">{{ low_groups|default:"0" }}</div>
+                <div class="stat-label">Low Levels</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-number">{{ adequate_groups|default:"0" }}</div>
+                <div class="stat-label">Adequate Levels</div>
             </div>
         </div>
     </div>
-</body>
-</html>
+
+    <!-- Critical Alerts -->
+    {% if critical_alerts %}
+    <div class="alert-section">
+        <div class="alert-header">
+            <i class="fas fa-exclamation-triangle"></i>
+            <h3>Critical Blood Shortages</h3>
+        </div>
+        {% for alert in critical_alerts %}
+        <div class="alert-item">
+            <div class="alert-title">{{ alert.blood_group }} - Only {{ alert.units_available }} units available</div>
+            <div class="alert-description">Critical shortage! Immediate action required to replenish stock.</div>
+        </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+
+    <!-- Update Inventory Form -->
+    <div class="update-form">
+        <h3 class="form-title">
+            <i class="fas fa-edit"></i>
+            Update Inventory
+        </h3>
+        <form method="POST" action="{% url 'admin_panel:update_inventory' %}" class="form-grid">
+            {% csrf_token %}
+            <div class="form-group">
+                <label for="blood_group">Blood Group</label>
+                <select id="blood_group" name="blood_group" required>
+                    <option value="">Select Blood Group</option>
+                    <option value="A+">A+</option>
+                    <option value="A-">A-</option>
+                    <option value="B+">B+</option>
+                    <option value="B-">B-</option>
+                    <option value="AB+">AB+</option>
+                    <option value="AB-">AB-</option>
+                    <option value="O+">O+</option>
+                    <option value="O-">O-</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="units">Units to Add/Remove</label>
+                <input type="number" id="units" name="units" placeholder="Enter units" required>
+            </div>
+            <div class="form-group">
+                <label for="action">Action</label>
+                <select id="action" name="action" required>
+                    <option value="add">Add Units</option>
+                    <option value="remove">Remove Units</option>
+                    <option value="set">Set Exact Amount</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="notes">Notes (Optional)</label>
+                <input type="text" id="notes" name="notes" placeholder="Reason for update">
+            </div>
+            <div class="form-group">
+                <button type="submit" class="btn btn-success" onclick="return confirmInventoryAction()">
+                    <i class="fas fa-plus"></i> Update Inventory
+                </button>
+            </div>
+        </form>
+    </div>
+
+    <!-- Blood Group Inventory -->
+    <div class="inventory-section">
+        <h2 class="section-title">
+            <i class="fas fa-tint"></i>
+            Blood Group Inventory
+        </h2>
+        <div class="blood-group-grid">
+            {% for item in inventory_data %}
+            <div class="blood-group-card {{ item.status }}">
+                <div class="blood-group-title">{{ item.blood_group }}</div>
+                <div class="blood-group-units">{{ item.units_available }}</div>
+                <div class="blood-group-status">{{ item.status|title }}</div>
+                <div class="blood-group-actions">
+                    <button class="btn-update" onclick="updateInventory('{{ item.blood_group }}')">
+                        <i class="fas fa-edit"></i> Update
+                    </button>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+
+    <!-- Last Updated -->
+    <div class="last-updated">
+        <i class="fas fa-clock"></i>
+        Last updated: {{ last_updated|date:"M d, Y H:i" }}
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    function updateInventory(bloodGroup) {
+        document.getElementById('blood_group').value = bloodGroup;
+        // Removed auto-scroll behavior
+    }
+
+    function confirmInventoryAction() {
+        const bloodGroup = document.getElementById('blood_group').value;
+        const action = document.getElementById('action').value;
+        const units = document.getElementById('units').value;
+        const notes = document.getElementById('notes').value;
+
+        if (!bloodGroup || !action || !units) {
+            alert('Please fill in all required fields.');
+            return false;
+        }
+
+        let actionText = '';
+        if (action === 'add') {
+            actionText = `add ${units} units to`;
+        } else if (action === 'remove') {
+            actionText = `remove ${units} units from`;
+        } else if (action === 'set') {
+            actionText = `set ${bloodGroup} inventory to ${units} units`;
+        }
+
+        const message = `Are you sure you want to ${actionText} ${bloodGroup} blood inventory?${notes ? '\n\nNotes: ' + notes : ''}`;
+        
+        return confirm(message);
+    }
+
+    // Remove auto-refresh for inventory page
+    // setInterval(function() {
+    //     if (document.querySelector('.alert-section')) {
+    //         location.reload();
+    //     }
+    // }, 300000);
+
+    // Add hover effects to blood group cards
+    document.querySelectorAll('.blood-group-card').forEach(card => {
+        card.addEventListener('mouseenter', function() {
+            this.style.transform = 'translateY(-4px)';
+        });
+        
+        card.addEventListener('mouseleave', function() {
+            this.style.transform = 'translateY(0)';
+        });
+    });
+</script>
+{% endblock %}

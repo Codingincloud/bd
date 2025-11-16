@@ -1,292 +1,553 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Blood Compatibility Check | Blood Donor System</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+{% extends 'donor/base_donor.html' %}
+
+{% block title %}Blood Compatibility Check | Blood Donor Information Management System{% endblock %}
+
+{% block extra_css %}
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
+    .compatibility-section {
+        background: white;
+        padding: var(--space-8);
+        border-radius: var(--radius-xl);
+        box-shadow: var(--shadow);
+        margin-bottom: var(--space-8);
+    }
 
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            line-height: 1.6;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            min-height: 100vh;
-        }
+    .section-title {
+        font-size: var(--text-2xl);
+        font-weight: var(--font-weight-bold);
+        color: var(--color-gray-800);
+        margin-bottom: var(--space-6);
+        display: flex;
+        align-items: center;
+        gap: var(--space-2);
+        border-bottom: 2px solid var(--color-primary-600);
+        padding-bottom: var(--space-2);
+    }
 
-        .container {
-            max-width: 1200px;
-            margin: 0 auto;
-            padding: 20px;
-        }
-
-        .header {
-            background: rgba(255, 255, 255, 0.95);
-            padding: 20px;
-            border-radius: 15px;
-            margin-bottom: 30px;
+    .blood-type-display {
+        background: linear-gradient(135deg, var(--color-primary-600), var(--color-primary-700));
+        color: white;
+        padding: var(--space-8);
+        border-radius: var(--radius-xl);
             text-align: center;
-            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
-        }
+        margin-bottom: var(--space-8);
+    }
 
-        .header h1 {
-            color: #d32f2f;
-            margin-bottom: 10px;
-        }
+    .blood-type-title {
+        font-size: var(--text-xl);
+        margin-bottom: var(--space-2);
+        opacity: 0.9;
+    }
 
-        .card {
-            background: rgba(255, 255, 255, 0.95);
-            padding: 30px;
-            border-radius: 15px;
-            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
-            margin-bottom: 20px;
-        }
+    .blood-type-value {
+        font-size: 3rem;
+        font-weight: var(--font-weight-bold);
+        margin-bottom: var(--space-4);
+    }
 
-        .blood-type-display {
-            text-align: center;
-            background: linear-gradient(135deg, #d32f2f, #b71c1c);
-            color: white;
-            padding: 30px;
-            border-radius: 15px;
-            margin-bottom: 30px;
-        }
-
-        .blood-type-display h2 {
-            font-size: 3rem;
-            margin-bottom: 10px;
+    .blood-type-description {
+        font-size: var(--text-base);
+        opacity: 0.9;
         }
 
         .compatibility-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-            gap: 20px;
-            margin-bottom: 30px;
-        }
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: var(--space-4);
+        margin-bottom: var(--space-8);
+    }
 
-        .compatibility-section {
-            background: #f8f9fa;
-            padding: 20px;
-            border-radius: 10px;
-            border-left: 5px solid #d32f2f;
-        }
+    .compatibility-card {
+        background: white;
+        border: 2px solid var(--color-gray-200);
+        border-radius: var(--radius-lg);
+        padding: var(--space-6);
+        text-align: center;
+        transition: var(--transition-base);
+        position: relative;
+    }
 
-        .compatibility-section h3 {
-            color: #d32f2f;
-            margin-bottom: 15px;
-        }
+    .compatibility-card.compatible {
+        border-color: var(--color-success-600);
+        background: var(--color-success-50);
+    }
 
-        .blood-types {
+    .compatibility-card.incompatible {
+        border-color: var(--color-danger-600);
+        background: var(--color-danger-50);
+    }
+
+    .compatibility-card:hover {
+        transform: translateY(-2px);
+        box-shadow: var(--shadow-md);
+    }
+
+    .compatibility-card::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 4px;
+        border-radius: var(--radius-lg) var(--radius-lg) 0 0;
+    }
+
+    .compatibility-card.compatible::before {
+        background: var(--color-success-600);
+    }
+
+    .compatibility-card.incompatible::before {
+        background: var(--color-danger-600);
+    }
+
+    .compatibility-blood-type {
+        font-size: var(--text-2xl);
+        font-weight: var(--font-weight-bold);
+        margin-bottom: var(--space-2);
+    }
+
+    .compatibility-card.compatible .compatibility-blood-type {
+        color: var(--color-success-600);
+    }
+
+    .compatibility-card.incompatible .compatibility-blood-type {
+        color: var(--color-danger-600);
+    }
+
+    .compatibility-status {
+        font-size: var(--text-sm);
+        font-weight: var(--font-weight-semibold);
+        text-transform: uppercase;
+        margin-bottom: var(--space-2);
+    }
+
+    .compatibility-card.compatible .compatibility-status {
+        color: var(--color-success-600);
+    }
+
+    .compatibility-card.incompatible .compatibility-status {
+        color: var(--color-danger-600);
+    }
+
+    .compatibility-description {
+        font-size: var(--text-xs);
+        color: var(--color-gray-600);
+    }
+
+    .info-section {
+        background: var(--color-gray-50);
+        padding: var(--space-6);
+        border-radius: var(--radius-lg);
+        border: 1px solid var(--color-gray-200);
+        margin-bottom: var(--space-8);
+    }
+
+    .info-title {
+        font-size: 1.1rem;
+        font-weight: var(--font-weight-semibold);
+        color: var(--color-gray-700);
+        margin-bottom: var(--space-4);
             display: flex;
-            flex-wrap: wrap;
-            gap: 10px;
-        }
+        align-items: center;
+        gap: var(--space-2);
+    }
 
-        .blood-type-badge {
-            background: #d32f2f;
-            color: white;
-            padding: 8px 15px;
-            border-radius: 20px;
-            font-weight: bold;
-            font-size: 0.9rem;
-        }
+    .info-content {
+        color: var(--color-gray-600);
+        line-height: 1.6;
+    }
 
-        .stats-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 20px;
-            margin-bottom: 30px;
-        }
+    .info-content ul {
+        margin: var(--space-4) 0;
+        padding-left: var(--space-6);
+    }
 
-        .stat-card {
-            background: linear-gradient(135deg, #28a745, #20c997);
-            color: white;
-            padding: 20px;
-            border-radius: 10px;
+    .info-content li {
+        margin-bottom: var(--space-2);
+    }
+
+    .donation-cta {
+        background: linear-gradient(135deg, var(--color-primary-600), var(--color-primary-700));
+        color: white;
+        padding: var(--space-8);
+        border-radius: var(--radius-xl);
             text-align: center;
-        }
+        margin-bottom: var(--space-8);
+    }
 
-        .stat-number {
-            font-size: 2rem;
-            font-weight: bold;
-            margin-bottom: 5px;
+    .donation-cta h3 {
+        font-size: var(--text-2xl);
+        margin-bottom: var(--space-4);
+    }
+
+    .donation-cta p {
+        margin-bottom: var(--space-6);
+        opacity: 0.9;
+    }
+
+    .btn-donate {
+        background: white;
+        color: var(--color-primary-600);
+        padding: var(--space-3) var(--space-8);
+        border-radius: var(--radius-lg);
+        text-decoration: none;
+        font-weight: var(--font-weight-semibold);
+        display: inline-flex;
+        align-items: center;
+        gap: var(--space-2);
+        transition: var(--transition-base);
+    }
+
+    .btn-donate:hover {
+        background: var(--color-primary-50);
+        transform: translateY(-1px);
+        text-decoration: none;
+        color: var(--color-primary-600);
         }
 
         .compatibility-table {
             width: 100%;
             border-collapse: collapse;
-            margin-top: 20px;
+        margin-top: var(--space-4);
+        background: white;
+        border-radius: var(--radius-lg);
+        overflow: hidden;
+        box-shadow: var(--shadow-sm);
         }
 
         .compatibility-table th,
         .compatibility-table td {
-            padding: 12px;
+        padding: var(--space-4);
             text-align: center;
-            border: 1px solid #ddd;
+        border-bottom: 1px solid var(--color-gray-200);
         }
 
         .compatibility-table th {
-            background: #d32f2f;
-            color: white;
-        }
+        background: var(--color-primary-600);
+        color: white;
+        font-weight: var(--font-weight-semibold);
+        text-transform: uppercase;
+        font-size: var(--text-sm);
+        letter-spacing: 0.05em;
+    }
 
-        .compatible {
-            background: #d4edda;
-            color: #155724;
-        }
+    .compatibility-table tbody tr:hover {
+        background: var(--color-gray-50);
+    }
 
-        .incompatible {
-            background: #f8d7da;
-            color: #721c24;
-        }
+    .compatibility-table tbody tr:last-child td {
+        border-bottom: none;
+    }
 
-        .nav-link {
-            display: inline-block;
-            color: #d32f2f;
-            text-decoration: none;
-            margin-bottom: 20px;
-            font-weight: bold;
-        }
+    .compatible-cell {
+        background: var(--color-success-50);
+        color: var(--color-success-600);
+        font-weight: var(--font-weight-semibold);
+    }
 
-        .nav-link:hover {
-            text-decoration: underline;
-        }
+    .incompatible-cell {
+        background: var(--color-danger-50);
+        color: var(--color-danger-600);
+        font-weight: var(--font-weight-semibold);
+    }
 
-        .special-badge {
-            background: linear-gradient(135deg, #ffc107, #ff8f00);
-            color: #212529;
-            padding: 10px 20px;
-            border-radius: 25px;
-            font-weight: bold;
-            display: inline-block;
-            margin: 10px 0;
-        }
+    .simple-compatibility {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: var(--space-8);
+        margin-top: var(--space-4);
+    }
 
-        @media (max-width: 768px) {
-            .compatibility-grid {
-                grid-template-columns: 1fr;
-            }
-            
-            .stats-grid {
-                grid-template-columns: 1fr;
-            }
-            
-            .blood-type-display h2 {
-                font-size: 2rem;
-            }
+    .compatibility-summary {
+        background: white;
+        padding: var(--space-8);
+        border-radius: var(--radius-xl);
+        border-left: 4px solid var(--color-primary-600);
+        box-shadow: var(--shadow-sm);
+    }
+
+    .compatibility-summary h3 {
+        color: var(--color-gray-800);
+        margin-bottom: var(--space-4);
+        font-size: var(--text-xl);
+    }
+
+    .blood-type-highlight {
+        color: var(--color-primary-600);
+        font-weight: var(--font-weight-bold);
+        font-size: var(--text-2xl);
+    }
+
+    .compatibility-explanation {
+        color: var(--color-gray-600);
+        font-size: 1.1rem;
+        line-height: 1.6;
+    }
+
+    .compatibility-benefits {
+        background: var(--color-success-50);
+        padding: var(--space-8);
+        border-radius: var(--radius-xl);
+        border-left: 4px solid var(--color-success-600);
+    }
+
+    .compatibility-benefits h4 {
+        color: var(--color-success-600);
+        margin-bottom: var(--space-4);
+        font-size: 1.1rem;
+    }
+
+    .compatibility-benefits ul {
+        list-style: none;
+        padding: 0;
+    }
+
+    .compatibility-benefits li {
+        margin-bottom: var(--space-3);
+        color: var(--color-gray-700);
+        line-height: 1.5;
+    }
+
+    @media (max-width: 768px) {
+        .simple-compatibility {
+            grid-template-columns: 1fr;
+            gap: var(--space-6);
         }
+    }
     </style>
-</head>
-<body>
-    <div class="container">
-        <div class="header">
-            <h1><i class="fas fa-heart"></i> Blood Compatibility Check</h1>
-            <p>Understanding your blood type compatibility for safe donations</p>
+{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <h1 class="page-title">
+        <i class="fas fa-search"></i>
+        Blood Compatibility Check
+    </h1>
+    <p class="page-subtitle">Check blood type compatibility for safe transfusions</p>
         </div>
 
-        <a href="{% url 'donor:donor_dashboard' %}" class="nav-link">
-            <i class="fas fa-arrow-left"></i> Back to Dashboard
-        </a>
-
+<div class="content-container">
+    <!-- Your Blood Type -->
         <div class="blood-type-display">
-            <h2>{{ donor.blood_group }}</h2>
-            <p>Your Blood Type</p>
-            {% if compatibility_info.universal_donor %}
-                <div class="special-badge">
-                    <i class="fas fa-star"></i> Universal Donor
-                </div>
-            {% endif %}
-            {% if compatibility_info.universal_receiver %}
-                <div class="special-badge">
-                    <i class="fas fa-star"></i> Universal Receiver
-                </div>
-            {% endif %}
+        <div class="blood-type-title">Your Blood Type</div>
+        <div class="blood-type-value">{{ donor.blood_group|default:"A+" }}</div>
+        <div class="blood-type-description">Registered donor blood type</div>
         </div>
 
-        <div class="stats-grid">
-            <div class="stat-card">
-                <div class="stat-number">{{ compatible_recipients }}</div>
-                <div>People you can help</div>
-            </div>
-            <div class="stat-card">
-                <div class="stat-number">{{ compatible_donors }}</div>
-                <div>People who can help you</div>
-            </div>
-            <div class="stat-card">
-                <div class="stat-number">{{ total_donors }}</div>
-                <div>Total registered donors</div>
-            </div>
-        </div>
-
+    <!-- Compatibility Grid -->
+    <div class="compatibility-section">
+        <h2 class="section-title">
+            <i class="fas fa-heart"></i>
+            Compatibility Overview
+        </h2>
         <div class="compatibility-grid">
-            <div class="compatibility-section">
-                <h3><i class="fas fa-hand-holding-heart"></i> You Can Donate To</h3>
-                <p>Your blood can safely help people with these blood types:</p>
-                <div class="blood-types">
-                    {% for blood_type in compatibility_info.can_donate_to %}
-                        <span class="blood-type-badge">{{ blood_type }}</span>
-                    {% endfor %}
-                </div>
+            <div class="compatibility-card compatible">
+                <div class="compatibility-blood-type">A+</div>
+                <div class="compatibility-status">Compatible</div>
+                <div class="compatibility-description">Can donate to A+ and AB+</div>
             </div>
-
-            <div class="compatibility-section">
-                <h3><i class="fas fa-heart"></i> You Can Receive From</h3>
-                <p>You can safely receive blood from people with these blood types:</p>
-                <div class="blood-types">
-                    {% for blood_type in compatibility_info.can_receive_from %}
-                        <span class="blood-type-badge">{{ blood_type }}</span>
-                    {% endfor %}
-                </div>
+            <div class="compatibility-card compatible">
+                <div class="compatibility-blood-type">A-</div>
+                <div class="compatibility-status">Compatible</div>
+                <div class="compatibility-description">Can donate to A+, A-, AB+, AB-</div>
             </div>
+            <div class="compatibility-card incompatible">
+                <div class="compatibility-blood-type">B+</div>
+                <div class="compatibility-status">Incompatible</div>
+                <div class="compatibility-description">Cannot donate to B+ recipients</div>
+            </div>
+            <div class="compatibility-card incompatible">
+                <div class="compatibility-blood-type">B-</div>
+                <div class="compatibility-status">Incompatible</div>
+                <div class="compatibility-description">Cannot donate to B- recipients</div>
         </div>
-
-        <div class="card">
-            <h3><i class="fas fa-info-circle"></i> Blood Type Facts</h3>
-            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 20px;">
-                <div>
-                    <h4 style="color: #d32f2f; margin-bottom: 10px;">Universal Donor</h4>
-                    <p><strong>O-</strong> blood type can donate to all blood types, making O- donors extremely valuable in emergencies.</p>
+            <div class="compatibility-card compatible">
+                <div class="compatibility-blood-type">AB+</div>
+                <div class="compatibility-status">Compatible</div>
+                <div class="compatibility-description">Can donate to AB+ only</div>
                 </div>
-                <div>
-                    <h4 style="color: #d32f2f; margin-bottom: 10px;">Universal Receiver</h4>
-                    <p><strong>AB+</strong> blood type can receive from all blood types, but can only donate to other AB+ recipients.</p>
-                </div>
-                <div>
-                    <h4 style="color: #d32f2f; margin-bottom: 10px;">Most Common</h4>
-                    <p><strong>O+</strong> is the most common blood type, found in about 38% of the population.</p>
-                </div>
-                <div>
-                    <h4 style="color: #d32f2f; margin-bottom: 10px;">Rarest</h4>
-                    <p><strong>AB-</strong> is one of the rarest blood types, found in less than 1% of the population.</p>
-                </div>
+            <div class="compatibility-card compatible">
+                <div class="compatibility-blood-type">AB-</div>
+                <div class="compatibility-status">Compatible</div>
+                <div class="compatibility-description">Can donate to AB+ and AB-</div>
             </div>
-        </div>
-
-        <div class="card">
-            <h3><i class="fas fa-info-circle"></i> Important Information</h3>
-            <ul style="list-style-type: none; padding: 0;">
-                <li style="margin-bottom: 10px;">
-                    <i class="fas fa-check-circle" style="color: #28a745;"></i>
-                    <strong>Safe Donation:</strong> Always donate only to compatible blood types
-                </li>
-                <li style="margin-bottom: 10px;">
-                    <i class="fas fa-exclamation-triangle" style="color: #ffc107;"></i>
-                    <strong>Medical Supervision:</strong> All donations must be done under medical supervision
-                </li>
-                <li style="margin-bottom: 10px;">
-                    <i class="fas fa-clock" style="color: #17a2b8;"></i>
-                    <strong>Donation Frequency:</strong> Wait at least 3 months between donations
-                </li>
-                <li style="margin-bottom: 10px;">
-                    <i class="fas fa-heartbeat" style="color: #d32f2f;"></i>
-                    <strong>Health Check:</strong> Regular health screening is required for all donors
-                </li>
-            </ul>
+            <div class="compatibility-card incompatible">
+                <div class="compatibility-blood-type">O+</div>
+                <div class="compatibility-status">Incompatible</div>
+                <div class="compatibility-description">Cannot donate to O+ recipients</div>
+            </div>
+            <div class="compatibility-card incompatible">
+                <div class="compatibility-blood-type">O-</div>
+                <div class="compatibility-status">Incompatible</div>
+                <div class="compatibility-description">Cannot donate to O- recipients</div>
+            </div>
         </div>
     </div>
-</body>
-</html>
+
+    <!-- Simple Compatibility Summary -->
+    <div class="compatibility-section">
+        <h2 class="section-title">
+            <i class="fas fa-heart"></i>
+            Who Can Receive Your Blood?
+        </h2>
+        <div class="simple-compatibility">
+            <div class="compatibility-summary">
+                <h3>Your Blood Type: <span class="blood-type-highlight">{{ donor.blood_group|default:"A+" }}</span></h3>
+                <p class="compatibility-explanation">
+                    {% if donor.blood_group == "A+" %}
+                        You can donate to: <strong>A+ and AB+</strong> recipients
+                    {% elif donor.blood_group == "A-" %}
+                        You can donate to: <strong>A+, A-, AB+, and AB-</strong> recipients
+                    {% elif donor.blood_group == "B+" %}
+                        You can donate to: <strong>B+ and AB+</strong> recipients
+                    {% elif donor.blood_group == "B-" %}
+                        You can donate to: <strong>B+, B-, AB+, and AB-</strong> recipients
+                    {% elif donor.blood_group == "AB+" %}
+                        You can donate to: <strong>AB+</strong> recipients only
+                    {% elif donor.blood_group == "AB-" %}
+                        You can donate to: <strong>AB+ and AB-</strong> recipients
+                    {% elif donor.blood_group == "O+" %}
+                        You can donate to: <strong>O+, A+, B+, and AB+</strong> recipients
+                    {% elif donor.blood_group == "O-" %}
+                        You can donate to: <strong>ALL blood types</strong> (Universal Donor!)
+                    {% else %}
+                        You can donate to: <strong>Multiple blood types</strong> - check with medical staff
+                    {% endif %}
+                </p>
+            </div>
+            
+            <div class="compatibility-benefits">
+                <h4><i class="fas fa-star"></i> Why Your Blood Type Matters</h4>
+                <ul>
+                    {% if donor.blood_group == "O-" %}
+                        <li><strong>Universal Donor:</strong> Your blood can help anyone in an emergency!</li>
+                        <li><strong>High Demand:</strong> Hospitals always need O- blood</li>
+                        <li><strong>Life Saver:</strong> You can help in critical situations</li>
+                    {% elif donor.blood_group == "AB+" %}
+                        <li><strong>Universal Recipient:</strong> You can receive blood from anyone</li>
+                        <li><strong>Rare Type:</strong> Your donations are valuable for AB+ patients</li>
+                        <li><strong>Special Need:</strong> Few people have your blood type</li>
+                    {% else %}
+                        <li><strong>Compatible Recipients:</strong> Your blood helps specific blood types</li>
+                        <li><strong>Regular Need:</strong> Hospitals need your blood type regularly</li>
+                        <li><strong>Safe Transfusion:</strong> Your blood is safe for compatible recipients</li>
+                    {% endif %}
+                </ul>
+            </div>
+        </div>
+        
+        <!-- Can Receive From Section -->
+        <div class="compatibility-section">
+            <h2 class="section-title">
+                <i class="fas fa-heart"></i>
+                Who Can You Receive Blood From?
+            </h2>
+            <div class="simple-compatibility">
+                <div class="compatibility-summary">
+                    <h3>Your Blood Type: <span class="blood-type-highlight">{{ donor.blood_group|default:"A+" }}</span></h3>
+                    <p class="compatibility-explanation">
+                        {% if donor.blood_group == "A+" %}
+                            You can receive from: <strong>A+, A-, O+, and O-</strong> donors
+                        {% elif donor.blood_group == "A-" %}
+                            You can receive from: <strong>A- and O-</strong> donors only
+                        {% elif donor.blood_group == "B+" %}
+                            You can receive from: <strong>B+, B-, O+, and O-</strong> donors
+                        {% elif donor.blood_group == "B-" %}
+                            You can receive from: <strong>B- and O-</strong> donors only
+                        {% elif donor.blood_group == "AB+" %}
+                            You can receive from: <strong>ALL blood types</strong> (Universal Recipient!)
+                        {% elif donor.blood_group == "AB-" %}
+                            You can receive from: <strong>AB-, A-, B-, and O-</strong> donors
+                        {% elif donor.blood_group == "O+" %}
+                            You can receive from: <strong>O+ and O-</strong> donors only
+                        {% elif donor.blood_group == "O-" %}
+                            You can receive from: <strong>O-</strong> donors only
+                        {% else %}
+                            You can receive from: <strong>Multiple blood types</strong> - check with medical staff
+                        {% endif %}
+                    </p>
+                </div>
+                
+                <div class="compatibility-benefits">
+                    <h4><i class="fas fa-info-circle"></i> Receiving Blood Information</h4>
+                    <ul>
+                        {% if donor.blood_group == "AB+" %}
+                            <li><strong>Universal Recipient:</strong> You can receive blood from anyone!</li>
+                            <li><strong>Emergency Advantage:</strong> You have the best chance in emergencies</li>
+                            <li><strong>Rare Type:</strong> Your blood type is valuable for donations</li>
+                        {% elif donor.blood_group == "O-" %}
+                            <li><strong>Universal Donor:</strong> You can donate to anyone</li>
+                            <li><strong>Limited Recipients:</strong> You can only receive O- blood</li>
+                            <li><strong>High Demand:</strong> Your donations are always needed</li>
+                        {% else %}
+                            <li><strong>Compatible Donors:</strong> You can receive from specific blood types</li>
+                            <li><strong>Safe Transfusion:</strong> Your blood type ensures safe receiving</li>
+                            <li><strong>Medical Safety:</strong> Always consult medical staff for transfusions</li>
+                        {% endif %}
+                    </ul>
+                </div>
+        </div>
+    </div>
+
+    <!-- Information Section -->
+    <div class="info-section">
+        <h3 class="info-title">
+            <i class="fas fa-info-circle"></i>
+            Understanding Blood Compatibility
+        </h3>
+        <div class="info-content">
+            <p><strong>Blood compatibility is crucial for safe transfusions.</strong> Here's what you need to know:</p>
+            <ul>
+                <li><strong>Universal Donor:</strong> O- blood can be given to anyone</li>
+                <li><strong>Universal Recipient:</strong> AB+ can receive from any blood type</li>
+                <li><strong>Rh Factor:</strong> Rh+ can receive Rh+ or Rh-, but Rh- can only receive Rh-</li>
+                <li><strong>Antigens:</strong> A blood has A antigens, B blood has B antigens, AB has both, O has neither</li>
+            </ul>
+            <p>Your blood type ({{ donor.blood_group|default:"A+" }}) is compatible with recipients who can safely receive your blood type. Always consult with medical professionals for any transfusion decisions.</p>
+        </div>
+    </div>
+
+    <!-- Donation Call to Action -->
+    <div class="donation-cta">
+        <h3><i class="fas fa-heart"></i> Ready to Help?</h3>
+        <p>Your blood type is valuable and can help save lives. Schedule your donation today!</p>
+        {% if donor.is_eligible %}
+        <a href="{% url 'donor:schedule_donation' %}" class="btn-donate">
+            <i class="fas fa-calendar-plus"></i>
+            Schedule Donation
+        </a>
+        {% else %}
+        <p style="opacity: 0.8;">You are not currently eligible to donate. Check back when you become eligible.</p>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    // Add hover effects to compatibility cards
+    document.querySelectorAll('.compatibility-card').forEach(card => {
+        card.addEventListener('mouseenter', function() {
+            this.style.transform = 'translateY(-4px)';
+        });
+        
+        card.addEventListener('mouseleave', function() {
+            this.style.transform = 'translateY(0)';
+        });
+    });
+
+    // Highlight user's blood type in the table
+    document.addEventListener('DOMContentLoaded', function() {
+        const userBloodType = '{{ donor.blood_group|default:"A+" }}';
+        const tableRows = document.querySelectorAll('.compatibility-table tbody tr');
+        
+        tableRows.forEach(row => {
+            const firstCell = row.querySelector('td');
+            if (firstCell && firstCell.textContent.includes(userBloodType)) {
+                row.style.backgroundColor = 'var(--color-primary-50)';
+                row.style.borderLeft = '4px solid var(--color-primary-600)';
+            }
+        });
+    });
+</script>
+{% endblock %}

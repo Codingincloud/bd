@@ -1,347 +1,376 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Blood Inventory | Blood Donor System</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
+{% extends 'donor/base_donor.html' %}
 
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            line-height: 1.6;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            min-height: 100vh;
-        }
+{% block title %}Blood Inventory | Blood Donor Information Management System{% endblock %}
 
-        .container {
-            max-width: 1200px;
-            margin: 0 auto;
-            padding: 20px;
-        }
+{% block extra_css %}
+<style>
+    .inventory-section {
+        background: white;
+        padding: var(--space-8);
+        border-radius: var(--radius-xl);
+        box-shadow: var(--shadow);
+        margin-bottom: var(--space-8);
+    }
 
-        .header {
-            background: rgba(255, 255, 255, 0.95);
-            padding: 20px;
-            border-radius: 15px;
-            margin-bottom: 30px;
-            text-align: center;
-            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
-        }
+    .section-title {
+        font-size: var(--text-2xl);
+        font-weight: var(--font-weight-bold);
+        color: var(--color-gray-800);
+        margin-bottom: var(--space-6);
+        display: flex;
+        align-items: center;
+        gap: var(--space-2);
+        border-bottom: 2px solid var(--color-primary-600);
+        padding-bottom: var(--space-2);
+    }
 
-        .header h1 {
-            color: #d32f2f;
-            margin-bottom: 10px;
-        }
+    .blood-group-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: var(--space-6);
+        margin-bottom: var(--space-8);
+    }
 
-        .summary-card {
-            background: rgba(255, 255, 255, 0.95);
-            padding: 25px;
-            border-radius: 15px;
-            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
-            margin-bottom: 30px;
-            text-align: center;
-        }
+    .blood-group-card {
+        background: white;
+        border: 2px solid var(--color-gray-200);
+        border-radius: var(--radius-xl);
+        padding: var(--space-6);
+        text-align: center;
+        transition: var(--transition-base);
+        position: relative;
+    }
 
-        .total-units {
-            font-size: 3rem;
-            font-weight: bold;
-            color: #d32f2f;
-            margin-bottom: 10px;
-        }
+    .blood-group-card:hover {
+        transform: translateY(-2px);
+        box-shadow: var(--shadow-lg);
+    }
 
-        .inventory-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-            gap: 20px;
-            margin-bottom: 30px;
-        }
+    .blood-group-card.critical {
+        border-color: var(--color-danger-600);
+        background: var(--color-danger-50);
+    }
 
-        .blood-type-card {
-            background: rgba(255, 255, 255, 0.95);
-            padding: 25px;
-            border-radius: 15px;
-            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
-            text-align: center;
-            position: relative;
-            overflow: hidden;
-        }
+    .blood-group-card.low {
+        border-color: var(--color-warning-600);
+        background: var(--color-warning-50);
+    }
 
-        .blood-type-card::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            height: 5px;
-        }
+    .blood-group-card.adequate {
+        border-color: var(--color-success-600);
+        background: var(--color-success-50);
+    }
 
-        .blood-type-card.good::before {
-            background: #28a745;
-        }
+    .blood-group-card::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 4px;
+        border-radius: var(--radius-xl) var(--radius-xl) 0 0;
+    }
 
-        .blood-type-card.adequate::before {
-            background: #ffc107;
-        }
+    .blood-group-card.O_positive::before { background: #e74c3c; }
+    .blood-group-card.A_positive::before { background: #3498db; }
+    .blood-group-card.B_positive::before { background: #2ecc71; }
+    .blood-group-card.AB_positive::before { background: #f39c12; }
+    .blood-group-card.O_negative::before { background: #9b59b6; }
+    .blood-group-card.A_negative::before { background: #1abc9c; }
+    .blood-group-card.B_negative::before { background: #e67e22; }
+    .blood-group-card.AB_negative::before { background: #34495e; }
 
-        .blood-type-card.low::before {
-            background: #fd7e14;
-        }
+    .blood-group-title {
+        font-size: var(--text-2xl);
+        font-weight: var(--font-weight-bold);
+        color: var(--color-gray-800);
+        margin-bottom: var(--space-2);
+    }
 
-        .blood-type-card.critical::before {
-            background: #dc3545;
-        }
+    .blood-group-units {
+        font-size: var(--text-4xl);
+        font-weight: var(--font-weight-bold);
+        margin-bottom: var(--space-2);
+    }
 
-        .blood-type {
-            font-size: 2.5rem;
-            font-weight: bold;
-            color: #d32f2f;
-            margin-bottom: 10px;
-        }
+    .blood-group-card.critical .blood-group-units {
+        color: var(--color-danger-600);
+    }
 
-        .units-count {
-            font-size: 2rem;
-            font-weight: bold;
-            margin-bottom: 10px;
-        }
+    .blood-group-card.low .blood-group-units {
+        color: var(--color-warning-600);
+    }
 
-        .units-count.good {
-            color: #28a745;
-        }
+    .blood-group-card.adequate .blood-group-units {
+        color: var(--color-success-600);
+    }
 
-        .units-count.adequate {
-            color: #ffc107;
-        }
+    .blood-group-status {
+        font-size: var(--text-sm);
+        font-weight: var(--font-weight-semibold);
+        text-transform: uppercase;
+        margin-bottom: var(--space-2);
+    }
 
-        .units-count.low {
-            color: #fd7e14;
-        }
+    .blood-group-card.critical .blood-group-status {
+        color: var(--color-danger-600);
+    }
 
-        .units-count.critical {
-            color: #dc3545;
-        }
+    .blood-group-card.low .blood-group-status {
+        color: var(--color-warning-600);
+    }
 
-        .status-badge {
-            padding: 8px 16px;
-            border-radius: 20px;
-            font-weight: bold;
-            font-size: 0.9rem;
-            text-transform: uppercase;
-        }
+    .blood-group-card.adequate .blood-group-status {
+        color: var(--color-success-600);
+    }
 
-        .status-badge.good {
-            background: #d4edda;
-            color: #155724;
-        }
+    .blood-group-description {
+        font-size: var(--text-xs);
+        color: var(--color-gray-600);
+    }
 
-        .status-badge.adequate {
-            background: #fff3cd;
-            color: #856404;
-        }
+    .summary-stats {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+        gap: var(--space-4);
+        margin-bottom: var(--space-8);
+    }
 
-        .status-badge.low {
-            background: #ffeaa7;
-            color: #b8860b;
-        }
+    .stat-item {
+        background: var(--color-gray-50);
+        padding: var(--space-4);
+        border-radius: var(--radius-lg);
+        text-align: center;
+        border-left: 4px solid var(--color-primary-600);
+    }
 
-        .status-badge.critical {
-            background: #f8d7da;
-            color: #721c24;
-        }
+    .stat-number {
+        font-size: var(--text-2xl);
+        font-weight: var(--font-weight-bold);
+        color: var(--color-primary-600);
+        margin-bottom: var(--space-1);
+    }
 
-        .last-updated {
-            font-size: 0.8rem;
-            color: #666;
-            margin-top: 10px;
-        }
+    .stat-label {
+        color: var(--color-gray-600);
+        font-size: var(--text-sm);
+        font-weight: var(--font-weight-medium);
+    }
 
-        .urgent-needs {
-            background: rgba(255, 255, 255, 0.95);
-            padding: 25px;
-            border-radius: 15px;
-            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
-            margin-bottom: 30px;
-            border-left: 5px solid #dc3545;
-        }
+    .alert-section {
+        background: var(--color-danger-50);
+        border: 2px solid var(--color-danger-600);
+        padding: var(--space-6);
+        border-radius: var(--radius-lg);
+        margin-bottom: var(--space-8);
+    }
 
-        .urgent-needs h3 {
-            color: #dc3545;
-            margin-bottom: 15px;
-        }
+    .alert-header {
+        display: flex;
+        align-items: center;
+        gap: var(--space-2);
+        margin-bottom: var(--space-4);
+    }
 
-        .urgent-list {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 15px;
-        }
+    .alert-header i {
+        color: var(--color-danger-600);
+        font-size: var(--text-2xl);
+    }
 
-        .urgent-item {
-            background: #f8d7da;
-            color: #721c24;
-            padding: 10px 15px;
-            border-radius: 10px;
-            font-weight: bold;
-        }
+    .alert-header h3 {
+        color: var(--color-danger-600);
+        font-weight: var(--font-weight-bold);
+    }
 
-        .nav-link {
-            display: inline-block;
-            color: #d32f2f;
-            text-decoration: none;
-            margin-bottom: 20px;
-            font-weight: bold;
-        }
+    .alert-item {
+        background: white;
+        padding: var(--space-4);
+        border-radius: var(--radius-md);
+        margin-bottom: var(--space-2);
+        border-left: 4px solid var(--color-danger-600);
+    }
 
-        .nav-link:hover {
-            text-decoration: underline;
-        }
+    .alert-item:last-child {
+        margin-bottom: 0;
+    }
 
-        .action-buttons {
-            display: flex;
-            gap: 15px;
-            justify-content: center;
-            flex-wrap: wrap;
-            margin-top: 20px;
-        }
+    .alert-title {
+        font-weight: var(--font-weight-semibold);
+        color: var(--color-gray-800);
+        margin-bottom: var(--space-1);
+    }
 
-        .btn {
-            background: linear-gradient(135deg, #d32f2f, #b71c1c);
-            color: white;
-            padding: 12px 20px;
-            border: none;
-            border-radius: 8px;
-            text-decoration: none;
-            font-weight: bold;
-            transition: transform 0.3s;
-        }
+    .alert-description {
+        color: var(--color-gray-600);
+        font-size: var(--text-sm);
+    }
 
-        .btn:hover {
-            transform: translateY(-2px);
-        }
+    .donation-cta {
+        background: linear-gradient(135deg, var(--color-primary-600), var(--color-primary-700));
+        color: white;
+        padding: var(--space-8);
+        border-radius: var(--radius-xl);
+        text-align: center;
+        margin-bottom: var(--space-8);
+    }
 
-        .btn-success {
-            background: linear-gradient(135deg, #28a745, #20c997);
-        }
+    .donation-cta h3 {
+        font-size: var(--text-2xl);
+        margin-bottom: var(--space-4);
+    }
 
-        .legend {
-            background: rgba(255, 255, 255, 0.95);
-            padding: 20px;
-            border-radius: 15px;
-            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
-        }
+    .donation-cta p {
+        margin-bottom: var(--space-6);
+        opacity: 0.9;
+    }
 
-        .legend-items {
-            display: flex;
-            justify-content: space-around;
-            flex-wrap: wrap;
-            gap: 15px;
-        }
+    .btn-donate {
+        background: white;
+        color: var(--color-primary-600);
+        padding: var(--space-3) var(--space-8);
+        border-radius: var(--radius-lg);
+        text-decoration: none;
+        font-weight: var(--font-weight-semibold);
+        display: inline-flex;
+        align-items: center;
+        gap: var(--space-2);
+        transition: var(--transition-base);
+    }
 
-        .legend-item {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
+    .btn-donate:hover {
+        background: var(--color-primary-50);
+        transform: translateY(-1px);
+        text-decoration: none;
+        color: var(--color-primary-600);
+    }
 
-        .legend-color {
-            width: 20px;
-            height: 20px;
-            border-radius: 50%;
-        }
+    .last-updated {
+        text-align: center;
+        color: var(--color-gray-500);
+        font-size: var(--text-sm);
+        margin-top: var(--space-8);
+    }
+</style>
+{% endblock %}
 
-        @media (max-width: 768px) {
-            .inventory-grid {
-                grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-            }
+{% block content %}
+<div class="page-header">
+    <h1 class="page-title">
+        <i class="fas fa-tint"></i>
+        Blood Inventory Status
+    </h1>
+    <p class="page-subtitle">Current blood stock levels across all donation centers</p>
+</div>
 
-            .action-buttons {
-                flex-direction: column;
-            }
-
-            .legend-items {
-                flex-direction: column;
-                align-items: center;
-            }
-        }
-    </style>
-</head>
-<body>
-    <div class="container">
-        <div class="header">
-            <h1><i class="fas fa-tint"></i> Blood Inventory Status</h1>
-            <p>Current blood stock levels across all donation centers</p>
-        </div>
-
-        <a href="{% url 'donor:donor_dashboard' %}" class="nav-link">
-            <i class="fas fa-arrow-left"></i> Back to Dashboard
-        </a>
-
-        <div class="summary-card">
-            <div class="total-units">{{ total_units }}</div>
-            <p>Total Units Available</p>
-            <div class="action-buttons">
-                <a href="{% url 'donor:schedule_donation' %}" class="btn">
-                    <i class="fas fa-calendar-plus"></i> Schedule Donation
-                </a>
-                <a href="{% url 'donor:compatibility_check' %}" class="btn btn-success">
-                    <i class="fas fa-heart"></i> Check Compatibility
-                </a>
+<div class="content-container">
+    <!-- Summary Statistics -->
+    <div class="inventory-section">
+        <h2 class="section-title">
+            <i class="fas fa-chart-pie"></i>
+            Inventory Overview
+        </h2>
+        <div class="summary-stats">
+            <div class="stat-item">
+                <div class="stat-number">{{ total_units|default:"0" }}</div>
+                <div class="stat-label">Total Units</div>
             </div>
-        </div>
-
-        {% if urgent_needs %}
-        <div class="urgent-needs">
-            <h3><i class="fas fa-exclamation-triangle"></i> Urgent Blood Needs</h3>
-            <p>These blood types are critically low and need immediate donations:</p>
-            <div class="urgent-list">
-                {% for blood_type, data in urgent_needs.items %}
-                    <div class="urgent-item">
-                        {{ blood_type }} - {{ data.units }} units ({{ data.status|title }})
-                    </div>
-                {% endfor %}
+            <div class="stat-item">
+                <div class="stat-number">{{ critical_groups|default:"0" }}</div>
+                <div class="stat-label">Critical Levels</div>
             </div>
-        </div>
-        {% endif %}
-
-        <div class="inventory-grid">
-            {% for blood_type, data in blood_inventory.items %}
-            <div class="blood-type-card {{ data.status }}">
-                <div class="blood-type">{{ blood_type }}</div>
-                <div class="units-count {{ data.status }}">{{ data.units }}</div>
-                <div>Units Available</div>
-                <div class="status-badge {{ data.status }}">{{ data.status|title }}</div>
-                <div class="last-updated">Updated {{ data.last_updated }}</div>
+            <div class="stat-item">
+                <div class="stat-number">{{ low_groups|default:"0" }}</div>
+                <div class="stat-label">Low Levels</div>
             </div>
-            {% endfor %}
-        </div>
-
-        <div class="legend">
-            <h3 style="text-align: center; margin-bottom: 15px; color: #333;">
-                <i class="fas fa-info-circle"></i> Status Legend
-            </h3>
-            <div class="legend-items">
-                <div class="legend-item">
-                    <div class="legend-color" style="background: #28a745;"></div>
-                    <span><strong>Good:</strong> 40+ units</span>
-                </div>
-                <div class="legend-item">
-                    <div class="legend-color" style="background: #ffc107;"></div>
-                    <span><strong>Adequate:</strong> 20-39 units</span>
-                </div>
-                <div class="legend-item">
-                    <div class="legend-color" style="background: #fd7e14;"></div>
-                    <span><strong>Low:</strong> 10-19 units</span>
-                </div>
-                <div class="legend-item">
-                    <div class="legend-color" style="background: #dc3545;"></div>
-                    <span><strong>Critical:</strong> Below 10 units</span>
-                </div>
+            <div class="stat-item">
+                <div class="stat-number">{{ adequate_groups|default:"0" }}</div>
+                <div class="stat-label">Adequate Levels</div>
             </div>
         </div>
     </div>
-</body>
-</html>
+
+    <!-- Critical Alerts -->
+    {% if critical_alerts %}
+    <div class="alert-section">
+        <div class="alert-header">
+            <i class="fas fa-exclamation-triangle"></i>
+            <h3>Critical Blood Shortages</h3>
+        </div>
+        {% for alert in critical_alerts %}
+        <div class="alert-item">
+            <div class="alert-title">{{ alert.blood_group }} - Only {{ alert.units_available }} units available</div>
+            <div class="alert-description">{{ alert.message }}</div>
+        </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+
+    <!-- Blood Group Inventory -->
+    <div class="inventory-section">
+        <h2 class="section-title">
+            <i class="fas fa-tint"></i>
+            Blood Group Inventory
+        </h2>
+        <div class="blood-group-grid">
+            {% for blood_group, data in blood_inventory.items %}
+            <div class="blood-group-card {{ data.status }} {{ blood_group }}">
+                <div class="blood-group-title">{{ blood_group }}</div>
+                <div class="blood-group-units">{{ data.units }}</div>
+                <div class="blood-group-status">{{ data.status|title }}</div>
+                <div class="blood-group-description">
+                    {% if data.status == 'critical' %}
+                        Urgent need - Please donate
+                    {% elif data.status == 'low' %}
+                        Below optimal level
+                    {% else %}
+                        Adequate supply
+                    {% endif %}
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+
+    <!-- Donation Call to Action -->
+    <div class="donation-cta">
+        <h3><i class="fas fa-heart"></i> Help Save Lives</h3>
+        <p>Your blood donation can make a difference. Schedule your donation today and help maintain adequate blood supplies.</p>
+        {% if donor.is_eligible %}
+        <a href="{% url 'donor:schedule_donation' %}" class="btn-donate">
+            <i class="fas fa-calendar-plus"></i>
+            Schedule Donation
+        </a>
+        {% else %}
+        <p style="opacity: 0.8;">You are not currently eligible to donate. Check back when you become eligible.</p>
+        {% endif %}
+    </div>
+
+    <!-- Last Updated -->
+    <div class="last-updated">
+        <i class="fas fa-clock"></i>
+        Last updated: {{ last_updated|date:"M d, Y H:i" }}
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    // Auto-refresh inventory every 5 minutes
+    setInterval(function() {
+        if (document.querySelector('.alert-section')) {
+            location.reload();
+        }
+    }, 300000);
+
+    // Add hover effects to blood group cards
+    document.querySelectorAll('.blood-group-card').forEach(card => {
+        card.addEventListener('mouseenter', function() {
+            this.style.transform = 'translateY(-4px)';
+        });
+        
+        card.addEventListener('mouseleave', function() {
+            this.style.transform = 'translateY(0)';
+        });
+    });
+</script>
+{% endblock %}

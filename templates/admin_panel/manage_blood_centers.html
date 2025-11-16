@@ -1,273 +1,497 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Manage Blood Centers - Admin Panel</title>
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
+{% extends 'admin_panel/base_admin.html' %}
 
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            min-height: 100vh;
-            padding: 20px;
-        }
+{% block title %}Manage Donation Centers | Blood Donor Information Management System{% endblock %}
 
-        .container {
-            max-width: 1200px;
-            margin: 0 auto;
-            background: white;
-            border-radius: 15px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
-            overflow: hidden;
-        }
+{% block extra_css %}
+<style>
+    .center-card {
+        background: white;
+        border: 1px solid var(--color-gray-200);
+        border-radius: var(--radius-xl);
+        padding: var(--space-6);
+        margin-bottom: var(--space-6);
+        transition: var(--transition-base);
+        border-left: 4px solid var(--color-primary-600);
+    }
 
-        .header {
-            background: linear-gradient(135deg, #d32f2f 0%, #b71c1c 100%);
-            color: white;
-            padding: 30px;
-            text-align: center;
-        }
+    .center-card:hover {
+        box-shadow: var(--shadow-lg);
+        transform: translateY(-2px);
+    }
 
-        .nav-back {
-            padding: 20px;
-            border-bottom: 1px solid #eee;
-        }
+    .center-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        margin-bottom: var(--space-4);
+    }
 
-        .nav-back a {
-            color: #d32f2f;
-            text-decoration: none;
-            font-weight: 500;
-        }
+    .center-info h3 {
+        color: var(--color-gray-800);
+        margin-bottom: var(--space-1);
+        font-size: var(--text-xl);
+        display: flex;
+        align-items: center;
+        gap: var(--space-2);
+    }
 
-        .content {
-            padding: 30px;
-        }
+    .center-info p {
+        color: var(--color-gray-600);
+        font-size: var(--text-sm);
+    }
 
-        .add-center-form {
-            background: #f8f9fa;
-            padding: 20px;
-            border-radius: 10px;
-            margin-bottom: 30px;
-        }
+    .center-status {
+        padding: var(--space-1) var(--space-3);
+        border-radius: var(--radius-xl);
+        font-size: var(--text-xs);
+        font-weight: var(--font-weight-semibold);
+        text-transform: uppercase;
+    }
 
-        .form-row {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 15px;
-            margin-bottom: 15px;
-        }
+    .status-active {
+        background: var(--color-success-50);
+        color: var(--color-success-600);
+    }
 
-        .form-group {
-            margin-bottom: 15px;
-        }
+    .status-inactive {
+        background: var(--color-danger-50);
+        color: var(--color-danger-600);
+    }
 
-        .form-group label {
-            display: block;
-            margin-bottom: 5px;
-            font-weight: 600;
-            color: #333;
-        }
+    .status-maintenance {
+        background: var(--color-warning-50);
+        color: var(--color-warning-600);
+    }
 
-        .form-group input {
-            width: 100%;
-            padding: 10px;
-            border: 2px solid #ddd;
-            border-radius: 5px;
-            font-size: 1rem;
-        }
+    .center-details {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+        gap: var(--space-4);
+        margin-bottom: var(--space-4);
+    }
 
-        .form-group input:focus {
-            outline: none;
-            border-color: #d32f2f;
-        }
+    .detail-item {
+        display: flex;
+        flex-direction: column;
+        gap: var(--space-1);
+    }
 
-        .btn {
-            padding: 10px 20px;
-            border: none;
-            border-radius: 5px;
-            font-weight: 600;
-            cursor: pointer;
-            text-decoration: none;
-            display: inline-block;
-            transition: all 0.3s;
-        }
+    .detail-label {
+        font-size: var(--text-xs);
+        color: var(--color-gray-500);
+        text-transform: uppercase;
+        font-weight: var(--font-weight-semibold);
+    }
 
-        .btn-primary {
-            background: #d32f2f;
-            color: white;
-        }
+    .detail-value {
+        color: var(--color-gray-800);
+        font-weight: var(--font-weight-medium);
+    }
 
-        .btn-primary:hover {
-            background: #b71c1c;
-        }
+    .center-actions {
+        display: flex;
+        gap: var(--space-2);
+        flex-wrap: wrap;
+    }
 
-        .btn-danger {
-            background: #dc3545;
-            color: white;
-            font-size: 0.8rem;
-            padding: 5px 10px;
-        }
+    .btn-edit {
+        background: var(--color-info-600);
+        color: white;
+    }
 
-        .btn-danger:hover {
-            background: #c82333;
-        }
+    .btn-edit:hover {
+        background: #1d4ed8;
+    }
 
-        .centers-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
-            gap: 20px;
-        }
+    .btn-deactivate {
+        background: var(--color-danger-600);
+        color: white;
+    }
 
-        .center-card {
-            border: 1px solid #ddd;
-            border-radius: 10px;
-            padding: 20px;
-            background: white;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-            transition: transform 0.3s;
-        }
+    .btn-deactivate:hover {
+        background: #dc2626;
+    }
 
-        .center-card:hover {
-            transform: translateY(-5px);
-        }
+    .btn-activate {
+        background: var(--color-success-600);
+        color: white;
+    }
 
-        .center-name {
-            font-size: 1.2rem;
-            font-weight: bold;
-            color: #d32f2f;
-            margin-bottom: 10px;
-        }
+    .btn-activate:hover {
+        background: #2e7d32;
+    }
 
-        .center-info {
-            margin-bottom: 8px;
-            color: #666;
-        }
+    .btn-view {
+        background: var(--color-warning-600);
+        color: white;
+    }
 
-        .center-actions {
-            margin-top: 15px;
-            text-align: right;
-        }
+    .btn-view:hover {
+        background: #d97706;
+    }
 
-        .no-centers {
-            text-align: center;
-            padding: 40px;
-            color: #666;
-        }
+    .no-centers {
+        text-align: center;
+        padding: var(--space-12);
+        color: var(--color-gray-500);
+    }
 
-        @media (max-width: 768px) {
-            .form-row {
-                grid-template-columns: 1fr;
-            }
-            
-            .centers-grid {
-                grid-template-columns: 1fr;
-            }
-        }
-    </style>
-</head>
-<body>
-    <div class="container">
-        <div class="header">
-            <h1>🏥 Manage Blood Centers</h1>
-            <p>Add and manage blood donation centers</p>
+    .no-centers i {
+        font-size: var(--text-5xl);
+        color: var(--color-primary-600);
+        margin-bottom: var(--space-4);
+        opacity: 0.5;
+    }
+
+    .no-centers h3 {
+        font-size: var(--text-2xl);
+        margin-bottom: var(--space-2);
+        color: var(--color-gray-700);
+    }
+
+    .add-center-form {
+        background: var(--color-gray-50);
+        padding: var(--space-6);
+        border-radius: var(--radius-lg);
+        border: 1px solid var(--color-gray-200);
+        margin-bottom: var(--space-8);
+    }
+
+    .form-title {
+        font-size: var(--text-lg);
+        font-weight: var(--font-weight-semibold);
+        color: var(--color-gray-700);
+        margin-bottom: var(--space-4);
+        display: flex;
+        align-items: center;
+        gap: var(--space-2);
+    }
+
+    .form-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: var(--space-4);
+        align-items: end;
+    }
+
+    .form-group {
+        display: flex;
+        flex-direction: column;
+        gap: var(--space-2);
+    }
+
+    .form-group label {
+        font-weight: var(--font-weight-medium);
+        color: var(--color-gray-700);
+        font-size: var(--text-sm);
+    }
+
+    .form-group input,
+    .form-group select,
+    .form-group textarea {
+        padding: var(--space-2);
+        border: 1px solid var(--color-gray-300);
+        border-radius: var(--radius-md);
+        font-size: var(--text-sm);
+    }
+
+    .form-group input:focus,
+    .form-group select:focus,
+    .form-group textarea:focus {
+        outline: none;
+        border-color: var(--color-primary-600);
+        box-shadow: 0 0 0 2px rgba(211, 47, 47, 0.1);
+    }
+
+    .form-group.full-width {
+        grid-column: 1 / -1;
+    }
+
+    .stats-summary {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+        gap: var(--space-4);
+        margin-bottom: var(--space-8);
+    }
+
+    .stat-item {
+        background: var(--color-gray-50);
+        padding: var(--space-4);
+        border-radius: var(--radius-lg);
+        text-align: center;
+        border-left: 4px solid var(--color-primary-600);
+    }
+
+    .stat-number {
+        font-size: var(--text-2xl);
+        font-weight: var(--font-weight-bold);
+        color: var(--color-primary-600);
+        margin-bottom: var(--space-1);
+    }
+
+    .stat-label {
+        color: var(--color-gray-600);
+        font-size: var(--text-sm);
+        font-weight: var(--font-weight-medium);
+    }
+
+    .search-section {
+        background: var(--color-gray-50);
+        padding: var(--space-6);
+        border-radius: var(--radius-lg);
+        margin-bottom: var(--space-8);
+        border: 1px solid var(--color-gray-200);
+    }
+
+    .search-title {
+        font-size: var(--text-lg);
+        font-weight: var(--font-weight-semibold);
+        color: var(--color-gray-700);
+        margin-bottom: var(--space-4);
+        display: flex;
+        align-items: center;
+        gap: var(--space-2);
+    }
+
+    .search-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: var(--space-4);
+        align-items: end;
+    }
+
+    .search-group {
+        display: flex;
+        flex-direction: column;
+        gap: var(--space-2);
+    }
+
+    .search-group label {
+        font-weight: var(--font-weight-medium);
+        color: var(--color-gray-700);
+        font-size: var(--text-sm);
+    }
+
+    .search-group input,
+    .search-group select {
+        padding: var(--space-2);
+        border: 1px solid var(--color-gray-300);
+        border-radius: var(--radius-md);
+        font-size: var(--text-sm);
+    }
+
+    .search-group input:focus,
+    .search-group select:focus {
+        outline: none;
+        border-color: var(--color-primary-600);
+        box-shadow: 0 0 0 2px rgba(211, 47, 47, 0.1);
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <h1 class="page-title">
+        <i class="fas fa-hospital"></i>
+        Manage Donation Centers
+    </h1>
+    <p class="page-subtitle">Add, edit, and manage blood donation centers</p>
+</div>
+
+<div class="content-container">
+    <!-- Statistics Summary -->
+    <div class="stats-summary">
+        <div class="stat-item">
+            <div class="stat-number">{{ total_centers|default:"0" }}</div>
+            <div class="stat-label">Total Centers</div>
         </div>
-
-        <div class="nav-back">
-            <a href="{% url 'admin_panel:dashboard' %}">← Back to Dashboard</a>
+        <div class="stat-item">
+            <div class="stat-number">{{ active_centers|default:"0" }}</div>
+            <div class="stat-label">Active Centers</div>
         </div>
-
-        <div class="content">
-            <!-- Add New Center Form -->
-            <div class="add-center-form">
-                <h3>Add New Blood Center</h3>
-                <form method="POST">
-                    {% csrf_token %}
-                    <div class="form-row">
-                        <div class="form-group">
-                            <label for="name">Center Name *</label>
-                            <input type="text" name="name" id="name" required>
-                        </div>
-                        <div class="form-group">
-                            <label for="city">City *</label>
-                            <input type="text" name="city" id="city" required>
-                        </div>
-                    </div>
-                    
-                    <div class="form-group">
-                        <label for="address">Address *</label>
-                        <input type="text" name="address" id="address" required>
-                    </div>
-                    
-                    <div class="form-row">
-                        <div class="form-group">
-                            <label for="state">State/Province</label>
-                            <input type="text" name="state" id="state" value="Nepal">
-                        </div>
-                        <div class="form-group">
-                            <label for="phone_number">Phone Number</label>
-                            <input type="tel" name="phone_number" id="phone_number">
-                        </div>
-                    </div>
-                    
-                    <div class="form-group">
-                        <label for="email">Email</label>
-                        <input type="email" name="email" id="email">
-                    </div>
-                    
-                    <button type="submit" class="btn btn-primary">Add Blood Center</button>
-                </form>
-            </div>
-
-            <!-- Existing Centers -->
-            <h3>Existing Blood Centers ({{ blood_centers.count }})</h3>
-            
-            {% if blood_centers %}
-                <div class="centers-grid">
-                    {% for center in blood_centers %}
-                        <div class="center-card">
-                            <div class="center-name">{{ center.name }}</div>
-                            <div class="center-info">
-                                <strong>Address:</strong> {{ center.address }}, {{ center.city }}
-                                {% if center.state %}, {{ center.state }}{% endif %}
-                            </div>
-                            {% if center.phone_number %}
-                                <div class="center-info">
-                                    <strong>Phone:</strong> {{ center.phone_number }}
-                                </div>
-                            {% endif %}
-                            {% if center.email %}
-                                <div class="center-info">
-                                    <strong>Email:</strong> {{ center.email }}
-                                </div>
-                            {% endif %}
-                            <div class="center-info">
-                                <strong>Added:</strong> {{ center.created_at|date:"M d, Y" }}
-                            </div>
-                            
-                            <div class="center-actions">
-                                <form method="POST" action="{% url 'admin_panel:delete_blood_center' center.id %}" 
-                                      style="display: inline;" 
-                                      onsubmit="return confirm('Are you sure you want to delete {{ center.name }}?')">
-                                    {% csrf_token %}
-                                    <button type="submit" class="btn btn-danger">Delete</button>
-                                </form>
-                            </div>
-                        </div>
-                    {% endfor %}
-                </div>
-            {% else %}
-                <div class="no-centers">
-                    <h3>No Blood Centers Added Yet</h3>
-                    <p>Add your first blood center using the form above.</p>
-                </div>
-            {% endif %}
+        <div class="stat-item">
+            <div class="stat-number">{{ inactive_centers|default:"0" }}</div>
+            <div class="stat-label">Inactive Centers</div>
         </div>
     </div>
-</body>
-</html>
+
+    <!-- Add New Center Form -->
+    <div class="add-center-form">
+        <h3 class="form-title">
+            <i class="fas fa-plus"></i>
+            Add New Donation Center
+        </h3>
+        <form method="POST" class="form-grid">
+            {% csrf_token %}
+            <div class="form-group">
+                <label for="name">Center Name</label>
+                <input type="text" id="name" name="name" placeholder="Enter center name" required>
+            </div>
+            <div class="form-group">
+                <label for="phone_number">Phone Number</label>
+                <input type="tel" id="phone_number" name="phone_number" placeholder="Enter phone number" required>
+            </div>
+            <div class="form-group">
+                <label for="email">Email</label>
+                <input type="email" id="email" name="email" placeholder="Enter email address">
+            </div>
+            <div class="form-group">
+                <label for="address">Address</label>
+                <input type="text" id="address" name="address" placeholder="Enter full address" required>
+            </div>
+            <div class="form-group">
+                <label for="city">City</label>
+                <input type="text" id="city" name="city" placeholder="Enter city" required>
+            </div>
+            <div class="form-group">
+                <label for="state">State/Province</label>
+                <input type="text" id="state" name="state" placeholder="Enter state (optional)" value="Nepal">
+            </div>
+            <div class="form-group">
+                <button type="submit" class="btn">
+                    <i class="fas fa-plus"></i> Add Center
+                </button>
+            </div>
+        </form>
+    </div>
+
+    <!-- Search and Filters -->
+    <div class="search-section">
+        <h3 class="search-title">
+            <i class="fas fa-search"></i>
+            Search & Filter Centers
+        </h3>
+        <form method="GET" class="search-grid">
+            <div class="search-group">
+                <label for="search">Search by Name</label>
+                <input type="text" id="search" name="search" placeholder="Enter center name..." value="{{ request.GET.search }}">
+            </div>
+            <div class="search-group">
+                <label for="city">City</label>
+                <input type="text" id="city" name="city" placeholder="Enter city..." value="{{ request.GET.city }}">
+            </div>
+            <div class="search-group">
+                <label for="status">Status</label>
+                <select id="status" name="status">
+                    <option value="">All Status</option>
+                    <option value="active" {% if request.GET.status == 'active' %}selected{% endif %}>Active</option>
+                    <option value="inactive" {% if request.GET.status == 'inactive' %}selected{% endif %}>Inactive</option>
+                </select>
+            </div>
+            <div class="search-group">
+                <button type="submit" class="btn">
+                    <i class="fas fa-search"></i> Search
+                </button>
+            </div>
+        </form>
+    </div>
+
+    <!-- Centers List -->
+    {% if donation_centers %}
+        {% for center in donation_centers %}
+        <div class="center-card">
+            <div class="center-header">
+                <div class="center-info">
+                    <h3>
+                        <i class="fas fa-hospital"></i>
+                        {{ center.name }}
+                    </h3>
+                    <p>{{ center.address }} • {{ center.city }}, {{ center.state }}</p>
+                </div>
+                <div class="center-status {% if center.is_active %}status-active{% else %}status-inactive{% endif %}">
+                    {% if center.is_active %}Active{% else %}Inactive{% endif %}
+                </div>
+            </div>
+            
+            <div class="center-details">
+                <div class="detail-item">
+                    <span class="detail-label">Phone</span>
+                    <span class="detail-value">{{ center.phone_number }}</span>
+                </div>
+                <div class="detail-item">
+                    <span class="detail-label">Email</span>
+                    <span class="detail-value">{{ center.email|default:"Not provided" }}</span>
+                </div>
+                <div class="detail-item">
+                    <span class="detail-label">Created</span>
+                    <span class="detail-value">{{ center.created_at|date:"M d, Y" }}</span>
+                </div>
+                <div class="detail-item">
+                    <span class="detail-label">Last Updated</span>
+                    <span class="detail-value">{{ center.updated_at|date:"M d, Y" }}</span>
+                </div>
+            </div>
+            
+            <div class="center-actions">
+                <form method="POST" action="{% url 'admin_panel:delete_blood_center' center.id %}" style="display: inline;" onsubmit="return confirm('Are you sure you want to delete {{ center.name }}?');">
+                    {% csrf_token %}
+                    <button type="submit" class="btn btn-small btn-delete" style="background: var(--color-danger-600); color: white;">
+                        <i class="fas fa-trash"></i> Delete
+                    </button>
+                </form>
+            </div>
+        </div>
+        {% endfor %}
+    {% else %}
+        <div class="no-centers">
+            <i class="fas fa-hospital"></i>
+            <h3>No Centers Found</h3>
+            <p>No donation centers match your search criteria. Try adjusting your filters or add a new center.</p>
+        </div>
+    {% endif %}
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    function deactivateCenter(centerId) {
+        if (confirm('Are you sure you want to deactivate this center?')) {
+            // Implement deactivation logic
+            fetch(`/admin-panel/centers/${centerId}/deactivate/`, {
+                method: 'POST',
+                headers: {
+                    'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value,
+                    'Content-Type': 'application/json',
+                },
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    location.reload();
+                } else {
+                    alert('Error deactivating center: ' + data.message);
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('Error deactivating center');
+            });
+        }
+    }
+
+    function activateCenter(centerId) {
+        if (confirm('Are you sure you want to activate this center?')) {
+            // Implement activation logic
+            fetch(`/admin-panel/centers/${centerId}/activate/`, {
+                method: 'POST',
+                headers: {
+                    'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value,
+                    'Content-Type': 'application/json',
+                },
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    location.reload();
+                } else {
+                    alert('Error activating center: ' + data.message);
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('Error activating center');
+            });
+        }
+    }
+</script>
+{% endblock %}

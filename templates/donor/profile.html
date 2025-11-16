@@ -1,0 +1,346 @@
+{% extends 'donor/base_donor.html' %}
+
+{% block title %}My Profile | Blood Donor Information Management System{% endblock %}
+
+{% block extra_css %}
+<style>
+    .profile-page {
+        max-width: 1200px;
+        margin: 0 auto;
+    }
+
+        .profile-container {
+            background: rgba(255, 255, 255, 0.95);
+            padding: 40px;
+            border-radius: 15px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+            margin-bottom: 20px;
+        }
+
+        .profile-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 30px;
+            padding-bottom: 20px;
+            border-bottom: 2px solid #e0e0e0;
+        }
+
+        .profile-avatar {
+            width: 100px;
+            height: 100px;
+            background: linear-gradient(135deg, #d32f2f, #ff6b6b);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 2.5rem;
+            margin-right: 30px;
+            box-shadow: 0 4px 15px rgba(211, 47, 47, 0.3);
+        }
+
+        .profile-info h2 {
+            color: #333;
+            margin-bottom: 5px;
+        }
+
+        .profile-info p {
+            color: #666;
+            font-size: 1.1rem;
+        }
+
+        .profile-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 30px;
+            margin-bottom: 30px;
+        }
+
+        .profile-section {
+            background: #f8f9fa;
+            padding: 25px;
+            border-radius: 10px;
+            border-left: 4px solid #d32f2f;
+        }
+
+        .profile-section h3 {
+            color: #d32f2f;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+        }
+
+        .profile-section h3 i {
+            margin-right: 10px;
+        }
+
+        .info-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 0;
+            border-bottom: 1px solid #e0e0e0;
+        }
+
+        .info-item:last-child {
+            border-bottom: none;
+        }
+
+        .info-label {
+            font-weight: 600;
+            color: #555;
+        }
+
+        .info-value {
+            color: #333;
+            text-align: right;
+        }
+
+        .status-badge {
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            font-weight: 600;
+        }
+
+        .status-eligible {
+            background: #d4edda;
+            color: #155724;
+        }
+
+        .status-not-eligible {
+            background: #f8d7da;
+            color: #721c24;
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            margin-top: 30px;
+        }
+
+        .btn {
+            padding: 12px 25px;
+            border: none;
+            border-radius: 8px;
+            text-decoration: none;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn-primary {
+            background: #d32f2f;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #b71c1c;
+            transform: translateY(-2px);
+        }
+
+        .btn-secondary {
+            background: #6c757d;
+            color: white;
+        }
+
+        .btn-secondary:hover {
+            background: #545b62;
+            transform: translateY(-2px);
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin: 30px 0;
+        }
+
+        .stat-card {
+            background: linear-gradient(135deg, #d32f2f, #ff6b6b);
+            color: white;
+            padding: 20px;
+            border-radius: 10px;
+            text-align: center;
+            box-shadow: 0 4px 15px rgba(211, 47, 47, 0.3);
+        }
+
+        .stat-number {
+            font-size: 2rem;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+
+        .stat-label {
+            font-size: 0.9rem;
+            opacity: 0.9;
+        }
+
+        @media (max-width: 768px) {
+            .profile-header {
+                flex-direction: column;
+                text-align: center;
+            }
+
+            .profile-avatar {
+                margin-right: 0;
+                margin-bottom: 20px;
+            }
+
+            .profile-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .action-buttons {
+                flex-direction: column;
+            }
+        }
+    </style>
+{% endblock %}
+
+{% block content %}
+    <div class="page-header">
+        <h1 class="page-title"><i class="fas fa-user-circle"></i> My Profile</h1>
+        <p class="page-subtitle">View and manage your donor profile information</p>
+    </div>
+
+    <div class="profile-container">
+            <div class="profile-header">
+                <div class="profile-avatar">
+                    <i class="fas fa-user"></i>
+                </div>
+                <div class="profile-info">
+                    <h2>{{ donor.user.get_full_name|default:donor.user.username }}</h2>
+                    <p>{{ donor.blood_group }} Blood Type</p>
+                    {% if donor.can_donate.0 %}
+                        <span class="status-badge status-eligible">Eligible to Donate</span>
+                    {% else %}
+                        <span class="status-badge status-not-eligible">Not Eligible</span>
+                    {% endif %}
+                </div>
+            </div>
+
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-number">{{ donor.donationhistory_set.count }}</div>
+                    <div class="stat-label">Total Donations</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number">{{ donor.donationrequest_set.count }}</div>
+                    <div class="stat-label">Scheduled Requests</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number">{{ donor.age|default:"N/A" }}</div>
+                    <div class="stat-label">Age</div>
+                </div>
+            </div>
+
+            <div class="profile-grid">
+                <div class="profile-section">
+                    <h3><i class="fas fa-user"></i> Personal Information</h3>
+                    <div class="info-item">
+                        <span class="info-label">Full Name:</span>
+                        <span class="info-value">{{ donor.user.get_full_name|default:"Not provided" }}</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">Username:</span>
+                        <span class="info-value">{{ donor.user.username }}</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">Email:</span>
+                        <span class="info-value">{{ donor.user.email|default:"Not provided" }}</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">Phone:</span>
+                        <span class="info-value">{{ donor.phone_number|default:"Not provided" }}</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">Date of Birth:</span>
+                        <span class="info-value">{{ donor.date_of_birth|date:"F d, Y"|default:"Not provided" }}</span>
+                    </div>
+                </div>
+
+                <div class="profile-section">
+                    <h3><i class="fas fa-map-marker-alt"></i> Location Information</h3>
+                    <div class="info-item">
+                        <span class="info-label">Address:</span>
+                        <span class="info-value">{{ donor.address|default:"Not provided" }}</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">City:</span>
+                        <span class="info-value">{{ donor.city|default:"Not provided" }}</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">State:</span>
+                        <span class="info-value">{{ donor.state|default:"Not provided" }}</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">Postal Code:</span>
+                        <span class="info-value">{{ donor.postal_code|default:"Not provided" }}</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">Country:</span>
+                        <span class="info-value">{{ donor.country|default:"Nepal" }}</span>
+                    </div>
+                </div>
+
+                <div class="profile-section">
+                    <h3><i class="fas fa-heartbeat"></i> Medical Information</h3>
+                    <div class="info-item">
+                        <span class="info-label">Blood Group:</span>
+                        <span class="info-value">{{ donor.blood_group }}</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">Weight:</span>
+                        <span class="info-value">{{ donor.weight|default:"Not provided" }} kg</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">Height:</span>
+                        <span class="info-value">{{ donor.height|default:"Not provided" }} cm</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">Medical Conditions:</span>
+                        <span class="info-value">{{ donor.medical_conditions|default:"None reported" }}</span>
+                    </div>
+                </div>
+
+                <div class="profile-section">
+                    <h3><i class="fas fa-phone"></i> Emergency Contact</h3>
+                    <div class="info-item">
+                        <span class="info-label">Contact Name:</span>
+                        <span class="info-value">{{ donor.emergency_contact_name|default:"Not provided" }}</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">Contact Phone:</span>
+                        <span class="info-value">{{ donor.emergency_contact_phone|default:"Not provided" }}</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">Allow Emergency Contact:</span>
+                        <span class="info-value">
+                            {% if donor.allow_emergency_contact %}
+                                <i class="fas fa-check text-success"></i> Yes
+                            {% else %}
+                                <i class="fas fa-times text-danger"></i> No
+                            {% endif %}
+                        </span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="action-buttons">
+                <a href="{% url 'donor:edit_profile' %}" class="btn btn-primary">
+                    <i class="fas fa-edit"></i> Edit Profile
+                </a>
+                <a href="{% url 'donor:change_password' %}" class="btn btn-primary">
+                    <i class="fas fa-key"></i> Change Password
+                </a>
+                <a href="{% url 'donor:donor_dashboard' %}" class="btn btn-secondary">
+                    <i class="fas fa-arrow-left"></i> Back to Dashboard
+                </a>
+            </div>
+        </div>
+{% endblock %}

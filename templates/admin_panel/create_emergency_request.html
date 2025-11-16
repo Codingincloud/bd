@@ -13,7 +13,7 @@
 
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: #f5f5f5;
             min-height: 100vh;
             padding: 20px;
         }
@@ -232,32 +232,43 @@
                         <select name="blood_group" id="blood_group" required>
                             <option value="">Select Blood Group</option>
                             {% for value, label in blood_groups %}
-                                <option value="{{ value }}">{{ label }}</option>
+                                <option value="{{ value }}" {% if form_data.blood_group == value %}selected{% endif %}>{{ label }}</option>
                             {% endfor %}
                         </select>
                     </div>
                     
                     <div class="form-group">
                         <label for="units_needed">Units Needed *</label>
-                        <input type="number" name="units_needed" id="units_needed" min="1" max="50" required>
+                        <input type="number" name="units_needed" id="units_needed" min="1" max="50" value="{{ form_data.units_needed|default:'' }}" required>
                     </div>
                 </div>
 
                 <div class="form-group">
                     <label for="hospital_name">Hospital/Medical Center *</label>
-                    <input type="text" name="hospital_name" id="hospital_name" placeholder="Enter hospital name" required>
+                    <input type="text" name="hospital_name" id="hospital_name" placeholder="Enter hospital name" value="{{ form_data.hospital_name|default:'' }}" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="location">Location/Address *</label>
+                    <input type="text" name="location" id="location" placeholder="Hospital address or location" value="{{ form_data.location|default:'' }}" required>
                 </div>
 
                 <div class="form-row">
                     <div class="form-group">
                         <label for="contact_person">Contact Person *</label>
-                        <input type="text" name="contact_person" id="contact_person" placeholder="Doctor/Staff name" required>
+                        <input type="text" name="contact_person" id="contact_person" placeholder="Doctor/Staff name" value="{{ form_data.contact_person|default:'' }}" required>
                     </div>
-                    
+
                     <div class="form-group">
                         <label for="contact_phone">Contact Phone *</label>
-                        <input type="tel" name="contact_phone" id="contact_phone" placeholder="+977-1-XXXXXXX" required>
+                        <input type="tel" name="contact_phone" id="contact_phone" placeholder="+977-1-XXXXXXX" value="{{ form_data.contact_phone|default:'' }}" required>
                     </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="required_by">Required By (Date & Time) *</label>
+                    <input type="datetime-local" name="required_by" id="required_by" value="{{ form_data.required_by|default:'' }}" required>
+                    <small style="color: #666; font-size: 0.9rem;">When is the blood needed by?</small>
                 </div>
 
                 <div class="form-group">

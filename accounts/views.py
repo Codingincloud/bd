@@ -16,6 +16,18 @@ from datetime import date
 import re
 import logging
 
+# Try to import ratelimit, make it optional
+try:
+    from django_ratelimit.decorators import ratelimit
+    RATELIMIT_AVAILABLE = True
+except ImportError:
+    RATELIMIT_AVAILABLE = False
+    # Create a no-op decorator if ratelimit is not available
+    def ratelimit(*args, **kwargs):
+        def decorator(func):
+            return func
+        return decorator
+
 # Set up logging
 logger = logging.getLogger(__name__)
 
@@ -40,7 +52,7 @@ def validate_registration_data(data):
                     errors.append('Username already exists.')
             except DatabaseError as e:
                 logger.error(f"Database error checking username: {e}")
-                errors.append('Database error occurred. Please try again.')
+                errors.append('Database connection error. Please try again later.')
 
         # Password validation
         password = data.get('password', '')
@@ -67,7 +79,7 @@ def validate_registration_data(data):
                         errors.append('Email address already registered.')
                 except DatabaseError as e:
                     logger.error(f"Database error checking email: {e}")
-                    errors.append('Database error occurred. Please try again.')
+                    errors.append('Database connection error. Please try again later.')
             except ValidationError:
                 errors.append('Please enter a valid email address.')
 
@@ -92,6 +104,18 @@ def validate_registration_data(data):
                 errors.append('Contact number is required.')
             elif not re.match(r'^\+?[\d\s\-\(\)]{10,15}$', contact_no):
                 errors.append('Please enter a valid contact number (10-15 digits).')
+
+            # Name validation for donors
+            name = data.get('name', '').strip()
+            if not name:
+                errors.append('Full name is required.')
+            elif len(name) < 2:
+                errors.append('Please enter your full name.')
+
+            # Address validation
+            address = data.get('address', '').strip()
+            if not address:
+                errors.append('Street address is required.')
 
             # Date of birth validation
             date_of_birth = data.get('date_of_birth')
@@ -133,12 +157,18 @@ def validate_registration_data(data):
             elif not re.match(r'^\+?[\d\s\-\(\)]{10,15}$', admin_contact):
                 errors.append('Please enter a valid contact number.')
 
+            # Admin address validation
+            admin_address = data.get('admin_address', '').strip()
+            if not admin_address:
+                errors.append('Address is required for admin accounts.')
+
     except Exception as e:
         logger.error(f"Unexpected error in validation: {e}")
         errors.append('An unexpected error occurred during validation. Please try again.')
 
     return errors
 
+@ratelimit(key='ip', rate='5/h', method='POST', block=True)
 def register_view(request):
     """Enhanced registration view with comprehensive error handling and PostgreSQL support"""
     if request.method == 'POST':
@@ -172,8 +202,14 @@ def register_view(request):
                     logger.info(f"User {username} created successfully")
                 except IntegrityError as e:
                     logger.error(f"IntegrityError creating user {username}: {e}")
+                    error_msg = 'Username or email already exists. Please choose different credentials.'
+                    if 'username' in str(e).lower():
+                        error_msg = 'This username is already taken. Please choose a different username.'
+                    elif 'email' in str(e).lower():
+                        error_msg = 'This email address is already registered. Please use a different email or try logging in.'
+
+                    messages.error(request, error_msg)
                     return render(request, 'accounts/register.html', {
-                        'error': 'Username or email already exists. Please choose different credentials.',
                         'form_data': request.POST
                     })
 
@@ -317,7 +353,6 @@ Blood Donation System Team
 
                 # Log the user in
                 login(request, user)
-                messages.success(request, f'Registration successful! Welcome to the Blood Donation System, {user.first_name or username}.')
 
                 # Redirect based on role
                 if role == 'admin':
@@ -329,19 +364,21 @@ Blood Donation System Team
 
         except DatabaseError as e:
             logger.error(f"Database error during registration: {e}")
+            messages.error(request, 'Database connection error. Please check your internet connection and try again later.')
             return render(request, 'accounts/register.html', {
-                'error': 'Database connection error. Please try again later.',
                 'form_data': request.POST
             })
         except Exception as e:
             logger.error(f"Unexpected error during registration: {e}")
+            messages.error(request, 'An unexpected error occurred during registration. Please try again or contact support if the problem persists.')
             return render(request, 'accounts/register.html', {
-                'error': f'Registration failed: {str(e)}. Please try again.',
                 'form_data': request.POST
             })
 
     return render(request, 'accounts/register.html')
 
+@ratelimit(key='ip', rate='10/h', method='POST', block=True)
+@ratelimit(key='ip', rate='10/h', method='POST', block=True)
 def login_view(request):
     """Enhanced login view with comprehensive error handling and role validation"""
     if request.method == 'POST':
@@ -403,8 +440,9 @@ def login_view(request):
                         try:
                             admin_profile = user.adminprofile
                             login(request, user)
-                            logger.info(f"Admin {username} logged in successfully")
-                            messages.success(request, f'Welcome back, {user.first_name or username}!')
+                            # Set session expiry to 24 hours
+                            request.session.set_expiry(86400)  # 24 hours in seconds
+                            logger.info(f"Admin {username} logged in successfully with session key: {request.session.session_key}")
                             return redirect('admin_panel:dashboard')
                         except AdminProfile.DoesNotExist:
                             logger.error(f"Admin profile not found for {username}")
@@ -434,8 +472,9 @@ def login_view(request):
                         try:
                             donor_profile = user.donor
                             login(request, user)
-                            logger.info(f"Donor {username} logged in successfully")
-                            messages.success(request, f'Welcome back, {user.first_name or username}!')
+                            # Set session expiry to 24 hours
+                            request.session.set_expiry(86400)  # 24 hours in seconds
+                            logger.info(f"Donor {username} logged in successfully with session key: {request.session.session_key}")
                             return redirect('donor:donor_dashboard')
                         except Donor.DoesNotExist:
                             logger.error(f"Donor profile not found for {username}")
@@ -479,7 +518,23 @@ def login_view(request):
 @login_required
 def logout_view(request):
     """Enhanced logout with proper cleanup"""
+    # Log the logout action for debugging
+    logger.info(f"User {request.user.username} is logging out. Session key: {request.session.session_key}")
+    
+    # Store session key for logging after logout
+    session_key = request.session.session_key
+    
+    # Clear the session data
+    request.session.flush()
+    
+    # Log the user out
     logout(request)
+    
+    # Log successful logout
+    logger.info(f"User successfully logged out. Session {session_key} cleared.")
+    
+    # Redirect to login page with a success message
+    messages.success(request, 'You have been successfully logged out.')
     return redirect('accounts:login')
 
 class CustomPasswordResetView(PasswordResetView):

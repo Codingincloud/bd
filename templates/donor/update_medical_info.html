@@ -15,7 +15,7 @@
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             line-height: 1.6;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: #f5f5f5;
             min-height: 100vh;
         }
 
@@ -186,7 +186,18 @@
             <h4><i class="fas fa-info-circle"></i> Current Information</h4>
             <p><strong>Weight:</strong> {{ donor.weight|default:"Not set" }} kg</p>
             <p><strong>Height:</strong> {{ donor.height|default:"Not set" }} cm</p>
-            <p><strong>Emergency Contact:</strong> {{ donor.emergency_contact_name|default:"Not set" }}</p>
+            <p><strong>Emergency Contact:</strong> {{ donor.emergency_contact_name|default:"Not set" }}
+            {% if donor.emergency_contact_phone %} - {{ donor.emergency_contact_phone }}{% endif %}</p>
+        </div>
+
+        <div style="background: #e3f2fd; padding: 15px; border-radius: 8px; margin-bottom: 20px; border-left: 4px solid #2196f3;">
+            <p style="margin: 0; color: #1976d2;">
+                <i class="fas fa-heartbeat"></i> 
+                <strong>Need to update Blood Pressure, Heart Rate?</strong> 
+                <a href="{% url 'donor:medical_reports' %}" style="color: #1976d2; text-decoration: underline;">
+                    Go to Medical Reports
+                </a> and click "Update Health Metrics"
+            </p>
         </div>
 
         <div class="form-container">

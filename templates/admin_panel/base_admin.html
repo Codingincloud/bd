@@ -1,0 +1,570 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Admin Dashboard | Blood Donor Information Management System{% endblock %}</title>
+    
+    <!-- External CSS -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    
+    <!-- Custom CSS -->
+    {% load static %}
+    <link rel="stylesheet" href="{% static 'css/main.css' %}">
+    <link rel="stylesheet" href="{% static 'css/components.css' %}">
+    
+    <style>
+        /* Admin Panel Professional Indigo/Blue Theme */
+        :root {
+            --admin-primary-50: #eef2ff;
+            --admin-primary-100: #e0e7ff;
+            --admin-primary-200: #c7d2fe;
+            --admin-primary-300: #a5b4fc;
+            --admin-primary-400: #818cf8;
+            --admin-primary-500: #6366f1;
+            --admin-primary-600: #4f46e5;
+            --admin-primary-700: #4338ca;
+            --admin-primary-800: #3730a3;
+            --admin-primary-900: #312e81;
+        }
+        
+        /* Override primary colors for admin */
+        body {
+            --color-primary-50: var(--admin-primary-50);
+            --color-primary-100: var(--admin-primary-100);
+            --color-primary-200: var(--admin-primary-200);
+            --color-primary-300: var(--admin-primary-300);
+            --color-primary-400: var(--admin-primary-400);
+            --color-primary-500: var(--admin-primary-500);
+            --color-primary-600: var(--admin-primary-600);
+            --color-primary-700: var(--admin-primary-700);
+            --color-primary-800: var(--admin-primary-800);
+            --color-primary-900: var(--admin-primary-900);
+        }
+        
+        /* User dropdown styles */
+        .user-dropdown {
+            position: relative;
+        }
+        
+        .user-dropdown-toggle {
+            display: flex;
+            align-items: center;
+            gap: var(--space-3);
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            padding: var(--space-2) var(--space-3);
+            border-radius: var(--radius-lg);
+            cursor: pointer;
+            transition: all 0.2s;
+            color: white;
+        }
+        
+        .user-dropdown-toggle:hover {
+            background: rgba(255, 255, 255, 0.15);
+        }
+        
+        .user-dropdown-menu {
+            position: absolute;
+            top: calc(100% + 0.5rem);
+            right: 0;
+            background: white;
+            border-radius: var(--radius-lg);
+            box-shadow: var(--shadow-xl);
+            min-width: 220px;
+            padding: var(--space-2);
+            display: none;
+            z-index: var(--z-dropdown);
+        }
+        
+        .user-dropdown-menu.show {
+            display: block;
+            animation: slideDown 0.2s ease-out;
+        }
+        
+        @keyframes slideDown {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        .dropdown-item {
+            display: flex;
+            align-items: center;
+            gap: var(--space-3);
+            padding: var(--space-3);
+            color: var(--color-gray-700);
+            text-decoration: none;
+            border-radius: var(--radius-md);
+            transition: all 0.2s;
+            font-size: var(--text-sm);
+            border: none;
+            background: none;
+            width: 100%;
+            cursor: pointer;
+            text-align: left;
+        }
+        
+        .dropdown-item:hover {
+            background: var(--color-gray-100);
+            color: var(--color-gray-900);
+        }
+        
+        .dropdown-item i {
+            width: 1.25rem;
+            text-align: center;
+        }
+        
+        .dropdown-divider {
+            height: 1px;
+            background: var(--color-gray-200);
+            margin: var(--space-2) 0;
+        }
+        
+        .logout-btn {
+            color: var(--color-danger-600);
+        }
+        
+        .logout-btn:hover {
+            background: var(--color-danger-50);
+            color: var(--color-danger-700);
+        }
+        
+        /* Focus styles for accessibility */
+        *:focus-visible {
+            outline: 3px solid var(--color-primary-500);
+            outline-offset: 2px;
+        }
+        
+        .nav-link:focus-visible,
+        .dropdown-item:focus-visible {
+            outline: 2px solid var(--color-primary-500);
+            outline-offset: -2px;
+        }
+
+        /* Page Header */
+        .page-header {
+            background: white;
+            padding: 2rem;
+            border-radius: 12px;
+            margin-bottom: 2rem;
+            box-shadow: var(--shadow);
+            border-left: 4px solid var(--color-primary-600);
+        }
+
+        .page-title {
+            font-size: 2rem;
+            font-weight: 700;
+            color: var(--color-primary-600);
+            margin-bottom: 0.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .page-subtitle {
+            color: var(--color-gray-600);
+            font-size: 1.1rem;
+        }
+
+        /* Content Container */
+        .content-container {
+            background: white;
+            padding: 2rem;
+            border-radius: 12px;
+            box-shadow: var(--shadow);
+        }
+
+        /* Search Bar */
+        .search-bar {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 2rem;
+            flex-wrap: wrap;
+            align-items: center;
+        }
+
+        .search-input {
+            flex: 1;
+            min-width: 200px;
+            padding: 0.75rem;
+            border: 2px solid var(--gray-200);
+            border-radius: 8px;
+            font-size: 1rem;
+            transition: border-color 0.3s ease;
+        }
+
+        .search-input:focus {
+            outline: none;
+            border-color: var(--color-primary-600);
+            box-shadow: 0 0 0 3px rgba(211, 47, 47, 0.1);
+        }
+
+        .search-btn {
+            background: var(--color-primary-600);
+            color: white;
+            border: none;
+            padding: 0.75rem 1.5rem;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .search-btn:hover {
+            background: var(--color-primary-700);
+            transform: translateY(-1px);
+        }
+
+        /* Tables */
+        .data-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 1.5rem;
+            background: white;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: var(--shadow-sm);
+        }
+
+        .data-table th,
+        .data-table td {
+            padding: 1rem;
+            text-align: left;
+            border-bottom: 1px solid var(--color-gray-200);
+        }
+
+        .data-table th {
+            background: var(--color-primary-600);
+            color: white;
+            font-weight: 600;
+            text-transform: uppercase;
+            font-size: 0.875rem;
+            letter-spacing: 0.05em;
+        }
+
+        .data-table tbody tr:hover {
+            background: var(--color-gray-50);
+        }
+
+        .data-table tbody tr:last-child td {
+            border-bottom: none;
+        }
+
+        /* Stats Cards */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .stat-card {
+            background: white;
+            padding: 1.5rem;
+            border-radius: 12px;
+            box-shadow: var(--shadow);
+            text-align: center;
+            border-left: 4px solid var(--color-primary-600);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-lg);
+        }
+
+        .stat-number {
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: var(--color-primary-600);
+            margin-bottom: 0.5rem;
+        }
+
+        .stat-label {
+            color: var(--color-gray-600);
+            font-weight: 500;
+        }
+
+        /* Buttons */
+        .btn {
+            background: var(--color-primary-600);
+            color: white;
+            border: none;
+            padding: 0.5rem 1rem;
+            border-radius: 8px;
+            font-size: 0.875rem;
+            font-weight: 600;
+            cursor: pointer;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            transition: all 0.3s ease;
+        }
+
+        .btn:hover {
+            background: var(--color-primary-700);
+            transform: translateY(-1px);
+        }
+
+        .btn-small {
+            padding: 0.375rem 0.75rem;
+            font-size: 0.75rem;
+        }
+
+        .btn-success {
+            background: var(--color-success-600);
+        }
+
+        .btn-success:hover {
+            background: var(--color-success-700);
+        }
+
+        .btn-secondary {
+            background: var(--color-gray-500);
+        }
+
+        .btn-secondary:hover {
+            background: var(--color-gray-600);
+        }
+
+        /* Status badges */
+        .status-badge {
+            padding: 0.25rem 0.75rem;
+            border-radius: 12px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+
+        .status-active {
+            background: var(--color-success-50);
+            color: var(--color-success-600);
+        }
+
+        .status-pending {
+            background: var(--color-warning-50);
+            color: var(--color-warning-600);
+        }
+
+        .status-inactive {
+            background: var(--color-danger-50);
+            color: var(--color-danger-600);
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .header-content {
+                flex-direction: column;
+                gap: 1rem;
+            }
+
+            .nav-links {
+                flex-wrap: wrap;
+            }
+
+            .main-content {
+                padding: 1rem;
+            }
+
+            .page-header,
+            .content-container {
+                padding: 1.5rem;
+            }
+
+            .search-bar {
+                flex-direction: column;
+            }
+
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .data-table {
+                font-size: 0.875rem;
+            }
+
+            .data-table th,
+            .data-table td {
+                padding: 0.75rem;
+            }
+        }
+    </style>
+    {% block extra_css %}{% endblock %}
+</head>
+<body class="dashboard-container">
+    <!-- Header -->
+    <header class="header">
+        <div class="container">
+            <div class="header-content">
+                <a href="{% url 'admin_panel:dashboard' %}" class="header-logo">
+                    <i class="fas fa-user-shield"></i>
+                    <span>Admin Panel</span>
+                </a>
+                
+                <button class="nav-toggle" id="navToggle" aria-label="Toggle navigation" aria-expanded="false" aria-controls="navMenu">
+                    <i class="fas fa-bars" aria-hidden="true"></i>
+                </button>
+                
+                <nav class="nav-menu" id="navMenu">
+                    <a href="{% url 'admin_panel:dashboard' %}" class="nav-link {% if request.resolver_match.url_name == 'dashboard' %}active{% endif %}">
+                        <i class="fas fa-tachometer-alt"></i>
+                        <span>Dashboard</span>
+                    </a>
+                    <a href="{% url 'admin_panel:donor_tracking' %}" class="nav-link {% if request.resolver_match.url_name == 'donor_tracking' %}active{% endif %}">
+                        <i class="fas fa-users"></i>
+                        <span>Donors</span>
+                    </a>
+                    <a href="{% url 'admin_panel:manage_requests' %}" class="nav-link {% if request.resolver_match.url_name == 'manage_requests' %}active{% endif %}">
+                        <i class="fas fa-clipboard-list"></i>
+                        <span>Requests</span>
+                    </a>
+                    <a href="{% url 'admin_panel:manage_emergencies' %}" class="nav-link {% if request.resolver_match.url_name == 'manage_emergencies' %}active{% endif %}">
+                        <i class="fas fa-exclamation-triangle"></i>
+                        <span>Emergencies</span>
+                    </a>
+                    <a href="{% url 'admin_panel:manage_inventory' %}" class="nav-link {% if request.resolver_match.url_name == 'manage_inventory' %}active{% endif %}">
+                        <i class="fas fa-tint"></i>
+                        <span>Inventory</span>
+                    </a>
+                    <a href="{% url 'admin_panel:reports' %}" class="nav-link {% if request.resolver_match.url_name == 'reports' %}active{% endif %}">
+                        <i class="fas fa-chart-bar"></i>
+                        <span>Reports</span>
+                    </a>
+                    <a href="{% url 'admin_panel:manage_blood_centers' %}" class="nav-link {% if request.resolver_match.url_name == 'manage_blood_centers' %}active{% endif %}">
+                        <i class="fas fa-hospital"></i>
+                        <span>Centers</span>
+                    </a>
+                </nav>
+                
+                <div class="nav-user">
+                    <a href="{% url 'admin_panel:all_notifications' %}" class="nav-link" style="position: relative; padding: var(--space-2); margin-right: var(--space-2);" aria-label="Notifications{% if unread_count > 0 %}, {{ unread_count }} unread{% endif %}">
+                        <i class="fas fa-bell" aria-hidden="true"></i>
+                        {% if unread_count > 0 %}
+                            <span class="notification-badge" aria-label="{{ unread_count }} unread notifications">{{ unread_count }}</span>
+                        {% endif %}
+                    </a>
+                    
+                    <div class="user-dropdown">
+                        <button class="user-dropdown-toggle" id="userDropdownToggle" aria-expanded="false" aria-controls="userDropdownMenu" aria-label="User menu">
+                            <div class="nav-user-info">
+                                <div class="nav-user-name">{{ user.get_full_name|default:user.username }}</div>
+                                <div class="nav-user-role">Admin • Staff</div>
+                            </div>
+                            <div class="nav-avatar" aria-hidden="true">
+                                {{ user.first_name.0|default:'A'|upper }}
+                            </div>
+                            <i class="fas fa-chevron-down" style="font-size: 0.75rem; margin-left: 0.5rem;" aria-hidden="true"></i>
+                        </button>
+                        
+                        <div class="user-dropdown-menu" id="userDropdownMenu" role="menu">
+                            <a href="{% url 'admin_panel:admin_profile' %}" class="dropdown-item" role="menuitem">
+                                <i class="fas fa-user-shield" aria-hidden="true"></i>
+                                <span>View Profile</span>
+                            </a>
+                            <a href="{% url 'admin_panel:edit_admin_profile' %}" class="dropdown-item" role="menuitem">
+                                <i class="fas fa-edit" aria-hidden="true"></i>
+                                <span>Edit Profile</span>
+                            </a>
+                            <a href="{% url 'admin_panel:all_notifications' %}" class="dropdown-item" role="menuitem">
+                                <i class="fas fa-bell" aria-hidden="true"></i>
+                                <span>Notifications</span>
+                            </a>
+                            <div class="dropdown-divider"></div>
+                            <form action="{% url 'accounts:logout' %}" method="POST" style="margin: 0;">
+                                {% csrf_token %}
+                                <button type="submit" class="dropdown-item logout-btn">
+                                    <i class="fas fa-sign-out-alt"></i>
+                                    <span>Logout</span>
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="dashboard-content">
+        <div class="container">
+            {% block breadcrumb %}
+            {% endblock %}
+            
+            {% block content %}{% endblock %}
+        </div>
+    </main>
+
+    <!-- Mobile Navigation Toggle Script -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Mobile navigation toggle
+            const navToggle = document.getElementById('navToggle');
+            const navMenu = document.getElementById('navMenu');
+            
+            if (navToggle && navMenu) {
+                navToggle.addEventListener('click', function() {
+                    const isExpanded = navToggle.getAttribute('aria-expanded') === 'true';
+                    navToggle.setAttribute('aria-expanded', !isExpanded);
+                    navMenu.classList.toggle('active');
+                });
+                
+                // Close menu when clicking outside
+                document.addEventListener('click', function(event) {
+                    if (!navToggle.contains(event.target) && !navMenu.contains(event.target)) {
+                        navMenu.classList.remove('active');
+                        navToggle.setAttribute('aria-expanded', 'false');
+                    }
+                });
+            }
+            
+            // User dropdown toggle
+            const userDropdownToggle = document.getElementById('userDropdownToggle');
+            const userDropdownMenu = document.getElementById('userDropdownMenu');
+            
+            if (userDropdownToggle && userDropdownMenu) {
+                userDropdownToggle.addEventListener('click', function(e) {
+                    e.stopPropagation();
+                    const isExpanded = userDropdownToggle.getAttribute('aria-expanded') === 'true';
+                    userDropdownToggle.setAttribute('aria-expanded', !isExpanded);
+                    userDropdownMenu.classList.toggle('show');
+                });
+                
+                // Keyboard support
+                userDropdownToggle.addEventListener('keydown', function(e) {
+                    if (e.key === 'Enter' || e.key === ' ') {
+                        e.preventDefault();
+                        userDropdownToggle.click();
+                    }
+                });
+                
+                // Close dropdown when clicking outside
+                document.addEventListener('click', function(event) {
+                    if (!userDropdownToggle.contains(event.target) && !userDropdownMenu.contains(event.target)) {
+                        userDropdownMenu.classList.remove('show');
+                        userDropdownToggle.setAttribute('aria-expanded', 'false');
+                    }
+                });
+                
+                // Escape key to close
+                document.addEventListener('keydown', function(e) {
+                    if (e.key === 'Escape' && userDropdownMenu.classList.contains('show')) {
+                        userDropdownMenu.classList.remove('show');
+                        userDropdownToggle.setAttribute('aria-expanded', 'false');
+                        userDropdownToggle.focus();
+                    }
+                });
+            }
+        });
+    </script>
+    
+    {% block extra_js %}{% endblock %}
+</body>
+</html>
