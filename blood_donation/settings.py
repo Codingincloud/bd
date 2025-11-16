@@ -126,7 +126,7 @@ DATABASES = {
 }
 
 # Fallback to SQLite for development if PostgreSQL is not available
-if os.environ.get('USE_SQLITE', 'False') == 'True':
+if os.environ.get('USE_SQLITE', 'True') == 'True':
     DATABASES = {
         'default': {
             'ENGINE': 'django.db.backends.sqlite3',
