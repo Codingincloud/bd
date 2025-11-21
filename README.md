@@ -257,8 +257,8 @@ For issues and questions:
 
 ## Credits
 
-- Developer: [Your Name]
-- Institution: [Your College/University]
+- Developer: cloud
+- Institution☁️
 - Semester: 5th
 - Year: 2025
 
