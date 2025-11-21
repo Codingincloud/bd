@@ -318,6 +318,7 @@ def emergency_requests(request):
     return render(request, 'donor/emergency_requests.html', context)
 
 @login_required
+@login_required
 def profile(request):
     """View donor profile"""
     try:
@@ -326,8 +327,12 @@ def profile(request):
         messages.error(request, 'Donor profile not found. Please contact support.')
         return redirect('accounts:login')
     
+    # Get notification count for the user
+    unread_count = NotificationService.get_notification_count(request.user, unread_only=True)
+    
     context = {
         'donor': donor,
+        'unread_count': unread_count,
     }
     return render(request, 'donor/profile.html', context)
 
@@ -610,10 +615,14 @@ def update_location(request):
         simple_form = SimpleLocationForm()
         detailed_form = LocationUpdateForm(instance=donor)
 
+    # Get notification count for navbar
+    unread_count = NotificationService.get_notification_count(request.user, unread_only=True)
+
     context = {
         'donor': donor,
         'simple_form': simple_form if request.method == 'GET' else SimpleLocationForm(),
         'detailed_form': detailed_form if request.method == 'GET' else LocationUpdateForm(instance=donor),
+        'unread_count': unread_count,
     }
     return render(request, 'donor/update_location.html', context)
 
@@ -1276,9 +1285,13 @@ def update_medical_info(request):
             donor.latest_bp_diastolic = latest_metrics.blood_pressure_diastolic
             donor.latest_heart_rate = latest_metrics.resting_heart_rate
 
+    # Get notification count for navbar
+    unread_count = NotificationService.get_notification_count(request.user, unread_only=True)
+
     context = {
         'donor': donor,
         'form': form,
+        'unread_count': unread_count,
     }
     return render(request, 'donor/update_medical_info.html', context)
 

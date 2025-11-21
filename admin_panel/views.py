@@ -1000,20 +1000,27 @@ def manage_emergencies(request):
     # Emergency response is handled by separate view functions: respond_to_emergency_admin and resolve_emergency
     # This section removed to prevent duplicate functionality and errors
     
-    # Filter by status
+    # Filter by status if provided
     status_filter = request.GET.get('status', '')
     if status_filter:
         emergencies = emergencies.filter(status=status_filter)
     
+    # Get all emergencies for different tabs
+    all_emergencies = EmergencyRequest.objects.order_by('-urgency_level', '-created_at')
+    active_emergencies_list = all_emergencies.filter(status='active')
+    fulfilled_emergencies_list = all_emergencies.filter(status='fulfilled')
+    expired_emergencies_list = all_emergencies.filter(status='expired')
+    
     # Calculate statistics - using only valid EmergencyRequest.STATUS_CHOICES
     total_emergencies = emergencies.count()
-    active_emergencies = emergencies.filter(status='active').count()
-    fulfilled_emergencies = emergencies.filter(status='fulfilled').count()
-    expired_emergencies = emergencies.filter(status='expired').count()
-    # Note: in_progress and resolved are NOT valid statuses in EmergencyRequest model
-    critical_emergencies = emergencies.filter(urgency_level='critical').count()
-    high_emergencies = emergencies.filter(urgency_level='high').count()
-    medium_emergencies = emergencies.filter(urgency_level='medium').count()
+    active_emergencies = active_emergencies_list.count()
+    fulfilled_emergencies = fulfilled_emergencies_list.count()
+    expired_emergencies = expired_emergencies_list.count()
+    
+    # Count by urgency level (only for active emergencies)
+    critical_emergencies = active_emergencies_list.filter(urgency_level='critical').count()
+    high_emergencies = active_emergencies_list.filter(urgency_level='high').count()
+    medium_emergencies = active_emergencies_list.filter(urgency_level='medium').count()
     
     context = {
         'emergencies': emergencies,

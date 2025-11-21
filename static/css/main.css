@@ -371,7 +371,7 @@ small {
    HEADER & NAVIGATION
    ============================================ */
 .header {
-    background: linear-gradient(135deg, var(--color-primary-600) 0%, var(--color-primary-700) 100%);
+    background: linear-gradient(135deg, #dc2626 0%, #b91c1c 100%) !important;
     box-shadow: var(--shadow-base);
     position: sticky;
     top: 0;
@@ -1392,7 +1392,7 @@ small {
         top: 72px;
         left: 0;
         right: 0;
-        background: linear-gradient(135deg, var(--color-primary-600) 0%, var(--color-primary-700) 100%);
+        background: linear-gradient(135deg, #dc2626 0%, #b91c1c 100%);
         flex-direction: column;
         padding: var(--space-4);
         box-shadow: var(--shadow-lg);

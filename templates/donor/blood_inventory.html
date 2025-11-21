@@ -333,8 +333,8 @@
 
     <!-- Donation Call to Action -->
     <div class="donation-cta">
-        <h3><i class="fas fa-heart"></i> Help Save Lives</h3>
-        <p>Your blood donation can make a difference. Schedule your donation today and help maintain adequate blood supplies.</p>
+        <h3 style="color: var(--color-gray-900); opacity: 1;"><i class="fas fa-heart"></i> Help Save Lives</h3>
+        <p style="color: var(--color-gray-800); opacity: 1; font-weight: 500;">Your blood donation can make a difference. Schedule your donation today and help maintain adequate blood supplies.</p>
         {% if donor.is_eligible %}
         <a href="{% url 'donor:schedule_donation' %}" class="btn-donate">
             <i class="fas fa-calendar-plus"></i>

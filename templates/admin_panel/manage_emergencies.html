@@ -228,6 +228,7 @@
 {% endblock %}
 
 {% block content %}
+{% csrf_token %}
 <div class="page-header">
     <div>
         <h1 class="page-title">
@@ -255,147 +256,386 @@
     box-shadow: 0 4px 12px rgba(220, 38, 38, 0.3);
 }
 
+.tabs-container {
+    background: white;
+    border-radius: var(--radius-lg);
+    padding: var(--space-4);
+    margin-bottom: var(--space-6);
+    box-shadow: var(--shadow-sm);
+}
+
+.tabs {
+    display: flex;
+    gap: var(--space-2);
+    border-bottom: 2px solid var(--color-gray-200);
+    margin-bottom: var(--space-4);
+}
+
+.tab-btn {
+    padding: var(--space-3) var(--space-6);
+    border: none;
+    background: none;
+    color: var(--color-gray-600);
+    font-weight: var(--font-weight-semibold);
+    cursor: pointer;
+    transition: all 0.3s;
+    border-bottom: 3px solid transparent;
+    position: relative;
+    bottom: -2px;
+}
+
+.tab-btn:hover {
+    color: var(--color-primary-600);
+}
+
+.tab-btn.active {
+    color: var(--color-danger-600);
+    border-bottom-color: var(--color-danger-600);
+}
+
+.tab-badge {
+    display: inline-block;
+    margin-left: var(--space-2);
+    padding: 0.125rem 0.5rem;
+    background: var(--color-gray-200);
+    border-radius: var(--radius-xl);
+    font-size: var(--text-xs);
+}
+
+.tab-btn.active .tab-badge {
+    background: var(--color-danger-600);
+    color: white;
+}
+
+.tab-content {
+    display: none;
+}
+
+.tab-content.active {
+    display: block;
+}
+
 @media (max-width: 768px) {
     .page-header {
         flex-direction: column;
         align-items: flex-start;
         gap: 1rem;
     }
+    
+    .tabs {
+        flex-wrap: wrap;
+    }
+    
+    .tab-btn {
+        padding: var(--space-2) var(--space-4);
+        font-size: var(--text-sm);
+    }
 }
 </style>
 
 <div class="content-container">
-    <!-- Statistics Summary -->
-    <div class="stats-summary">
-        <div class="stat-item critical">
-            <div class="stat-number">{{ critical_emergencies|default:"0" }}</div>
-            <div class="stat-label">Critical</div>
-        </div>
-        <div class="stat-item high">
-            <div class="stat-number">{{ high_emergencies|default:"0" }}</div>
-            <div class="stat-label">High Priority</div>
-        </div>
-        <div class="stat-item medium">
-            <div class="stat-number">{{ medium_emergencies|default:"0" }}</div>
-            <div class="stat-label">Medium Priority</div>
-        </div>
-        <div class="stat-item">
-            <div class="stat-number">{{ active_emergencies|default:"0" }}</div>
-            <div class="stat-label">Active</div>
+    <!-- Tabs Navigation -->
+    <div class="tabs-container">
+        <div class="tabs">
+            <button class="tab-btn active" onclick="switchTab('active')">
+                <i class="fas fa-exclamation-circle"></i> Active Emergencies
+                <span class="tab-badge">{{ active_emergencies|default:"0" }}</span>
+            </button>
+            <button class="tab-btn" onclick="switchTab('resolved')">
+                <i class="fas fa-check-circle"></i> Resolved
+                <span class="tab-badge">{{ fulfilled_emergencies|default:"0" }}</span>
+            </button>
+            <button class="tab-btn" onclick="switchTab('expired')">
+                <i class="fas fa-clock"></i> Expired
+                <span class="tab-badge">{{ expired_emergencies|default:"0" }}</span>
+            </button>
         </div>
     </div>
 
-    <!-- Search and Filters -->
-    <div class="search-bar">
-        <input type="text" class="search-input" placeholder="Search by hospital or blood group..." id="emergencySearch">
-        <select class="search-input" id="urgencyFilter">
-            <option value="">All Urgency Levels</option>
-            <option value="critical">Critical</option>
-            <option value="high">High</option>
-            <option value="medium">Medium</option>
-        </select>
-        <select class="search-input" id="bloodGroupFilter">
-            <option value="">All Blood Groups</option>
-            <option value="A+">A+</option>
-            <option value="A-">A-</option>
-            <option value="B+">B+</option>
-            <option value="B-">B-</option>
-            <option value="AB+">AB+</option>
-            <option value="AB-">AB-</option>
-            <option value="O+">O+</option>
-            <option value="O-">O-</option>
-        </select>
-        <button class="search-btn" onclick="searchEmergencies()">
-            <i class="fas fa-search"></i> Search
-        </button>
-    </div>
+    <!-- Active Emergencies Tab -->
+    <div id="active-tab" class="tab-content active">
+        <!-- Statistics Summary -->
+        <div class="stats-summary">
+            <div class="stat-item critical">
+                <div class="stat-number">{{ critical_emergencies|default:"0" }}</div>
+                <div class="stat-label">Critical</div>
+            </div>
+            <div class="stat-item high">
+                <div class="stat-number">{{ high_emergencies|default:"0" }}</div>
+                <div class="stat-label">High Priority</div>
+            </div>
+            <div class="stat-item medium">
+                <div class="stat-number">{{ medium_emergencies|default:"0" }}</div>
+                <div class="stat-label">Medium Priority</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-number">{{ active_emergencies|default:"0" }}</div>
+                <div class="stat-label">Active</div>
+            </div>
+        </div>
 
-    <!-- Emergency Requests List -->
-    {% if emergencies %}
-        {% for request in emergencies %}
-        <div class="emergency-card">
-            {% if request.required_by %}
-            <div class="time-remaining {% if request.is_urgent %}urgent{% endif %}">
-                <i class="fas fa-clock"></i>
-                Required by: {{ request.required_by|date:"M d, Y H:i" }}
-                {% if request.is_urgent %}
-                    - URGENT!
+        <!-- Search and Filters -->
+        <div class="search-bar">
+            <input type="text" class="search-input" placeholder="Search by hospital or blood group..." id="emergencySearch">
+            <select class="search-input" id="urgencyFilter">
+                <option value="">All Urgency Levels</option>
+                <option value="critical">Critical</option>
+                <option value="high">High</option>
+                <option value="medium">Medium</option>
+            </select>
+            <select class="search-input" id="bloodGroupFilter">
+                <option value="">All Blood Groups</option>
+                <option value="A+">A+</option>
+                <option value="A-">A-</option>
+                <option value="B+">B+</option>
+                <option value="B-">B-</option>
+                <option value="AB+">AB+</option>
+                <option value="AB-">AB-</option>
+                <option value="O+">O+</option>
+                <option value="O-">O-</option>
+            </select>
+            <button class="search-btn" onclick="searchEmergencies()">
+                <i class="fas fa-search"></i> Search
+            </button>
+        </div>
+
+        <!-- Active Emergency Requests List -->
+        {% if emergencies %}
+            {% for request in emergencies %}
+                {% if request.status == 'active' %}
+                <div class="emergency-card">
+                    {% if request.required_by %}
+                    <div class="time-remaining {% if request.is_urgent %}urgent{% endif %}">
+                        <i class="fas fa-clock"></i>
+                        Required by: {{ request.required_by|date:"M d, Y H:i" }}
+                        {% if request.is_urgent %}
+                            - URGENT!
+                        {% endif %}
+                    </div>
+                    {% endif %}
+
+                    <div class="emergency-header">
+                        <div class="emergency-info">
+                            <h3>
+                                <i class="fas fa-hospital"></i>
+                                {{ request.hospital_name }}
+                            </h3>
+                            <p>{{ request.contact_person }} • {{ request.contact_phone }} • ID: {{ request.id }}</p>
+                        </div>
+                        <div class="urgency-badge urgency-{{ request.urgency_level|default:'medium' }}">
+                            {{ request.get_urgency_level_display|default:"Medium" }} Priority
+                        </div>
+                    </div>
+                    
+                    <div class="emergency-details">
+                        <div class="detail-item">
+                            <span class="detail-label">Blood Group Needed</span>
+                            <span class="detail-value" style="color: var(--color-danger-600); font-weight: 700;">{{ request.blood_group_needed }}</span>
+                        </div>
+                        <div class="detail-item">
+                            <span class="detail-label">Units Needed:</span>
+                            <span class="detail-value" style="color: var(--color-danger-600); font-weight: 700;">{{ request.units_needed }}</span>
+                        </div>
+                        <div class="detail-item">
+                            <span class="detail-label">Location</span>
+                            <span class="detail-value">{{ request.location }}</span>
+                        </div>
+                        <div class="detail-item">
+                            <span class="detail-label">Contact Person</span>
+                            <span class="detail-value">{{ request.contact_person }}</span>
+                        </div>
+                        <div class="detail-item">
+                            <span class="detail-label">Phone</span>
+                            <span class="detail-value">{{ request.contact_phone }}</span>
+                        </div>
+                        <div class="detail-item">
+                            <span class="detail-label">Status</span>
+                            <span class="detail-value">{{ request.get_status_display }}</span>
+                        </div>
+                    </div>
+                    
+                    {% if request.notes %}
+                    <div class="detail-item" style="margin-bottom: 1rem;">
+                        <span class="detail-label">Notes</span>
+                        <span class="detail-value">{{ request.notes }}</span>
+                    </div>
+                    {% endif %}
+                    
+                    <div class="emergency-actions">
+                        <a href="tel:{{ request.contact_phone }}" class="btn btn-small btn-contact">
+                            <i class="fas fa-phone"></i> Call Hospital
+                        </a>
+                        <button class="btn btn-small btn-respond" onclick="respondToEmergency({{ request.id }})">
+                            <i class="fas fa-reply"></i> Respond
+                        </button>
+                        <button class="btn btn-small btn-resolve" onclick="resolveEmergency({{ request.id }})">
+                            <i class="fas fa-check-circle"></i> Mark Resolved
+                        </button>
+                    </div>
+                </div>
                 {% endif %}
+            {% endfor %}
+        {% else %}
+            <div class="no-emergencies">
+                <i class="fas fa-check-circle"></i>
+                <h3>No Active Emergencies</h3>
+                <p>All emergency requests have been resolved. Great job!</p>
             </div>
-            {% endif %}
+        {% endif %}
+    </div>
 
-            <div class="emergency-header">
-                <div class="emergency-info">
-                    <h3>
-                        <i class="fas fa-hospital"></i>
-                        {{ request.hospital_name }}
-                    </h3>
-                    <p>{{ request.contact_person }} • {{ request.contact_phone }} • ID: {{ request.id }}</p>
+    <!-- Resolved Emergencies Tab -->
+    <div id="resolved-tab" class="tab-content">
+        <h2 style="color: var(--color-success-600); margin-bottom: var(--space-6); display: flex; align-items: center; gap: var(--space-2);">
+            <i class="fas fa-check-double"></i>
+            Resolved Emergency Requests
+        </h2>
+        
+        {% if emergencies %}
+            {% for request in emergencies %}
+                {% if request.status == 'fulfilled' %}
+                <div class="emergency-card" style="border-color: var(--color-success-600); opacity: 0.9;">
+                    <div class="emergency-header">
+                        <div class="emergency-info">
+                            <h3 style="color: var(--color-success-600);">
+                                <i class="fas fa-hospital"></i>
+                                {{ request.hospital_name }}
+                            </h3>
+                            <p>{{ request.contact_person }} • {{ request.contact_phone }} • ID: {{ request.id }}</p>
+                        </div>
+                        <div class="urgency-badge" style="background: var(--color-success-50); color: var(--color-success-600);">
+                            <i class="fas fa-check"></i> Resolved
+                        </div>
+                    </div>
+                    
+                    <div class="emergency-details">
+                        <div class="detail-item">
+                            <span class="detail-label">Blood Group</span>
+                            <span class="detail-value">{{ request.blood_group_needed }}</span>
+                        </div>
+                        <div class="detail-item">
+                            <span class="detail-label">Units Needed</span>
+                            <span class="detail-value">{{ request.units_needed }}</span>
+                        </div>
+                        <div class="detail-item">
+                            <span class="detail-label">Location</span>
+                            <span class="detail-value">{{ request.location }}</span>
+                        </div>
+                        <div class="detail-item">
+                            <span class="detail-label">Required By</span>
+                            <span class="detail-value">{{ request.required_by|date:"M d, Y H:i" }}</span>
+                        </div>
+                        <div class="detail-item">
+                            <span class="detail-label">Resolved On</span>
+                            <span class="detail-value">{{ request.updated_at|date:"M d, Y H:i" }}</span>
+                        </div>
+                    </div>
+                    
+                    {% if request.notes %}
+                    <div class="detail-item" style="margin-top: 1rem;">
+                        <span class="detail-label">Resolution Notes</span>
+                        <span class="detail-value" style="white-space: pre-line;">{{ request.notes }}</span>
+                    </div>
+                    {% endif %}
                 </div>
-                <div class="urgency-badge urgency-{{ request.urgency_level|default:'medium' }}">
-                    {{ request.get_urgency_level_display|default:"Medium" }} Priority
-                </div>
+                {% endif %}
+            {% endfor %}
+        {% else %}
+            <div class="no-emergencies">
+                <i class="fas fa-info-circle"></i>
+                <h3>No Resolved Emergencies</h3>
+                <p>Resolved emergency requests will appear here.</p>
             </div>
-            
-            <div class="emergency-details">
-                <div class="detail-item">
-                    <span class="detail-label">Blood Group Needed</span>
-                    <span class="detail-value" style="color: var(--color-danger-600); font-weight: 700;">{{ request.blood_group_needed }}</span>
+        {% endif %}
+    </div>
+
+    <!-- Expired Emergencies Tab -->
+    <div id="expired-tab" class="tab-content">
+        <h2 style="color: var(--color-gray-600); margin-bottom: var(--space-6); display: flex; align-items: center; gap: var(--space-2);">
+            <i class="fas fa-history"></i>
+            Expired Emergency Requests
+        </h2>
+        
+        {% if emergencies %}
+            {% for request in emergencies %}
+                {% if request.status == 'expired' %}
+                <div class="emergency-card" style="border-color: var(--color-gray-400); opacity: 0.8;">
+                    <div class="emergency-header">
+                        <div class="emergency-info">
+                            <h3 style="color: var(--color-gray-600);">
+                                <i class="fas fa-hospital"></i>
+                                {{ request.hospital_name }}
+                            </h3>
+                            <p>{{ request.contact_person }} • {{ request.contact_phone }} • ID: {{ request.id }}</p>
+                        </div>
+                        <div class="urgency-badge" style="background: var(--color-gray-100); color: var(--color-gray-600);">
+                            <i class="fas fa-clock"></i> Expired
+                        </div>
+                    </div>
+                    
+                    <div class="emergency-details">
+                        <div class="detail-item">
+                            <span class="detail-label">Blood Group</span>
+                            <span class="detail-value">{{ request.blood_group_needed }}</span>
+                        </div>
+                        <div class="detail-item">
+                            <span class="detail-label">Units Needed</span>
+                            <span class="detail-value">{{ request.units_needed }}</span>
+                        </div>
+                        <div class="detail-item">
+                            <span class="detail-label">Location</span>
+                            <span class="detail-value">{{ request.location }}</span>
+                        </div>
+                        <div class="detail-item">
+                            <span class="detail-label">Required By</span>
+                            <span class="detail-value">{{ request.required_by|date:"M d, Y H:i" }}</span>
+                        </div>
+                        <div class="detail-item">
+                            <span class="detail-label">Expired On</span>
+                            <span class="detail-value">{{ request.updated_at|date:"M d, Y H:i" }}</span>
+                        </div>
+                    </div>
+                    
+                    {% if request.notes %}
+                    <div class="detail-item" style="margin-top: 1rem;">
+                        <span class="detail-label">Notes</span>
+                        <span class="detail-value">{{ request.notes }}</span>
+                    </div>
+                    {% endif %}
                 </div>
-                <div class="detail-item">
-                    <span class="detail-label">Units Needed:</span>
-                    <span class="detail-value" style="color: var(--color-danger-600); font-weight: 700;">{{ request.units_needed }}</span>
-                </div>
-                <div class="detail-item">
-                    <span class="detail-label">Location</span>
-                    <span class="detail-value">{{ request.location }}</span>
-                </div>
-                <div class="detail-item">
-                    <span class="detail-label">Contact Person</span>
-                    <span class="detail-value">{{ request.contact_person }}</span>
-                </div>
-                <div class="detail-item">
-                    <span class="detail-label">Phone</span>
-                    <span class="detail-value">{{ request.contact_phone }}</span>
-                </div>
-                <div class="detail-item">
-                    <span class="detail-label">Status</span>
-                    <span class="detail-value">{{ request.get_status_display }}</span>
-                </div>
+                {% endif %}
+            {% endfor %}
+        {% else %}
+            <div class="no-emergencies">
+                <i class="fas fa-info-circle"></i>
+                <h3>No Expired Emergencies</h3>
+                <p>Expired emergency requests will appear here.</p>
             </div>
-            
-            {% if request.notes %}
-            <div class="detail-item" style="margin-bottom: 1rem;">
-                <span class="detail-label">Notes</span>
-                <span class="detail-value">{{ request.notes }}</span>
-            </div>
-            {% endif %}
-            
-            <div class="emergency-actions">
-                <a href="tel:{{ request.contact_phone }}" class="btn btn-small btn-contact">
-                    <i class="fas fa-phone"></i> Call Hospital
-                </a>
-                <button class="btn btn-small btn-respond" onclick="respondToEmergency({{ request.id }})">
-                    <i class="fas fa-reply"></i> Respond
-                </button>
-                <button class="btn btn-small btn-resolve" onclick="resolveEmergency({{ request.id }})">
-                    <i class="fas fa-check-circle"></i> Mark Resolved
-                </button>
-            </div>
-        </div>
-        {% endfor %}
-    {% else %}
-        <div class="no-emergencies">
-            <i class="fas fa-check-circle"></i>
-            <h3>No Active Emergencies</h3>
-            <p>All emergency requests have been resolved. Great job!</p>
-        </div>
-    {% endif %}
+        {% endif %}
+    </div>
 </div>
 {% endblock %}
 
 {% block extra_js %}
 <script>
+    function switchTab(tabName) {
+        // Hide all tab contents
+        document.querySelectorAll('.tab-content').forEach(content => {
+            content.classList.remove('active');
+        });
+        
+        // Remove active class from all tab buttons
+        document.querySelectorAll('.tab-btn').forEach(btn => {
+            btn.classList.remove('active');
+        });
+        
+        // Show selected tab content
+        document.getElementById(tabName + '-tab').classList.add('active');
+        
+        // Add active class to selected tab button
+        event.target.closest('.tab-btn').classList.add('active');
+    }
+
     function searchEmergencies() {
         const searchTerm = document.getElementById('emergencySearch').value;
         const urgency = document.getElementById('urgencyFilter').value;
@@ -439,26 +679,22 @@
 
     function resolveEmergency(emergencyId) {
         if (confirm('Are you sure you want to mark this emergency as resolved?')) {
-            fetch(`/admin-panel/emergencies/${emergencyId}/resolve/`, {
-                method: 'POST',
-                headers: {
-                    'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value,
-                    'Content-Type': 'application/json',
-                },
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (data.success) {
-                    alert(data.message);
-                    location.reload();
-                } else {
-                    alert('Error: ' + data.error);
-                }
-            })
-            .catch(error => {
-                console.error('Error:', error);
-                alert('Error resolving emergency');
-            });
+            // Create a form to submit
+            const form = document.createElement('form');
+            form.method = 'POST';
+            form.action = `/admin-panel/emergencies/${emergencyId}/resolve/`;
+            
+            // Add CSRF token
+            const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+            const csrfInput = document.createElement('input');
+            csrfInput.type = 'hidden';
+            csrfInput.name = 'csrfmiddlewaretoken';
+            csrfInput.value = csrfToken;
+            form.appendChild(csrfInput);
+            
+            // Submit form
+            document.body.appendChild(form);
+            form.submit();
         }
     }
 

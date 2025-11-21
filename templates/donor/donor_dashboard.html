@@ -105,19 +105,22 @@
             color: var(--color-gray-900);
             margin-bottom: var(--space-1);
             line-height: 1.2;
+            opacity: 1 !important;
         }
 
         .stat-label {
-            color: var(--color-gray-700);
-            font-weight: 600;
+            color: var(--color-gray-800);
+            font-weight: 700;
             font-size: var(--text-base);
             margin-bottom: var(--space-1);
+            opacity: 1 !important;
         }
 
         .stat-description {
             font-size: var(--text-sm);
-            color: var(--color-gray-600);
+            color: var(--color-gray-700);
             margin-top: var(--space-2);
+            opacity: 1 !important;
         }
 
         /* Quick Actions */
@@ -421,36 +424,36 @@
             {% if latest_health_metrics %}
             <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: var(--space-4);">
                 <div style="padding: var(--space-4); background: var(--color-gray-50); border-radius: var(--radius-lg);">
-                    <div style="font-size: var(--text-sm); color: var(--color-gray-600); margin-bottom: var(--space-1);">Hemoglobin</div>
-                    <div style="font-size: var(--text-2xl); font-weight: 700; color: {% if latest_health_metrics.hemoglobin_level >= 12.5 %}var(--color-success-600){% else %}var(--color-warning-600){% endif %};">
-                        {{ latest_health_metrics.hemoglobin_level }} g/dL
+                    <div style="font-size: var(--text-sm); color: var(--color-gray-700); font-weight: 600; margin-bottom: var(--space-1);">Hemoglobin</div>
+                    <div style="font-size: var(--text-2xl); font-weight: 700; color: {% if latest_health_metrics.hemoglobin_level >= 12.5 %}var(--color-success-600){% else %}var(--color-warning-600){% endif %}; opacity: 1;">
+                        {{ latest_health_metrics.hemoglobin_level|default:"N/A" }} {% if latest_health_metrics.hemoglobin_level %}g/dL{% endif %}
                     </div>
-                    <div style="font-size: var(--text-xs); color: var(--color-gray-500); margin-top: var(--space-1);">
-                        {% if latest_health_metrics.hemoglobin_level >= 12.5 %}✓ Normal{% else %}⚠ Low{% endif %}
-                    </div>
-                </div>
-                <div style="padding: var(--space-4); background: var(--color-gray-50); border-radius: var(--radius-lg);">
-                    <div style="font-size: var(--text-sm); color: var(--color-gray-600); margin-bottom: var(--space-1);">Blood Pressure</div>
-                    <div style="font-size: var(--text-2xl); font-weight: 700; color: var(--color-success-600);">
-                        {{ latest_health_metrics.blood_pressure|default:"N/A" }}
-                    </div>
-                    <div style="font-size: var(--text-xs); color: var(--color-gray-500); margin-top: var(--space-1);">mmHg</div>
-                </div>
-                <div style="padding: var(--space-4); background: var(--color-gray-50); border-radius: var(--radius-lg);">
-                    <div style="font-size: var(--text-sm); color: var(--color-gray-600); margin-bottom: var(--space-1);">Weight</div>
-                    <div style="font-size: var(--text-2xl); font-weight: 700; color: var(--color-gray-800);">
-                        {{ donor.weight|default:"N/A" }} kg
-                    </div>
-                    <div style="font-size: var(--text-xs); color: var(--color-gray-500); margin-top: var(--space-1);">
-                        {% if donor.weight >= 50 %}✓ Eligible{% else %}Below minimum{% endif %}
+                    <div style="font-size: var(--text-xs); color: var(--color-gray-600); font-weight: 500; margin-top: var(--space-1); opacity: 1;">
+                        {% if latest_health_metrics.hemoglobin_level %}{% if latest_health_metrics.hemoglobin_level >= 12.5 %}✓ Normal{% else %}⚠ Low{% endif %}{% else %}No data{% endif %}
                     </div>
                 </div>
                 <div style="padding: var(--space-4); background: var(--color-gray-50); border-radius: var(--radius-lg);">
-                    <div style="font-size: var(--text-sm); color: var(--color-gray-600); margin-bottom: var(--space-1);">Last Check</div>
-                    <div style="font-size: var(--text-lg); font-weight: 600; color: var(--color-gray-800);">
+                    <div style="font-size: var(--text-sm); color: var(--color-gray-700); font-weight: 600; margin-bottom: var(--space-1);">Blood Pressure</div>
+                    <div style="font-size: var(--text-2xl); font-weight: 700; color: var(--color-success-600); opacity: 1;">
+                        {{ latest_health_metrics.blood_pressure_systolic|default:"N/A" }}{% if latest_health_metrics.blood_pressure_systolic %}/{{ latest_health_metrics.blood_pressure_diastolic }}{% endif %}
+                    </div>
+                    <div style="font-size: var(--text-xs); color: var(--color-gray-600); font-weight: 500; margin-top: var(--space-1); opacity: 1;">mmHg</div>
+                </div>
+                <div style="padding: var(--space-4); background: var(--color-gray-50); border-radius: var(--radius-lg);">
+                    <div style="font-size: var(--text-sm); color: var(--color-gray-700); font-weight: 600; margin-bottom: var(--space-1);">Weight</div>
+                    <div style="font-size: var(--text-2xl); font-weight: 700; color: var(--color-gray-900); opacity: 1;">
+                        {{ donor.weight|default:"N/A" }} {% if donor.weight %}kg{% endif %}
+                    </div>
+                    <div style="font-size: var(--text-xs); color: var(--color-gray-600); font-weight: 500; margin-top: var(--space-1); opacity: 1;">
+                        {% if donor.weight %}{% if donor.weight >= 50 %}✓ Eligible{% else %}Below minimum{% endif %}{% else %}No data{% endif %}
+                    </div>
+                </div>
+                <div style="padding: var(--space-4); background: var(--color-gray-50); border-radius: var(--radius-lg);">
+                    <div style="font-size: var(--text-sm); color: var(--color-gray-700); font-weight: 600; margin-bottom: var(--space-1);">Last Check</div>
+                    <div style="font-size: var(--text-lg); font-weight: 600; color: var(--color-gray-900); opacity: 1;">
                         {{ latest_health_metrics.recorded_at|date:"M d, Y" }}
                     </div>
-                    <div style="font-size: var(--text-xs); color: var(--color-gray-500); margin-top: var(--space-1);">{{ latest_health_metrics.recorded_at|timesince }} ago</div>
+                    <div style="font-size: var(--text-xs); color: var(--color-gray-600); font-weight: 500; margin-top: var(--space-1); opacity: 1;">{{ latest_health_metrics.recorded_at|timesince }} ago</div>
                 </div>
             </div>
             <div style="margin-top: var(--space-4); text-align: center;">

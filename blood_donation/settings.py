@@ -70,10 +70,11 @@ SESSION_COOKIE_HTTPONLY = True
 SESSION_COOKIE_SAMESITE = 'Lax'  # Helps with CSRF protection
 
 # CSRF settings
-CSRF_USE_SESSIONS = True
-CSRF_COOKIE_HTTPONLY = True
+CSRF_USE_SESSIONS = False  # Use cookie-based CSRF instead of session-based
+CSRF_COOKIE_HTTPONLY = False  # Must be False for CSRF token to be accessible
 CSRF_COOKIE_SECURE = not DEBUG  # True in production with HTTPS
 CSRF_COOKIE_SAMESITE = 'Lax'
+CSRF_TRUSTED_ORIGINS = ['http://127.0.0.1:8000', 'http://localhost:8000']
 
 # Cache settings for sessions
 CACHES = {
