@@ -1,0 +1,221 @@
+{% extends 'admin_panel/base_admin.html' %}
+
+{% block title %}My Hospital | Blood Donor Information Management System{% endblock %}
+
+{% block extra_css %}
+<style>
+    .hospital-card {
+        background: white;
+        border-radius: var(--radius-xl);
+        padding: var(--space-8);
+        box-shadow: var(--shadow-md);
+        max-width: 900px;
+        margin: 0 auto;
+    }
+
+    .hospital-header {
+        border-bottom: 2px solid var(--color-primary-100);
+        padding-bottom: var(--space-6);
+        margin-bottom: var(--space-6);
+    }
+
+    .hospital-header h2 {
+        color: var(--color-primary-600);
+        margin-bottom: var(--space-2);
+        display: flex;
+        align-items: center;
+        gap: var(--space-3);
+    }
+
+    .form-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        gap: var(--space-4);
+    }
+
+    .form-group {
+        margin-bottom: var(--space-4);
+    }
+
+    .form-group label {
+        display: block;
+        color: var(--color-gray-700);
+        font-weight: var(--font-weight-semibold);
+        margin-bottom: var(--space-2);
+    }
+
+    .form-group input,
+    .form-group select,
+    .form-group textarea {
+        width: 100%;
+        padding: var(--space-3);
+        border: 1px solid var(--color-gray-300);
+        border-radius: var(--radius-md);
+        font-size: var(--text-base);
+    }
+
+    .form-group textarea {
+        min-height: 100px;
+        resize: vertical;
+    }
+
+    .btn-primary {
+        background: var(--color-primary-600);
+        color: white;
+        padding: var(--space-3) var(--space-6);
+        border: none;
+        border-radius: var(--radius-md);
+        cursor: pointer;
+        font-weight: var(--font-weight-semibold);
+        display: inline-flex;
+        align-items: center;
+        gap: var(--space-2);
+    }
+
+    .btn-primary:hover {
+        background: var(--color-primary-700);
+    }
+
+    .info-badge {
+        background: var(--color-info-50);
+        color: var(--color-info-600);
+        padding: var(--space-3) var(--space-4);
+        border-radius: var(--radius-md);
+        margin-bottom: var(--space-6);
+        display: flex;
+        align-items: center;
+        gap: var(--space-3);
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div style="padding: var(--space-6);">
+    <div class="hospital-card">
+        <div class="hospital-header">
+            <h2>
+                <i class="fas fa-hospital"></i>
+                My Hospital Details
+            </h2>
+            <p style="color: var(--color-gray-600); margin: 0;">
+                Manage your hospital/blood bank information
+            </p>
+        </div>
+
+        <div class="info-badge">
+            <i class="fas fa-info-circle" style="font-size: var(--text-xl);"></i>
+            <div>
+                <strong>Note:</strong> You can only manage ONE hospital. This is your hospital's permanent record.
+                Blood inventory is linked to this hospital.
+            </div>
+        </div>
+
+        <form method="POST">
+            {% csrf_token %}
+            
+            <div class="form-group">
+                <label for="name">
+                    <i class="fas fa-hospital-alt"></i> Hospital Name *
+                </label>
+                <input type="text" id="name" name="name" value="{{ hospital.name }}" required>
+            </div>
+
+            <div class="form-grid">
+                <div class="form-group">
+                    <label for="phone_number">
+                        <i class="fas fa-phone"></i> Phone Number *
+                    </label>
+                    <input type="tel" id="phone_number" name="phone_number" value="{{ hospital.phone_number }}" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="email">
+                        <i class="fas fa-envelope"></i> Email
+                    </label>
+                    <input type="email" id="email" name="email" value="{{ hospital.email }}">
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label for="address">
+                    <i class="fas fa-map-marker-alt"></i> Address *
+                </label>
+                <input type="text" id="address" name="address" value="{{ hospital.address }}" required>
+            </div>
+
+            <div class="form-grid">
+                <div class="form-group">
+                    <label for="city">
+                        <i class="fas fa-city"></i> City *
+                    </label>
+                    <input type="text" id="city" name="city" value="{{ hospital.city }}" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="state">
+                        <i class="fas fa-flag"></i> State/Province
+                    </label>
+                    <input type="text" id="state" name="state" value="{{ hospital.state }}">
+                </div>
+            </div>
+
+            <div class="form-grid">
+                <div class="form-group">
+                    <label for="hospital_type">
+                        <i class="fas fa-building"></i> Hospital Type
+                    </label>
+                    <select id="hospital_type" name="hospital_type">
+                        <option value="government" {% if hospital.hospital_type == 'government' %}selected{% endif %}>Government Hospital</option>
+                        <option value="private" {% if hospital.hospital_type == 'private' %}selected{% endif %}>Private Hospital</option>
+                        <option value="blood_bank" {% if hospital.hospital_type == 'blood_bank' %}selected{% endif %}>Blood Bank</option>
+                        <option value="clinic" {% if hospital.hospital_type == 'clinic' %}selected{% endif %}>Clinic</option>
+                        <option value="medical_college" {% if hospital.hospital_type == 'medical_college' %}selected{% endif %}>Medical College</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="operating_hours">
+                        <i class="fas fa-clock"></i> Operating Hours
+                    </label>
+                    <input type="text" id="operating_hours" name="operating_hours" value="{{ hospital.operating_hours }}" placeholder="e.g., 24/7, 9 AM - 5 PM">
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label for="emergency_contact">
+                    <i class="fas fa-ambulance"></i> Emergency Contact
+                </label>
+                <input type="tel" id="emergency_contact" name="emergency_contact" value="{{ hospital.emergency_contact }}" placeholder="Emergency hotline number">
+            </div>
+
+            <div class="form-group">
+                <label for="services">
+                    <i class="fas fa-list"></i> Services Offered
+                </label>
+                <textarea id="services" name="services" placeholder="Comma-separated list of services (e.g., Blood Collection, Blood Testing, Emergency Supply)">{{ hospital.services }}</textarea>
+                <small style="color: var(--color-gray-500); display: block; margin-top: var(--space-2);">
+                    Enter services separated by commas
+                </small>
+            </div>
+
+            <div style="margin-top: var(--space-6); padding-top: var(--space-6); border-top: 1px solid var(--color-gray-200);">
+                <button type="submit" class="btn-primary">
+                    <i class="fas fa-save"></i>
+                    Save Changes
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    // Auto-save confirmation
+    document.querySelector('form').addEventListener('submit', function(e) {
+        if (!confirm('Are you sure you want to update hospital details?')) {
+            e.preventDefault();
+        }
+    });
+</script>
+{% endblock %}

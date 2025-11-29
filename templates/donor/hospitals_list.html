@@ -1,0 +1,295 @@
+{% extends 'donor/base_donor.html' %}
+
+{% block title %}All Hospitals | Blood Donor Information Management System{% endblock %}
+
+{% block extra_css %}
+<style>
+    .hospitals-container {
+        background: white;
+        padding: var(--space-8);
+        border-radius: var(--radius-xl);
+        box-shadow: var(--shadow-md);
+    }
+
+    .filter-section {
+        background: var(--color-gray-50);
+        padding: var(--space-6);
+        border-radius: var(--radius-lg);
+        margin-bottom: var(--space-6);
+        display: flex;
+        gap: var(--space-4);
+        flex-wrap: wrap;
+        align-items: end;
+    }
+
+    .filter-group {
+        flex: 1;
+        min-width: 200px;
+    }
+
+    .filter-group label {
+        display: block;
+        margin-bottom: var(--space-2);
+        font-weight: 600;
+        color: var(--color-gray-700);
+    }
+
+    .filter-group select,
+    .filter-group input {
+        width: 100%;
+        padding: var(--space-3);
+        border: 2px solid var(--color-gray-200);
+        border-radius: var(--radius-lg);
+        font-size: var(--text-base);
+    }
+
+    .hospitals-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+        gap: var(--space-6);
+        margin-top: var(--space-6);
+    }
+
+    .hospital-card {
+        background: white;
+        border: 2px solid var(--color-gray-200);
+        border-radius: var(--radius-lg);
+        padding: var(--space-6);
+        transition: all 0.3s ease;
+    }
+
+    .hospital-card:hover {
+        border-color: var(--color-primary-600);
+        box-shadow: var(--shadow-lg);
+        transform: translateY(-2px);
+    }
+
+    .hospital-header {
+        display: flex;
+        align-items: start;
+        gap: var(--space-4);
+        margin-bottom: var(--space-4);
+        padding-bottom: var(--space-4);
+        border-bottom: 2px solid var(--color-gray-100);
+    }
+
+    .hospital-icon {
+        width: 48px;
+        height: 48px;
+        background: var(--color-primary-100);
+        border-radius: var(--radius-lg);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: var(--color-primary-600);
+        font-size: 1.5rem;
+        flex-shrink: 0;
+    }
+
+    .hospital-info {
+        flex: 1;
+    }
+
+    .hospital-name {
+        font-size: var(--text-xl);
+        font-weight: 700;
+        color: var(--color-gray-900);
+        margin-bottom: var(--space-1);
+    }
+
+    .hospital-type {
+        display: inline-block;
+        padding: var(--space-1) var(--space-3);
+        background: var(--color-success-100);
+        color: var(--color-success-700);
+        border-radius: var(--radius-md);
+        font-size: var(--text-sm);
+        font-weight: 600;
+        text-transform: capitalize;
+    }
+
+    .hospital-details {
+        display: flex;
+        flex-direction: column;
+        gap: var(--space-3);
+    }
+
+    .detail-item {
+        display: flex;
+        align-items: start;
+        gap: var(--space-3);
+        color: var(--color-gray-700);
+        font-size: var(--text-sm);
+    }
+
+    .detail-item i {
+        color: var(--color-primary-600);
+        width: 20px;
+        flex-shrink: 0;
+    }
+
+    .btn {
+        background: var(--color-primary-600);
+        color: white;
+        border: none;
+        padding: var(--space-2) var(--space-4);
+        border-radius: var(--radius-lg);
+        font-size: var(--text-sm);
+        font-weight: 600;
+        cursor: pointer;
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        gap: var(--space-2);
+        transition: all 0.3s ease;
+    }
+
+    .btn:hover {
+        background: var(--color-primary-700);
+    }
+
+    .stats-banner {
+        background: linear-gradient(135deg, var(--color-primary-600), var(--color-primary-700));
+        color: white;
+        padding: var(--space-6);
+        border-radius: var(--radius-lg);
+        margin-bottom: var(--space-6);
+        text-align: center;
+    }
+
+    .stats-banner h2 {
+        font-size: var(--text-3xl);
+        margin-bottom: var(--space-2);
+    }
+
+    .empty-state {
+        text-align: center;
+        padding: var(--space-12);
+        color: var(--color-gray-500);
+    }
+
+    .empty-state i {
+        font-size: 4rem;
+        margin-bottom: var(--space-4);
+        color: var(--color-gray-300);
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <h1 class="page-title">
+        <i class="fas fa-hospital"></i>
+        All Blood Banks & Hospitals
+    </h1>
+    <p class="page-subtitle">Find blood banks and hospitals in the BDIMS network</p>
+</div>
+
+<div class="hospitals-container">
+    <div class="stats-banner">
+        <h2><i class="fas fa-hospital-alt"></i> {{ total_hospitals }}</h2>
+        <p>Blood Banks & Hospitals in Network</p>
+    </div>
+
+    <!-- Filters -->
+    <form method="GET" class="filter-section">
+        <div class="filter-group">
+            <label for="city">Filter by City</label>
+            <select name="city" id="city" onchange="this.form.submit()">
+                <option value="">All Cities</option>
+                {% for city in cities %}
+                <option value="{{ city }}" {% if selected_city == city %}selected{% endif %}>{{ city }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        
+        <div class="filter-group">
+            <label for="type">Filter by Type</label>
+            <select name="type" id="type" onchange="this.form.submit()">
+                <option value="">All Types</option>
+                {% for type in hospital_types %}
+                <option value="{{ type }}" {% if selected_type == type %}selected{% endif %}>{{ type|title }}</option>
+                {% endfor %}
+            </select>
+        </div>
+
+        <div class="filter-group">
+            <button type="submit" class="btn">
+                <i class="fas fa-filter"></i> Apply Filters
+            </button>
+        </div>
+    </form>
+
+    <!-- Hospitals Grid -->
+    {% if hospitals %}
+    <div class="hospitals-grid">
+        {% for hospital in hospitals %}
+        <div class="hospital-card">
+            <div class="hospital-header">
+                <div class="hospital-icon">
+                    <i class="fas fa-hospital"></i>
+                </div>
+                <div class="hospital-info">
+                    <h3 class="hospital-name">{{ hospital.name }}</h3>
+                    <span class="hospital-type">{{ hospital.get_hospital_type_display }}</span>
+                </div>
+            </div>
+
+            <div class="hospital-details">
+                <div class="detail-item">
+                    <i class="fas fa-map-marker-alt"></i>
+                    <div>
+                        <strong>Address:</strong><br>
+                        {{ hospital.address }}<br>
+                        {{ hospital.city }}, {{ hospital.state }}
+                    </div>
+                </div>
+
+                <div class="detail-item">
+                    <i class="fas fa-phone"></i>
+                    <div>
+                        <strong>Phone:</strong><br>
+                        <a href="tel:{{ hospital.phone_number }}">{{ hospital.phone_number }}</a>
+                    </div>
+                </div>
+
+                {% if hospital.email %}
+                <div class="detail-item">
+                    <i class="fas fa-envelope"></i>
+                    <div>
+                        <strong>Email:</strong><br>
+                        <a href="mailto:{{ hospital.email }}">{{ hospital.email }}</a>
+                    </div>
+                </div>
+                {% endif %}
+
+                <div class="detail-item">
+                    <i class="fas fa-clock"></i>
+                    <div>
+                        <strong>Operating Hours:</strong><br>
+                        {{ hospital.operating_hours }}
+                    </div>
+                </div>
+
+                {% if hospital.services_list %}
+                <div class="detail-item">
+                    <i class="fas fa-check-circle"></i>
+                    <div>
+                        <strong>Services:</strong><br>
+                        {{ hospital.services_list|join:", " }}
+                    </div>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    {% else %}
+    <div class="empty-state">
+        <i class="fas fa-hospital"></i>
+        <h3>No Hospitals Found</h3>
+        <p>No hospitals match your filter criteria. Try adjusting your filters.</p>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

@@ -366,8 +366,14 @@
                     <span class="detail-value">{{ donor.donation_count|default:"0" }}</span>
                 </div>
                 <div class="detail-item">
-                    <span class="detail-label">Weight</span>
-                    <span class="detail-value">{{ donor.weight|default:"N/A" }} kg</span>
+                    <span class="detail-label">Account Status</span>
+                    <span class="detail-value">
+                        {% if donor.user.is_active %}
+                            <span class="status-badge status-eligible">Active</span>
+                        {% else %}
+                            <span class="status-badge status-not-eligible">Inactive</span>
+                        {% endif %}
+                    </span>
                 </div>
             </div>
 
@@ -378,16 +384,15 @@
                 <a href="{% url 'admin_panel:edit_donor' donor.id %}" class="btn btn-small btn-edit">
                     <i class="fas fa-edit"></i> Edit
                 </a>
-                {% if donor.is_eligible %}
-                <button class="btn btn-small btn-deactivate" onclick="deactivateDonor({{ donor.id }})">
-                    <i class="fas fa-ban"></i> Deactivate
-                </button>
-                {% else %}
-                <button class="btn btn-small btn-success" onclick="activateDonor({{ donor.id }})">
-                    <i class="fas fa-check"></i> Activate
-                </button>
+                {% if not donor.user.is_active %}
+                <form method="POST" action="{% url 'admin_panel:reactivate_donor' donor.id %}" style="display: inline;" onsubmit="return confirm('Are you sure you want to reactivate this donor account?');">
+                    {% csrf_token %}
+                    <button type="submit" class="btn btn-small btn-success">
+                        <i class="fas fa-user-check"></i> Reactivate
+                    </button>
+                </form>
                 {% endif %}
-                                        </div>
+            </div>
                                     </div>
         {% endfor %}
 

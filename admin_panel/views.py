@@ -1,115 +1,114 @@
+# Import Django basic modules - learned from tutorial
 from django.shortcuts import render, redirect, get_object_or_404
-from django.contrib.auth.decorators import login_required, user_passes_test
+from django.contrib.auth.decorators import login_required
 from django.contrib import messages
-from django.db.models import Count, Q
-from django.utils import timezone
 from django.http import JsonResponse, HttpResponse
-from datetime import timedelta, date
+from django.utils import timezone
+from datetime import timedelta, date, datetime
 import json
 import csv
-from donor.models import (
-    Donor, DonationRequest, DonationHistory, EmergencyRequest
-)
+
+# Import my app models
+from donor.models import Donor, DonationRequest, DonationHistory, EmergencyRequest
 from admin_panel.models import AdminProfile
-from utils.geocoding import geocoding_service
 from utils.notification_service import NotificationService
 
-
-def is_admin(user):
-    """Check if user is admin"""
-    return user.is_staff or user.is_superuser
-
 @login_required
-@user_passes_test(is_admin)
 def dashboard(request):
-    """Admin dashboard with key statistics"""
+    # Check if user is admin - simple check
+    if not request.user.is_staff:
+        messages.error(request, 'You must be an admin to access this page.')
+        return redirect('donor:donor_dashboard')
     
-    # Basic Statistics
+    # Count total donors in database
     total_donors = Donor.objects.count()
+    
+    # Count total donations
     total_donations = DonationHistory.objects.count()
+    
+    # Count pending donation requests
     pending_requests = DonationRequest.objects.filter(status='pending').count()
+    
+    # Count active emergency requests
     active_emergencies = EmergencyRequest.objects.filter(status='active').count()
     
-    # Today's statistics
+    # Get today's date
     today = date.today()
+    
+    # Filter donations made today
     today_donations = DonationHistory.objects.filter(donation_date=today).count()
+    
+    # Filter requests created today
     today_requests = DonationRequest.objects.filter(created_at__date=today).count()
     
-    # This month's statistics
+    # Calculate first day of current month
     month_start = today.replace(day=1)
-    month_donations = DonationHistory.objects.filter(donation_date__gte=month_start).count()
-    try:
-        month_new_donors = Donor.objects.filter(user__date_joined__date__gte=month_start).count()
-    except:
-        month_new_donors = Donor.objects.count()
     
-    # Blood inventory summary from BloodInventory model
+    # Count donations this month
+    month_donations = DonationHistory.objects.filter(donation_date__gte=month_start).count()
+    
+    # Count new donors this month
+    month_new_donors = Donor.objects.filter(user__date_joined__date__gte=month_start).count()
+    
+    # Create dictionary to store blood inventory
     from donor.models import BloodInventory
     blood_inventory = {}
-    for blood_group, _ in Donor.BLOOD_GROUPS:
+    
+    # List of all blood groups
+    blood_groups_list = ['A+', 'A-', 'B+', 'B-', 'AB+', 'AB-', 'O+', 'O-']
+    
+    # Loop through each blood group and get inventory
+    for blood_group in blood_groups_list:
         try:
+            # Try to find existing inventory record
             inventory = BloodInventory.objects.get(blood_group=blood_group)
             blood_inventory[blood_group] = int(inventory.units_available)
         except BloodInventory.DoesNotExist:
-            # Create default inventory record if it doesn't exist
+            # If not found, create new record
             BloodInventory.objects.create(
                 blood_group=blood_group,
                 units_available=0,
                 units_reserved=0,
-                notes='Initial inventory record created from dashboard'
+                notes='Created from dashboard'
             )
             blood_inventory[blood_group] = 0
     
-    # Recent activities
-    recent_donations = DonationHistory.objects.select_related(
-        'donor__user'
-    ).order_by('-created_at')[:5]
+    # Get recent donations (last 5)
+    recent_donations = DonationHistory.objects.all().order_by('-created_at')[:5]
     
-    recent_requests = DonationRequest.objects.select_related(
-        'donor__user'
-    ).order_by('-created_at')[:5]
+    # Get recent requests (last 5)
+    recent_requests = DonationRequest.objects.all().order_by('-created_at')[:5]
     
-    # Pending approvals
-    pending_approvals = DonationRequest.objects.filter(
-        status='pending'
-    ).select_related('donor__user').order_by('requested_date')[:10]
+    # Get pending approvals (maximum 10)
+    pending_approvals = DonationRequest.objects.filter(status='pending').order_by('requested_date')[:10]
     
-    # Emergency requests requiring attention
+    # Get urgent emergency requests
     urgent_emergencies = EmergencyRequest.objects.filter(
         status='active',
-        urgency_level__in=['high', 'critical']
-    ).order_by('-urgency_level', 'required_by')[:5]
+        urgency_level='high'
+    ).order_by('required_by')[:5]
     
-    # Blood group distribution
+    # Create list to store blood group statistics
     blood_group_stats = []
-    for blood_group, _ in Donor.BLOOD_GROUPS:
+    for blood_group in blood_groups_list:
+        # Count donors for this blood group
         donor_count = Donor.objects.filter(blood_group=blood_group).count()
+        
+        # Count donations for this blood group
         donation_count = DonationHistory.objects.filter(donor__blood_group=blood_group).count()
+        
+        # Add to statistics list
         blood_group_stats.append({
             'blood_group': blood_group,
             'donors': donor_count,
             'donations': donation_count,
             'inventory': blood_inventory.get(blood_group, 0)
         })
-
-    # Location statistics
-    location_stats = {
-        'total_with_coordinates': Donor.objects.filter(
-            latitude__isnull=False,
-            longitude__isnull=False
-        ).count(),
-        'top_cities': Donor.objects.exclude(city='').values('city').annotate(
-            count=Count('id')
-        ).order_by('-count')[:5],
-        'top_states': Donor.objects.exclude(state='').values('state').annotate(
-            count=Count('id')
-        ).order_by('-count')[:5],
-    }
-
+    
     # Get admin notifications
-    from utils.notification_service import NotificationService
     admin_notifications = NotificationService.get_system_notifications('admins', user=request.user)[:5]
 
+    # Create context dictionary with all data for template
     context = {
         'total_donors': total_donors,
         'total_donations': total_donations,
@@ -125,219 +124,162 @@ def dashboard(request):
         'pending_approvals': pending_approvals,
         'urgent_emergencies': urgent_emergencies,
         'blood_group_stats': blood_group_stats,
-        'location_stats': location_stats,
         'admin_notifications': admin_notifications,
     }
     
+    # Render template with context data
     return render(request, 'admin_panel/dashboard.html', context)
 
+
 @login_required
-@user_passes_test(is_admin)
 def create_emergency_request(request):
-    """Create emergency blood request"""
+    # Check if user is admin
+    if not request.user.is_staff:
+        messages.error(request, 'Only admins can create emergency requests.')
+        return redirect('donor:donor_dashboard')
+    
+    # Check if admin has a hospital
+    try:
+        admin_hospital = request.user.hospital
+    except:
+        messages.error(request, 'You must have a hospital assigned to create emergency requests.')
+        return redirect('admin_panel:dashboard')
+    
+    # Handle form submission
     if request.method == 'POST':
-        try:
-            blood_group = request.POST.get('blood_group')
-            units_needed = request.POST.get('units_needed')
-            hospital_name = request.POST.get('hospital_name')
-            contact_person = request.POST.get('contact_person')
-            contact_phone = request.POST.get('contact_phone')
-            location = request.POST.get('location')
-            urgency_level = request.POST.get('urgency_level', 'high')
-            required_by = request.POST.get('required_by')
-            notes = request.POST.get('notes', '')
+        # Get form data from POST request
+        blood_group = request.POST.get('blood_group')
+        units_needed = request.POST.get('units_needed')
+        contact_person = request.POST.get('contact_person')
+        contact_phone = request.POST.get('contact_phone')
+        urgency_level = request.POST.get('urgency_level', 'high')
+        required_by = request.POST.get('required_by')
+        notes = request.POST.get('notes', '')
 
-            # Validation
-            errors = []
-            if not blood_group:
-                errors.append('Blood group is required')
-            if not units_needed:
-                errors.append('Units needed is required')
-            elif not units_needed.isdigit() or int(units_needed) <= 0:
-                errors.append('Units needed must be a positive number')
-            if not hospital_name:
-                errors.append('Hospital name is required')
-            if not contact_person:
-                errors.append('Contact person is required')
-            if not contact_phone:
-                errors.append('Contact phone is required')
-            if not location:
-                errors.append('Location is required')
-            if not required_by:
-                errors.append('Required by date/time is required')
-
-            if errors:
-                for error in errors:
-                    messages.error(request, error)
-            else:
-                # Parse the required_by datetime
+        # Simple validation
+        if not blood_group:
+            messages.error(request, 'Blood group is required')
+        elif not units_needed:
+            messages.error(request, 'Units needed is required')
+        elif not contact_person:
+            messages.error(request, 'Contact person is required')
+        elif not contact_phone:
+            messages.error(request, 'Contact phone is required')
+        elif not required_by:
+            messages.error(request, 'Required by date/time is required')
+        else:
+            # All validations passed, create emergency request for admin's hospital
+            try:
                 from datetime import datetime
-                try:
-                    required_by_dt = datetime.strptime(required_by, '%Y-%m-%dT%H:%M')
-                    # Make it timezone aware
-                    from django.utils import timezone as tz
-                    required_by_dt = tz.make_aware(required_by_dt)
-                except ValueError:
-                    messages.error(request, 'Invalid date/time format for required by field')
-                    return render(request, 'admin_panel/create_emergency_request.html', {
-                        'blood_groups': Donor.BLOOD_GROUPS,
-                        'form_data': request.POST
-                    })
-
-                from donor.models import EmergencyRequest
+                from django.utils import timezone as tz
+                
+                # Convert string to datetime
+                required_by_dt = datetime.strptime(required_by, '%Y-%m-%dT%H:%M')
+                required_by_dt = tz.make_aware(required_by_dt)
+                
+                # Create new emergency request in database for this hospital only
                 emergency_request = EmergencyRequest.objects.create(
                     blood_group_needed=blood_group,
                     units_needed=int(units_needed),
-                    hospital_name=hospital_name,
+                    hospital_name=admin_hospital.name,
                     contact_person=contact_person,
                     contact_phone=contact_phone,
-                    location=location,
+                    location=f"{admin_hospital.address}, {admin_hospital.city}",
                     urgency_level=urgency_level,
                     required_by=required_by_dt,
                     notes=notes,
                     status='active'
                 )
 
-                # Notify compatible donors
-                from utils.notification_service import NotificationService
+                # Send notification to compatible donors
                 try:
                     NotificationService.notify_emergency_request(emergency_request)
-                    messages.success(request, f'Emergency request created successfully! Compatible {blood_group} donors have been notified.')
-                except Exception as e:
-                    messages.warning(request, f'Emergency request created but notification failed: {e}')
+                    messages.success(request, f'Emergency request created for {admin_hospital.name}! {blood_group} donors notified.')
+                except:
+                    messages.warning(request, 'Emergency created but notification failed.')
 
                 return redirect('admin_panel:manage_emergencies')
-
-        except Exception as e:
-            messages.error(request, f'Error creating emergency request: {e}')
-            return render(request, 'admin_panel/create_emergency_request.html', {
-                'blood_groups': Donor.BLOOD_GROUPS,
-                'form_data': request.POST
-            })
-
-    # Get blood group choices
-    from donor.models import Donor
-    blood_groups = Donor.BLOOD_GROUPS
-
+            except Exception as e:
+                messages.error(request, f'Error creating request: {e}')
+    
+    # For GET request, show form with pre-filled hospital info
+    blood_groups_list = ['A+', 'A-', 'B+', 'B-', 'AB+', 'AB-', 'O+', 'O-']
     context = {
-        'blood_groups': blood_groups,
+        'blood_groups': blood_groups_list,
+        'hospital': admin_hospital,
     }
     return render(request, 'admin_panel/create_emergency_request.html', context)
 
+
 @login_required
-@user_passes_test(is_admin)
 def approve_donation_request(request, request_id):
-    """Approve a donation request with custom message"""
+    # Check if user is admin
+    if not request.user.is_staff:
+        messages.error(request, 'Only admins can approve requests.')
+        return redirect('donor:donor_dashboard')
+    
     if request.method == 'POST':
-        try:
-            from donor.models import DonationRequest
-            donation_request = get_object_or_404(DonationRequest, id=request_id)
+        # Get the donation request from database
+        donation_request = get_object_or_404(DonationRequest, id=request_id)
 
-            # Get custom message from admin
-            custom_message = request.POST.get('approval_message', '').strip()
-            admin_notes = request.POST.get('admin_notes', '').strip()
+        # Get custom message from form
+        custom_message = request.POST.get('approval_message', '').strip()
 
-            # Default message if none provided
-            if not custom_message:
-                custom_message = f'Your donation request for {donation_request.requested_date} has been approved. Please arrive on time at your preferred time: {donation_request.preferred_time}.'
+        # If no message provided, use default
+        if not custom_message:
+            custom_message = f'Your donation request for {donation_request.requested_date} has been approved.'
 
-            donation_request.status = 'approved'
-            donation_request.admin_notes = admin_notes
-            donation_request.save()
+        # Update request status
+        donation_request.status = 'approved'
+        donation_request.save()
 
-            # Notify donor with custom message
-            from utils.notification_service import NotificationService
-            NotificationService.create_user_notification(
-                user=donation_request.donor.user,
-                title='Donation Request Approved ✅',
-                message=custom_message,
-                notification_type='request_approved',
-                action_url='/donor/dashboard/'
-            )
+        # Send notification to donor
+        NotificationService.create_user_notification(
+            user=donation_request.donor.user,
+            title='Donation Request Approved ✅',
+            message=custom_message,
+            notification_type='request_approved',
+            action_url='/donor/dashboard/'
+        )
 
-            # Send email notification
-            try:
-                from django.core.mail import send_mail
-                from django.conf import settings
-
-                if donation_request.donor.user.email:
-                    subject = 'Donation Request Approved - Blood Donation System'
-                    email_message = f"""
-Dear {donation_request.donor.user.get_full_name() or donation_request.donor.user.username},
-
-{custom_message}
-
-Donation Details:
-- Date: {donation_request.requested_date}
-- Time: {donation_request.preferred_time}
-- Status: Approved
-
-Please make sure to:
-1. Arrive 15 minutes before your scheduled time
-2. Bring a valid ID
-3. Have a light meal before donation
-4. Stay hydrated
-
-If you need to reschedule or cancel, please contact us as soon as possible.
-
-Thank you for your willingness to donate blood and save lives!
-
-Best regards,
-Blood Donation System Team
-                    """
-
-                    send_mail(
-                        subject,
-                        email_message,
-                        settings.DEFAULT_FROM_EMAIL,
-                        [donation_request.donor.user.email],
-                        fail_silently=True,
-                    )
-            except Exception as e:
-                print(f"Failed to send approval email: {e}")
-
-            messages.success(request, f'Donation request approved for {donation_request.donor.user.get_full_name()}. Notification sent successfully.')
-
-        except Exception as e:
-            messages.error(request, f'Error approving request: {e}')
+        messages.success(request, f'Request approved for {donation_request.donor.user.get_full_name()}')
 
     return redirect('admin_panel:manage_requests')
 
+
 @login_required
-@user_passes_test(is_admin)
 def reject_donation_request(request, request_id):
-    """Reject a donation request"""
+    # Check if user is admin
+    if not request.user.is_staff:
+        messages.error(request, 'Only admins can reject requests.')
+        return redirect('donor:donor_dashboard')
+    
     if request.method == 'POST':
-        try:
-            from donor.models import DonationRequest
-            donation_request = get_object_or_404(DonationRequest, id=request_id)
+        # Get the donation request
+        donation_request = get_object_or_404(DonationRequest, id=request_id)
 
-            rejection_reason = request.POST.get('rejection_reason', 'Not specified')
+        # Get rejection reason
+        rejection_reason = request.POST.get('rejection_reason', 'Not specified')
 
-            donation_request.status = 'rejected'
-            donation_request.rejection_reason = rejection_reason
-            donation_request.rejected_by = request.user
-            donation_request.rejected_at = timezone.now()
-            donation_request.save()
+        # Update status
+        donation_request.status = 'rejected'
+        donation_request.rejection_reason = rejection_reason
+        donation_request.save()
 
-            # Notify donor
-            from utils.notification_service import NotificationService
-            NotificationService.create_user_notification(
-                user=donation_request.donor.user,
-                title='Donation Request Rejected',
-                message=f'Your donation request has been rejected. Reason: {rejection_reason}',
-                notification_type='request_rejected'
-            )
+        # Notify donor
+        NotificationService.create_user_notification(
+            user=donation_request.donor.user,
+            title='Donation Request Rejected',
+            message=f'Your donation request has been rejected. Reason: {rejection_reason}',
+            notification_type='request_rejected'
+        )
 
-            messages.success(request, f'Donation request rejected for {donation_request.donor.user.get_full_name()}')
-
-        except Exception as e:
-            messages.error(request, f'Error rejecting request: {e}')
+        messages.success(request, f'Request rejected for {donation_request.donor.user.get_full_name()}')
 
     return redirect('admin_panel:manage_requests')
 
 @login_required
-@user_passes_test(is_admin)
+
 def mark_donation_completed(request, request_id):
     """Mark a donation as completed and create donation history"""
     if request.method == 'POST':
@@ -384,224 +326,119 @@ def mark_donation_completed(request, request_id):
     return redirect('admin_panel:manage_requests')
 
 @login_required
-@user_passes_test(is_admin)
-def manage_blood_centers(request):
-    """Manage blood donation centers"""
-    from donor.models import DonationCenter
+def my_hospital(request):
+    """View and edit hospital details"""
+    from donor.models import Hospital
+
+    try:
+        hospital = request.user.hospital
+    except Hospital.DoesNotExist:
+        messages.error(request, 'Hospital not found for your account. Please contact support.')
+        return redirect('admin_panel:dashboard')
 
     if request.method == 'POST':
-        # Add new blood center
-        name = request.POST.get('name')
-        address = request.POST.get('address')
-        city = request.POST.get('city')
-        state = request.POST.get('state', 'Nepal')
-        phone_number = request.POST.get('phone_number')
-        email = request.POST.get('email', '')
+        # Update hospital details
+        hospital.name = request.POST.get('name', hospital.name)
+        hospital.phone_number = request.POST.get('phone_number', hospital.phone_number)
+        hospital.email = request.POST.get('email', hospital.email)
+        hospital.address = request.POST.get('address', hospital.address)
+        hospital.city = request.POST.get('city', hospital.city)
+        hospital.state = request.POST.get('state', hospital.state)
+        hospital.hospital_type = request.POST.get('hospital_type', hospital.hospital_type)
+        hospital.operating_hours = request.POST.get('operating_hours', hospital.operating_hours)
+        hospital.emergency_contact = request.POST.get('emergency_contact', hospital.emergency_contact)
+        hospital.services = request.POST.get('services', hospital.services)
+        
+        try:
+            hospital.save()
+            messages.success(request, 'Hospital details updated successfully!')
+        except Exception as e:
+            messages.error(request, f'Error updating hospital: {e}')
 
-        if name and address and city and phone_number:
-            try:
-                DonationCenter.objects.create(
-                    name=name,
-                    address=address,
-                    city=city,
-                    state=state,
-                    phone_number=phone_number,
-                    email=email,
-                    is_active=True
-                )
-                messages.success(request, f'Donation center "{name}" added successfully!')
-            except Exception as e:
-                messages.error(request, f'Error adding donation center: {e}')
-        else:
-            messages.error(request, 'Please fill in all required fields (name, address, city, phone).')
-
-    # Get all blood centers
-    donation_centers = DonationCenter.objects.all().order_by('name')
+        return redirect('admin_panel:my_hospital')
 
     context = {
-        'donation_centers': donation_centers,
-        'total_centers': donation_centers.count(),
-        'active_centers': donation_centers.filter(is_active=True).count(),
-        'inactive_centers': donation_centers.filter(is_active=False).count(),
+        'hospital': hospital,
     }
-    return render(request, 'admin_panel/manage_blood_centers.html', context)
+    return render(request, 'admin_panel/my_hospital.html', context)
 
 @login_required
-@user_passes_test(is_admin)
-def delete_blood_center(request, center_id):
-    """Delete a blood center"""
-    if request.method == 'POST':
-        try:
-            from donor.models import DonationCenter
-            center = get_object_or_404(DonationCenter, id=center_id)
-            center_name = center.name
-            center.delete()
-            messages.success(request, f'Blood center "{center_name}" deleted successfully!')
-        except Exception as e:
-            messages.error(request, f'Error deleting blood center: {e}')
-
-    return redirect('admin_panel:manage_blood_centers')
-
-@login_required
-@user_passes_test(is_admin)
 def donor_tracking(request):
-    """Enhanced donor tracking with location and activity monitoring"""
-    from donor.models import Donor, DonationHistory, DonationRequest
-    from django.db.models import Count, Q, Max, Prefetch
-    from datetime import timedelta
-    from django.utils import timezone
+    # Check if user is admin
+    if not request.user.is_staff:
+        messages.error(request, 'Only admins can view donor tracking.')
+        return redirect('donor:donor_dashboard')
+    
+    # Get all donors from database
+    donors = Donor.objects.all().order_by('-user__date_joined')
 
-    # Calculate date 90 days ago for activity filtering
-    ninety_days_ago = timezone.now() - timedelta(days=90)
-    ninety_days_ago_date = timezone.now().date() - timedelta(days=90)
-
-    # Prefetch recent requests and donations to avoid N+1 queries
-    recent_requests_prefetch = Prefetch(
-        'donationrequest_set',
-        queryset=DonationRequest.objects.filter(created_at__gte=ninety_days_ago),
-        to_attr='recent_requests_cached'
-    )
-    recent_donations_prefetch = Prefetch(
-        'donationhistory_set',
-        queryset=DonationHistory.objects.filter(donation_date__gte=ninety_days_ago_date),
-        to_attr='recent_donations_cached'
-    )
-
-    # Get all donors with comprehensive information - optimized with prefetch
-    donors = Donor.objects.select_related('user').prefetch_related(
-        recent_requests_prefetch,
-        recent_donations_prefetch
-    ).annotate(
-        donation_count=Count('donationhistory'),
-        pending_requests=Count('donationrequest', filter=Q(donationrequest__status='pending')),
-        approved_requests=Count('donationrequest', filter=Q(donationrequest__status='approved')),
-        completed_requests=Count('donationrequest', filter=Q(donationrequest__status='completed')),
-        last_activity=Max('donationrequest__created_at')
-    ).order_by('-created_at')
-
-    # Filter by search query
+    # Check if there's a search query
     search_query = request.GET.get('search', '')
     if search_query:
-        donors = donors.filter(
-            Q(user__first_name__icontains=search_query) |
-            Q(user__last_name__icontains=search_query) |
-            Q(user__username__icontains=search_query) |
-            Q(user__email__icontains=search_query) |
-            Q(blood_group__icontains=search_query) |
-            Q(city__icontains=search_query) |
-            Q(state__icontains=search_query) |
-            Q(phone_number__icontains=search_query)
-        )
+        # Filter donors by search term
+        donors = donors.filter(user__first_name__icontains=search_query) | \
+                 donors.filter(user__last_name__icontains=search_query) | \
+                 donors.filter(user__email__icontains=search_query) | \
+                 donors.filter(blood_group__icontains=search_query) | \
+                 donors.filter(city__icontains=search_query) | \
+                 donors.filter(phone_number__icontains=search_query)
 
-    # Filter by blood group
+    # Check for blood group filter
     blood_group_filter = request.GET.get('blood_group', '')
     if blood_group_filter:
         donors = donors.filter(blood_group=blood_group_filter)
 
-    # Filter by location
+    # Check for city filter
     city_filter = request.GET.get('city', '')
     if city_filter:
         donors = donors.filter(city__icontains=city_filter)
 
-    state_filter = request.GET.get('state', '')
-    if state_filter:
-        donors = donors.filter(state__icontains=state_filter)
+    # Check for status filter
+    status_filter = request.GET.get('status', '')
+    if status_filter == 'eligible':
+        # Show only donors who can donate (90 days since last donation)
+        ninety_days_ago = date.today() - timedelta(days=90)
+        donors = donors.filter(last_donation_date__lte=ninety_days_ago) | donors.filter(last_donation_date__isnull=True)
+    elif status_filter == 'not_eligible':
+        # Show only donors who cannot donate yet
+        ninety_days_ago = date.today() - timedelta(days=90)
+        donors = donors.filter(last_donation_date__gt=ninety_days_ago)
 
-    # Filter by eligibility status
-    eligibility_filter = request.GET.get('eligibility', '')
-
-    # Process each donor for eligibility and additional info
-    processed_donors = []
+    # Check eligibility for each donor
     for donor in donors:
-        eligible, message = donor.can_donate()
+        donor.is_eligible, _ = donor.can_donate()
 
-        # Calculate days since last donation
-        days_since_last_donation = None
-        if donor.last_donation_date:
-            days_since_last_donation = (timezone.now().date() - donor.last_donation_date).days
-
-        # Calculate activity score using prefetched data (NO MORE N+1 queries!)
-        recent_requests_count = len(donor.recent_requests_cached) if hasattr(donor, 'recent_requests_cached') else 0
-        recent_donations_count = len(donor.recent_donations_cached) if hasattr(donor, 'recent_donations_cached') else 0
-
-        activity_score = (recent_requests_count * 2) + (recent_donations_count * 5)
-
-        # Determine activity level
-        if activity_score >= 10:
-            activity_level = 'high'
-        elif activity_score >= 5:
-            activity_level = 'medium'
-        elif activity_score > 0:
-            activity_level = 'low'
-        else:
-            activity_level = 'inactive'
-
-        # Add computed fields to donor object
-        donor.eligibility_status = {
-            'eligible': eligible,
-            'message': message
-        }
-        donor.days_since_last_donation = days_since_last_donation
-        donor.activity_score = activity_score
-        donor.activity_level = activity_level
-        donor.has_coordinates = bool(donor.latitude and donor.longitude)
-
-        # Apply eligibility filter
-        if eligibility_filter == 'eligible' and not eligible:
-            continue
-        elif eligibility_filter == 'not_eligible' and eligible:
-            continue
-
-        processed_donors.append(donor)
-
-    # Sort options
-    sort_by = request.GET.get('sort_by', 'created_at')
-    if sort_by == 'activity':
-        processed_donors.sort(key=lambda x: x.activity_score, reverse=True)
-    elif sort_by == 'donations':
-        processed_donors.sort(key=lambda x: x.donation_count, reverse=True)
-    elif sort_by == 'last_donation':
-        processed_donors.sort(key=lambda x: x.last_donation_date or timezone.now().date() - timedelta(days=9999), reverse=True)
-    elif sort_by == 'name':
-        processed_donors.sort(key=lambda x: x.user.get_full_name() or x.user.username)
-
-    # Pagination
+    # Pagination - show 20 donors per page
     from django.core.paginator import Paginator
-    paginator = Paginator(processed_donors, 20)
+    paginator = Paginator(donors, 20)
     page_number = request.GET.get('page')
-    page_obj = paginator.get_page(page_number)
+    donors = paginator.get_page(page_number)
 
-    # Get filter options
-    cities = Donor.objects.exclude(city='').values_list('city', flat=True).distinct().order_by('city')
-    states = Donor.objects.exclude(state='').values_list('state', flat=True).distinct().order_by('state')
+    # Calculate statistics for dashboard
+    total_donors = Donor.objects.count()
+    
+    ninety_days_ago = date.today() - timedelta(days=90)
+    active_donors = Donor.objects.filter(last_donation_date__gte=ninety_days_ago).count()
+    
+    eligible_donors = Donor.objects.filter(last_donation_date__lte=ninety_days_ago).count()
+    
+    this_month_start = date.today().replace(day=1)
+    recent_donors = Donor.objects.filter(user__date_joined__date__gte=this_month_start).count()
 
-    # Statistics
-    total_donors = len(processed_donors)
-    eligible_count = sum(1 for d in processed_donors if d.eligibility_status['eligible'])
-    active_count = sum(1 for d in processed_donors if d.activity_level in ['high', 'medium'])
-    with_location_count = sum(1 for d in processed_donors if d.has_coordinates)
-
+    # Create context for template
+    blood_groups_list = ['A+', 'A-', 'B+', 'B-', 'AB+', 'AB-', 'O+', 'O-']
     context = {
-        'page_obj': page_obj,
-        'donors': processed_donors,
-        'search_query': search_query,
-        'blood_group_filter': blood_group_filter,
-        'city_filter': city_filter,
-        'state_filter': state_filter,
-        'eligibility_filter': eligibility_filter,
-        'sort_by': sort_by,
-        'blood_groups': Donor.BLOOD_GROUPS,
-        'cities': cities,
-        'states': states,
+        'donors': donors,
         'total_donors': total_donors,
-        'eligible_count': eligible_count,
-        'active_count': active_count,
-        'with_location_count': with_location_count,
+        'active_donors': active_donors,
+        'eligible_donors': eligible_donors,
+        'recent_donors': recent_donors,
+        'blood_groups': blood_groups_list,
     }
     return render(request, 'admin_panel/donor_tracking.html', context)
 
 @login_required
-@user_passes_test(is_admin)
+
 def donor_detail(request, donor_id):
     """View detailed information about a specific donor"""
     donor = get_object_or_404(Donor, id=donor_id)
@@ -635,7 +472,7 @@ def donor_detail(request, donor_id):
 
 
 @login_required
-@user_passes_test(is_admin)
+
 def location_search(request):
     """Location-based donor search with distance calculations"""
     if request.method == 'POST':
@@ -694,7 +531,7 @@ def location_search(request):
     return render(request, 'admin_panel/location_search.html', context)
 
 @login_required
-@user_passes_test(is_admin)
+
 def geocode_address(request):
     """API endpoint to convert address to coordinates"""
     if request.method == 'POST':
@@ -737,7 +574,7 @@ def geocode_address(request):
     })
 
 @login_required
-@user_passes_test(is_admin)
+
 def address_suggestions(request):
     """API endpoint to get address suggestions for autocomplete"""
     query = request.GET.get('q', '').strip()
@@ -777,7 +614,7 @@ def address_suggestions(request):
 
 
 @login_required
-@user_passes_test(is_admin)
+
 def location_search_by_name(request):
     """Enhanced location search that accepts place names"""
     if request.method == 'POST':
@@ -859,7 +696,7 @@ def location_search_by_name(request):
     })
 
 @login_required
-@user_passes_test(is_admin)
+
 def manage_requests(request):
     """Manage donation requests"""
     donation_requests = DonationRequest.objects.select_related('donor__user').order_by('-created_at')
@@ -891,7 +728,7 @@ def manage_requests(request):
     return render(request, 'admin_panel/manage_requests.html', context)
 
 @login_required
-@user_passes_test(is_admin)
+
 def complete_donation_request(request, request_id):
     """Mark a donation request as completed"""
     if request.method != 'POST':
@@ -952,7 +789,7 @@ def complete_donation_request(request, request_id):
         return redirect('admin_panel:manage_requests')
 
 @login_required
-@user_passes_test(is_admin)
+
 def cancel_donation_request(request, request_id):
     """Cancel a donation request"""
     if request.method != 'POST':
@@ -992,7 +829,7 @@ def cancel_donation_request(request, request_id):
         return redirect('admin_panel:manage_requests')
 
 @login_required
-@user_passes_test(is_admin)
+
 def manage_emergencies(request):
     """Manage emergency requests"""
     emergencies = EmergencyRequest.objects.order_by('-urgency_level', '-created_at')
@@ -1038,7 +875,7 @@ def manage_emergencies(request):
 
 
 @login_required
-@user_passes_test(is_admin)
+
 def edit_admin_profile(request):
     """Edit admin profile information"""
     try:
@@ -1091,7 +928,7 @@ def edit_admin_profile(request):
     return render(request, 'admin_panel/edit_admin_profile.html', context)
 
 @login_required
-@user_passes_test(is_admin)
+
 def admin_profile(request):
     """View admin profile information"""
     try:
@@ -1122,10 +959,17 @@ def admin_profile(request):
     return render(request, 'admin_panel/admin_profile.html', context)
 
 @login_required
-@user_passes_test(is_admin)
+
 def manage_inventory(request):
     """Manage blood inventory with update capabilities"""
-    from donor.models import BloodInventory
+    from donor.models import BloodInventory, Hospital
+
+    # Get admin's hospital
+    try:
+        hospital = request.user.hospital
+    except Hospital.DoesNotExist:
+        messages.error(request, 'Hospital not found for your account.')
+        return redirect('admin_panel:dashboard')
 
     if request.method == 'POST':
         # Handle inventory updates
@@ -1137,6 +981,7 @@ def manage_inventory(request):
         try:
             units = float(units)
             inventory, _ = BloodInventory.objects.get_or_create(
+                hospital=hospital,
                 blood_group=blood_group,
                 defaults={'units_available': 0, 'units_reserved': 0}
             )
@@ -1169,11 +1014,11 @@ def manage_inventory(request):
 
         return redirect('admin_panel:manage_inventory')
 
-    # Get current inventory
+    # Get current inventory for this hospital
     inventory_data = []
     for blood_group, blood_group_display in Donor.BLOOD_GROUPS:
         try:
-            inventory = BloodInventory.objects.get(blood_group=blood_group)
+            inventory = BloodInventory.objects.get(hospital=hospital, blood_group=blood_group)
             units_available = inventory.units_available
             last_updated = inventory.last_updated
             notes = inventory.notes
@@ -1230,7 +1075,7 @@ def manage_inventory(request):
 
 
 @login_required
-@user_passes_test(is_admin)
+
 def change_password(request):
     """Change admin password"""
     if request.method == 'POST':
@@ -1259,53 +1104,36 @@ def change_password(request):
 
 
 @login_required
-@user_passes_test(is_admin)
+
 def edit_donor(request, donor_id):
     """Edit donor profile"""
     donor = get_object_or_404(Donor, id=donor_id)
     
     if request.method == 'POST':
-        action = request.POST.get('action', '')
+        # Update donor information
+        donor.blood_group = request.POST.get('blood_group', donor.blood_group)
+        donor.phone_number = request.POST.get('phone_number', donor.phone_number)
+        donor.address = request.POST.get('address', donor.address)
+        donor.city = request.POST.get('city', donor.city)
+        donor.state = request.POST.get('state', donor.state)
+        donor.weight = request.POST.get('weight', donor.weight)
+        donor.height = request.POST.get('height', donor.height)
+        donor.is_eligible = request.POST.get('is_eligible') == 'on'
+        donor.medical_conditions = request.POST.get('medical_conditions', donor.medical_conditions)
         
-        if action == 'deactivate':
-            # Deactivate donor account
-            donor.user.is_active = False
-            donor.user.save()
-            messages.success(request, f'Donor {donor.name} has been deactivated.')
-            return redirect('admin_panel:donor_tracking')
-            
-        elif action == 'activate':
-            # Reactivate donor account
-            donor.user.is_active = True
-            donor.user.save()
-            messages.success(request, f'Donor {donor.name} has been activated.')
+        # Update user information
+        user = donor.user
+        user.first_name = request.POST.get('first_name', user.first_name)
+        user.last_name = request.POST.get('last_name', user.last_name)
+        user.email = request.POST.get('email', user.email)
+        
+        try:
+            donor.save()
+            user.save()
+            messages.success(request, f'Donor {donor.name} updated successfully.')
             return redirect('admin_panel:donor_detail', donor_id=donor.id)
-            
-        else:
-            # Update donor information
-            donor.blood_group = request.POST.get('blood_group', donor.blood_group)
-            donor.phone_number = request.POST.get('phone_number', donor.phone_number)
-            donor.address = request.POST.get('address', donor.address)
-            donor.city = request.POST.get('city', donor.city)
-            donor.state = request.POST.get('state', donor.state)
-            donor.weight = request.POST.get('weight', donor.weight)
-            donor.height = request.POST.get('height', donor.height)
-            donor.is_eligible = request.POST.get('is_eligible') == 'on'
-            donor.medical_conditions = request.POST.get('medical_conditions', donor.medical_conditions)
-            
-            # Update user information
-            user = donor.user
-            user.first_name = request.POST.get('first_name', user.first_name)
-            user.last_name = request.POST.get('last_name', user.last_name)
-            user.email = request.POST.get('email', user.email)
-            
-            try:
-                donor.save()
-                user.save()
-                messages.success(request, f'Donor {donor.name} updated successfully.')
-                return redirect('admin_panel:donor_detail', donor_id=donor.id)
-            except Exception as e:
-                messages.error(request, f'Error updating donor: {str(e)}')
+        except Exception as e:
+            messages.error(request, f'Error updating donor: {str(e)}')
     
     context = {
         'donor': donor,
@@ -1315,7 +1143,43 @@ def edit_donor(request, donor_id):
 
 
 @login_required
-@user_passes_test(is_admin)
+def reactivate_donor(request, donor_id):
+    """Reactivate an inactive donor account"""
+    if not request.user.is_staff:
+        messages.error(request, 'Only admins can reactivate donor accounts.')
+        return redirect('donor:donor_dashboard')
+    
+    if request.method == 'POST':
+        try:
+            donor = get_object_or_404(Donor, id=donor_id)
+            
+            # Reactivate the user account
+            donor.user.is_active = True
+            donor.user.save()
+            
+            # Notify the donor
+            try:
+                NotificationService.create_user_notification(
+                    user=donor.user,
+                    title='Account Reactivated',
+                    message=f'Your account has been reactivated by an administrator. You can now log in and access all features.',
+                    notification_type='success'
+                )
+            except Exception as e:
+                print(f"Notification error: {e}")
+            
+            messages.success(request, f'Donor account for {donor.name} has been reactivated successfully.')
+            return redirect('admin_panel:donor_detail', donor_id=donor.id)
+            
+        except Exception as e:
+            messages.error(request, f'Error reactivating account: {str(e)}')
+            return redirect('admin_panel:donor_detail', donor_id=donor_id)
+    
+    return redirect('admin_panel:donor_detail', donor_id=donor_id)
+
+
+@login_required
+
 def reports(request):
     """Generate comprehensive system reports"""
     from django.db.models import Count, Sum, Avg
@@ -1447,7 +1311,7 @@ def reports(request):
 
 
 @login_required
-@user_passes_test(is_admin)
+
 def export_donors(request):
     """Export donors data to CSV with filter support"""
     import csv
@@ -1515,7 +1379,7 @@ def export_donors(request):
 
 
 @login_required
-@user_passes_test(is_admin)
+
 def export_donations(request):
     """Export donations data to CSV"""
     import csv
@@ -1550,7 +1414,7 @@ def export_donations(request):
 
 
 @login_required
-@user_passes_test(is_admin)
+
 def export_reports(request):
     """Export comprehensive report to PDF"""
     from django.http import HttpResponse
@@ -1683,50 +1547,9 @@ BLOOD GROUP DISTRIBUTION:
         return response
 
 
-@login_required
-@user_passes_test(is_admin)
-def deactivate_donor(request, donor_id):
-    """Deactivate a donor account"""
-    if request.method == 'POST':
-        try:
-            donor = get_object_or_404(Donor, id=donor_id)
-            donor.user.is_active = False
-            donor.user.save()
-            return JsonResponse({
-                'success': True,
-                'message': f'Donor {donor.name} has been deactivated.'
-            })
-        except Exception as e:
-            return JsonResponse({
-                'success': False,
-                'error': str(e)
-            })
-    return JsonResponse({'success': False, 'error': 'Invalid request method'})
-
 
 @login_required
-@user_passes_test(is_admin)
-def activate_donor(request, donor_id):
-    """Activate a donor account"""
-    if request.method == 'POST':
-        try:
-            donor = get_object_or_404(Donor, id=donor_id)
-            donor.user.is_active = True
-            donor.user.save()
-            return JsonResponse({
-                'success': True,
-                'message': f'Donor {donor.name} has been activated.'
-            })
-        except Exception as e:
-            return JsonResponse({
-                'success': False,
-                'error': str(e)
-            })
-    return JsonResponse({'success': False, 'error': 'Invalid request method'})
 
-
-@login_required
-@user_passes_test(is_admin)
 def respond_to_emergency_admin(request, emergency_id):
     """Admin responds to an emergency request"""
     if request.method == 'POST':
@@ -1779,7 +1602,7 @@ def respond_to_emergency_admin(request, emergency_id):
 
 
 @login_required
-@user_passes_test(is_admin)
+
 def resolve_emergency(request, emergency_id):
     """Mark an emergency request as resolved"""
     if request.method == 'POST':
@@ -1831,9 +1654,16 @@ def resolve_emergency(request, emergency_id):
 
 
 @login_required
-@user_passes_test(is_admin)
+
 def update_inventory(request):
-    """Update blood inventory"""
+    """Update blood inventory - admins can only update their own hospital's inventory"""
+    # Check if admin has a hospital
+    try:
+        admin_hospital = request.user.hospital
+    except:
+        messages.error(request, 'You must have a hospital assigned to manage inventory.')
+        return redirect('admin_panel:dashboard')
+    
     if request.method == 'POST':
         try:
             from donor.models import BloodInventory
@@ -1847,32 +1677,34 @@ def update_inventory(request):
                 messages.error(request, 'Blood group and action are required.')
                 return redirect('admin_panel:manage_inventory')
             
-            # Get or create inventory record
+            # Get or create inventory record for THIS HOSPITAL ONLY
             inventory, created = BloodInventory.objects.get_or_create(
                 blood_group=blood_group,
+                hospital=admin_hospital,
                 defaults={'units_available': 0, 'units_reserved': 0}
             )
             
             # Perform action
             if action == 'add':
                 inventory.units_available += units
-                messages.success(request, f'Added {units} units to {blood_group} inventory.')
+                messages.success(request, f'Added {units} units to {blood_group} inventory at {admin_hospital.name}.')
             elif action == 'remove':
                 if inventory.units_available >= units:
                     inventory.units_available -= units
-                    messages.success(request, f'Removed {units} units from {blood_group} inventory.')
+                    messages.success(request, f'Removed {units} units from {blood_group} inventory at {admin_hospital.name}.')
                 else:
                     messages.error(request, f'Cannot remove {units} units. Only {inventory.units_available} units available.')
                     return redirect('admin_panel:manage_inventory')
             elif action == 'set':
                 inventory.units_available = units
-                messages.success(request, f'Set {blood_group} inventory to {units} units.')
+                messages.success(request, f'Set {blood_group} inventory to {units} units at {admin_hospital.name}.')
             
-            # Update notes if provided
+            # Update notes and metadata
             if notes:
                 inventory.notes = f"{timezone.now().strftime('%Y-%m-%d %H:%M')}: {notes}"
             
             inventory.last_updated = timezone.now()
+            inventory.updated_by = request.user
             inventory.save()
             
         except Exception as e:
@@ -1883,7 +1715,7 @@ def update_inventory(request):
 
 # Notification views for admin panel
 @login_required
-@user_passes_test(is_admin)
+
 def all_notifications(request):
     """View all notifications for admin"""
     user_notifications = NotificationService.get_user_notifications(request.user, unread_only=False)
@@ -1903,7 +1735,7 @@ def all_notifications(request):
 
 
 @login_required
-@user_passes_test(is_admin)
+
 def mark_notification_read(request, notification_id):
     """Mark a specific notification as read"""
     if request.method == 'POST':
@@ -1916,7 +1748,7 @@ def mark_notification_read(request, notification_id):
 
 
 @login_required
-@user_passes_test(is_admin)
+
 def mark_all_notifications_read(request):
     """Mark all notifications as read for admin"""
     if request.method == 'POST':
@@ -1929,7 +1761,7 @@ def mark_all_notifications_read(request):
 
 
 @login_required
-@user_passes_test(is_admin)
+
 def export_donors_csv(request):
     """Export donor list to CSV file"""
     from django.http import HttpResponse

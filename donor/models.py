@@ -191,27 +191,6 @@ class Donor(models.Model):
             'next_eligible_date': self.last_donation_date + timedelta(days=MINIMUM_DONATION_INTERVAL_DAYS) if self.last_donation_date else None
         }
 
-class DonationCenter(models.Model):
-    name = models.CharField(max_length=200)
-    address = models.TextField()
-    city = models.CharField(max_length=100)
-    state = models.CharField(max_length=100)
-    phone_number = models.CharField(max_length=15)
-    email = models.EmailField()
-    is_active = models.BooleanField(default=True)
-    
-    created_at = models.DateTimeField(auto_now_add=True)
-    updated_at = models.DateTimeField(auto_now=True)
-
-    class Meta:
-        indexes = [
-            models.Index(fields=['is_active']),
-            models.Index(fields=['city']),
-        ]
-
-    def __str__(self):
-        return self.name
-
 class DonationRequest(models.Model):
     STATUS_CHOICES = [
         ('pending', 'Pending'),
@@ -222,7 +201,7 @@ class DonationRequest(models.Model):
     ]
 
     donor = models.ForeignKey(Donor, on_delete=models.CASCADE)
-    donation_center = models.ForeignKey(DonationCenter, on_delete=models.SET_NULL, null=True, blank=True, related_name='donation_requests')
+    hospital = models.ForeignKey('Hospital', on_delete=models.SET_NULL, null=True, blank=True, related_name='donation_requests')
     requested_date = models.DateField()
     preferred_time = models.TimeField()
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='pending')
@@ -285,7 +264,7 @@ class DonationHistory(models.Model):
     blood_pressure = models.CharField(max_length=20, blank=True)  # e.g., "120/80"
     hemoglobin_level = models.DecimalField(max_digits=4, decimal_places=1, null=True, blank=True)
     notes = models.TextField(blank=True)
-    blood_center = models.ForeignKey(DonationCenter, on_delete=models.SET_NULL, null=True, blank=True)
+    hospital = models.ForeignKey('Hospital', on_delete=models.SET_NULL, null=True, blank=True, related_name='donation_histories')
     pre_donation_weight = models.DecimalField(max_digits=5, decimal_places=2, null=True, blank=True)
     temperature = models.DecimalField(max_digits=4, decimal_places=1, null=True, blank=True)
     pulse_rate = models.PositiveIntegerField(null=True, blank=True)
@@ -305,8 +284,9 @@ class DonationHistory(models.Model):
 
 
 class BloodInventory(models.Model):
-    """Track blood inventory by blood group"""
-    blood_group = models.CharField(max_length=5, choices=Donor.BLOOD_GROUPS, unique=True)
+    """Track blood inventory by blood group per hospital"""
+    hospital = models.ForeignKey('Hospital', on_delete=models.CASCADE, related_name='blood_inventory')
+    blood_group = models.CharField(max_length=5, choices=Donor.BLOOD_GROUPS)
     units_available = models.FloatField(default=0.0)
     units_reserved = models.FloatField(default=0.0, help_text="Units reserved for specific requests")
     last_updated = models.DateTimeField(auto_now=True)
@@ -315,7 +295,8 @@ class BloodInventory(models.Model):
 
     class Meta:
         verbose_name_plural = "Blood Inventories"
-        ordering = ['blood_group']
+        ordering = ['hospital', 'blood_group']
+        unique_together = [['hospital', 'blood_group']]
 
     def __str__(self):
         return f"{self.get_blood_group_display()}: {self.units_available} units"
@@ -443,6 +424,7 @@ class EmergencyResponse(models.Model):
 
 class Hospital(models.Model):
     """Model for hospitals and blood donation centers"""
+    admin_user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='hospital', help_text="Admin user who manages this hospital")
     name = models.CharField(max_length=200)
     address = models.TextField()
     city = models.CharField(max_length=100)

@@ -112,28 +112,22 @@ WSGI_APPLICATION = 'blood_donation.wsgi.application'
 
 # Database
 # PostgreSQL Configuration
+# DATABASES = {
+#  'default': {
+#         'ENGINE': 'django.db.backends.postgresql',
+#         'NAME': '1',
+#         'USER': 'postgres',
+#         'PASSWORD': '0',
+#         'HOST': 'localhost',
+#         'PORT': '5432',
+#     }
+# }
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.postgresql',
-        'NAME': os.environ.get('DB_NAME', 'blood_donation_db'),
-        'USER': os.environ.get('DB_USER', 'postgres'),
-        'PASSWORD': os.environ.get('DB_PASSWORD', 'postgres'),
-        'HOST': os.environ.get('DB_HOST', 'localhost'),
-        'PORT': os.environ.get('DB_PORT', '5432'),
-        'OPTIONS': {
-            'connect_timeout': 10,
-        },
+        'ENGINE': 'django.db.backends.sqlite3',
+        'NAME': BASE_DIR / 'db.sqlite3',   # Path to the SQLite file
     }
 }
-
-# Fallback to SQLite for development if PostgreSQL is not available
-if os.environ.get('USE_SQLITE', 'True') == 'True':
-    DATABASES = {
-        'default': {
-            'ENGINE': 'django.db.backends.sqlite3',
-            'NAME': BASE_DIR / 'db.sqlite3',
-        }
-    }
 
 # Password validation
 AUTH_PASSWORD_VALIDATORS = [

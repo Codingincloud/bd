@@ -254,8 +254,8 @@
                 <div class="detail-item">
                     <span class="detail-label">Donation Center</span>
                     <span class="detail-value">
-                        {% if request.donation_center %}
-                            {{ request.donation_center.name }}, {{ request.donation_center.city }}
+                        {% if request.hospital %}
+                            {{ request.hospital.name }}, {{ request.hospital.city }}
                         {% else %}
                             <span style="color: var(--gray-400);">Not specified</span>
                         {% endif %}

@@ -2,7 +2,7 @@ from django.contrib import admin
 from django.contrib.auth.models import User
 from django.db.models import Q
 from django.utils.html import format_html
-from .models import Donor, DonationCenter, DonationRequest, DonationHistory, EmergencyRequest, HealthMetrics, Hospital, BloodInventory
+from .models import Donor, DonationRequest, DonationHistory, EmergencyRequest, HealthMetrics, Hospital, BloodInventory
 
 @admin.register(Hospital)
 class HospitalAdmin(admin.ModelAdmin):
@@ -35,16 +35,16 @@ class HospitalAdmin(admin.ModelAdmin):
 
 @admin.register(BloodInventory)
 class BloodInventoryAdmin(admin.ModelAdmin):
-    list_display = ['blood_group', 'units_available', 'units_reserved', 'last_updated', 'status']
-    list_filter = ['blood_group', 'last_updated']
-    search_fields = ['blood_group', 'notes']
+    list_display = ['hospital', 'blood_group', 'units_available', 'units_reserved', 'last_updated', 'status']
+    list_filter = ['hospital', 'blood_group', 'last_updated']
+    search_fields = ['hospital__name', 'blood_group', 'notes']
     list_editable = ['units_available', 'units_reserved']
     list_per_page = 10
-    ordering = ['blood_group']
+    ordering = ['hospital', 'blood_group']
     
     fieldsets = (
         ('Inventory Details', {
-            'fields': ('blood_group', 'units_available', 'units_reserved', 'notes')
+            'fields': ('hospital', 'blood_group', 'units_available', 'units_reserved', 'notes')
         }),
         ('System Information', {
             'fields': ('last_updated', 'updated_by'),
@@ -75,10 +75,10 @@ class DonorAdmin(admin.ModelAdmin):
             'fields': ('weight', 'height', 'bmi')
         }),
         ('Location Information', {
-            'fields': ('address', 'city', 'country', 'latitude', 'longitude')
+            'fields': ('address', 'city', 'state', 'postal_code', 'country', 'latitude', 'longitude')
         }),
         ('Medical Information', {
-            'fields': ('medical_conditions', 'medications', 'is_eligible')
+            'fields': ('medical_conditions', 'is_eligible', 'last_donation_date')
         }),
         ('Emergency Contact', {
             'fields': ('emergency_contact_name', 'emergency_contact_phone', 'allow_emergency_contact')
@@ -108,47 +108,6 @@ class DonorAdmin(admin.ModelAdmin):
                 )
 
         return queryset, use_distinct
-
-@admin.register(DonationCenter)
-class DonationCenterAdmin(admin.ModelAdmin):
-    list_display = ['name', 'hospital_link', 'city', 'state', 'phone_number', 'is_active', 'created_at']
-    list_filter = ['city', 'state', 'is_active', 'created_at']
-    search_fields = [
-        'name', 'city', 'state', 'address', 'phone_number', 'email',
-        'contact_person', 'description', 'hospital__name'
-    ]
-    list_select_related = ['hospital']
-    readonly_fields = ['created_at', 'updated_at', 'hospital_link']
-    list_per_page = 20
-    date_hierarchy = 'created_at'
-    ordering = ['name']
-
-    fieldsets = (
-        ('Basic Information', {
-            'fields': ('name', 'hospital', 'description', 'is_active')
-        }),
-        ('Contact Information', {
-            'fields': ('contact_person', 'phone_number', 'email')
-        }),
-        ('Location Information', {
-            'fields': ('address', 'city', 'state', 'postal_code', 'latitude', 'longitude')
-        }),
-        ('Operating Information', {
-            'fields': ('operating_hours', 'services_offered')
-        }),
-        ('System Information', {
-            'fields': ('created_at', 'updated_at'),
-            'classes': ('collapse',)
-        })
-    )
-    
-    def hospital_link(self, obj):
-        if obj.hospital:
-            url = f'/admin/donor/hospital/{obj.hospital.id}/change/'
-            return format_html('<a href="{}">{}</a>', url, obj.hospital.name)
-        return "-"
-    hospital_link.short_description = 'Hospital'
-    hospital_link.admin_order_field = 'hospital__name'
 
 @admin.register(DonationRequest)
 class DonationRequestAdmin(admin.ModelAdmin):
@@ -202,8 +161,8 @@ class EmergencyRequestAdmin(admin.ModelAdmin):
     list_display = ['blood_group_needed', 'hospital_name', 'urgency_level', 'status', 'required_by', 'units_needed', 'created_at']
     list_filter = ['blood_group_needed', 'urgency_level', 'status', 'required_by', 'created_at']
     search_fields = [
-        'hospital_name', 'contact_person', 'contact_phone', 'contact_email',
-        'patient_name', 'blood_group_needed', 'location', 'description'
+        'hospital_name', 'contact_person', 'contact_phone',
+        'blood_group_needed', 'location', 'notes'
     ]
     readonly_fields = ['created_at', 'updated_at']
     list_per_page = 20
@@ -215,16 +174,13 @@ class EmergencyRequestAdmin(admin.ModelAdmin):
             'fields': ('blood_group_needed', 'units_needed', 'urgency_level', 'required_by')
         }),
         ('Hospital Information', {
-            'fields': ('hospital_name', 'location', 'description')
+            'fields': ('hospital_name', 'location')
         }),
         ('Contact Information', {
-            'fields': ('contact_person', 'contact_phone', 'contact_email')
-        }),
-        ('Patient Information', {
-            'fields': ('patient_name', 'patient_age', 'medical_condition')
+            'fields': ('contact_person', 'contact_phone')
         }),
         ('Status', {
-            'fields': ('status', 'fulfilled_at', 'notes')
+            'fields': ('status', 'notes')
         }),
         ('System Information', {
             'fields': ('created_at', 'updated_at'),

@@ -241,6 +241,32 @@
         {% endfor %}
     {% endif %}
 
+    <!-- Emergency Request Alert -->
+    {% if emergency_request %}
+    <div class="alert" style="background: var(--color-danger-50); border: 2px solid var(--color-danger-600); border-radius: var(--radius-lg); padding: var(--space-6); margin-bottom: var(--space-6);">
+        <div style="display: flex; align-items: start; gap: var(--space-4);">
+            <i class="fas fa-ambulance" style="color: var(--color-danger-600); font-size: 2rem;"></i>
+            <div style="flex: 1;">
+                <h3 style="color: var(--color-danger-700); margin: 0 0 var(--space-2) 0; font-size: var(--text-xl); font-weight: 700;">
+                    🚨 EMERGENCY BLOOD REQUEST
+                </h3>
+                <p style="margin: var(--space-2) 0; color: var(--color-gray-800); font-size: var(--text-base);">
+                    <strong>Blood Type Needed:</strong> {{ emergency_request.blood_type }}<br>
+                    <strong>Units Required:</strong> {{ emergency_request.units_needed }}<br>
+                    <strong>Hospital:</strong> {{ emergency_request.hospital.name }}{% if emergency_request.hospital.city %}, {{ emergency_request.hospital.city }}{% endif %}<br>
+                    {% if emergency_request.contact_phone %}
+                    <strong>Contact:</strong> <a href="tel:{{ emergency_request.contact_phone }}" style="color: var(--color-danger-600);">{{ emergency_request.contact_phone }}</a><br>
+                    {% endif %}
+                    <strong>Urgency:</strong> <span style="color: var(--color-danger-700); font-weight: 700; text-transform: uppercase;">{{ emergency_request.urgency_level }}</span>
+                </p>
+                <p style="margin: var(--space-3) 0 0 0; padding: var(--space-3); background: white; border-radius: var(--radius-md); color: var(--color-gray-700); font-size: var(--text-sm);">
+                    <i class="fas fa-info-circle"></i> You're responding to this emergency. Please schedule your donation as soon as possible to help save a life!
+                </p>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+
     <div class="eligibility-info{% if not eligible %} not-eligible{% endif %}">
         <h3>
             <i class="fas fa-{% if eligible %}check-circle{% else %}exclamation-triangle{% endif %}"></i>
@@ -297,22 +323,27 @@
         </div>
 
         <div class="form-group">
-            <label for="donation_center">
-                <i class="fas fa-hospital"></i> Donation Center (Optional)
+            <label for="hospital">
+                <i class="fas fa-hospital"></i> Blood Bank / Hospital *
             </label>
-            <select id="donation_center" 
-                    name="donation_center" 
-                    aria-describedby="center-help">
-                <option value="">Select a donation center...</option>
-                {% for center in donation_centers %}
-                <option value="{{ center.id }}">
-                    {{ center.name }} - {{ center.city }}, {{ center.state }}
+            <select id="hospital" 
+                    name="hospital" 
+                    required
+                    aria-required="true"
+                    aria-describedby="center-help hospital-error">
+                <option value="">Select a blood bank / hospital...</option>
+                {% for hospital in hospitals %}
+                <option value="{{ hospital.id }}">
+                    {{ hospital.name }} - {{ hospital.city }}, {{ hospital.state }}
                 </option>
                 {% endfor %}
             </select>
             <small id="center-help" style="color: var(--color-gray-500); font-size: 0.875rem; margin-top: 0.5rem; display: block;">
-                You can choose a specific donation center or leave it blank for admin to assign
+                Please select where you want to donate blood
             </small>
+            <div id="hospital-error" class="error-message" style="display: none; color: var(--color-danger-600); font-size: 0.875rem; margin-top: 0.5rem;">
+                Please select a blood bank / hospital
+            </div>
         </div>
 
         <div class="form-group">
@@ -403,9 +434,21 @@
                 }
             });
             
+            // Real-time validation for hospital field
+            const hospitalInput = document.getElementById('hospital');
+            const hospitalError = document.getElementById('hospital-error');
+            
+            hospitalInput.addEventListener('change', function() {
+                if (this.value) {
+                    hospitalError.style.display = 'none';
+                    this.setAttribute('aria-invalid', 'false');
+                }
+            });
+            
             form.addEventListener('submit', function(e) {
                 const requestedDate = document.getElementById('requested_date').value;
                 const preferredTime = document.getElementById('preferred_time').value;
+                const hospital = document.getElementById('hospital').value;
                 let isValid = true;
                 
                 // Validate date
@@ -424,14 +467,26 @@
                     const timeError = document.getElementById('time-error');
                     timeError.textContent = 'Please select a preferred time.';
                     timeError.style.display = 'block';
-                    isValid = false;
+                    if (isValid) isValid = false;
+                }
+                
+                // Validate hospital selection
+                if (!hospital) {
+                    e.preventDefault();
+                    hospitalError.textContent = 'Please select a blood bank / hospital.';
+                    hospitalError.style.display = 'block';
+                    hospitalInput.setAttribute('aria-invalid', 'true');
+                    if (isValid) {
+                        hospitalInput.focus();
+                        isValid = false;
+                    }
                 }
                 
                 if (!isValid) {
                     return false;
                 }
                 
-                // Show confirmation dialog
+                // Show confirmation dialog with hospital info
                 const selectedDate = new Date(requestedDate);
                 const formattedDate = selectedDate.toLocaleDateString('en-US', {
                     weekday: 'long',
@@ -440,6 +495,10 @@
                     day: 'numeric'
                 });
                 
+                // Get selected hospital name
+                const hospitalSelect = document.getElementById('hospital');
+                const hospitalName = hospitalSelect.options[hospitalSelect.selectedIndex].text;
+                
                 // Convert 24-hour time to 12-hour format
                 const timeDisplay = preferredTime.includes(':') ? 
                     (parseInt(preferredTime.split(':')[0]) > 12 ? 
@@ -447,7 +506,7 @@
                         preferredTime + ' AM') : 
                     preferredTime;
                 
-                const confirmed = confirm(`Are you sure you want to schedule your blood donation for ${formattedDate} at ${timeDisplay}?`);
+                const confirmed = confirm(`Are you sure you want to schedule your blood donation?\n\nDate: ${formattedDate}\nTime: ${timeDisplay}\nLocation: ${hospitalName}`);
                 
                 if (confirmed) {
                     // Show loading state

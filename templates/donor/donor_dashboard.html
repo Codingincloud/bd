@@ -610,7 +610,7 @@
                 </div>
                 <div style="color: var(--color-gray-600); font-size: 0.875rem;">
                     Status: Approved • Please arrive on time to donate
-                    {% if request.donation_center %}<br>📍 {{ request.donation_center.name }}, {{ request.donation_center.city }}{% endif %}
+                    {% if request.hospital %}<br>📍 {{ request.hospital.name }}, {{ request.hospital.city }}{% endif %}
                 </div>
             </div>
             {% endfor %}

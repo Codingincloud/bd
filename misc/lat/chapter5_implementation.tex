@@ -1,0 +1,548 @@
+\chapter{IMPLEMENTATION}
+
+\section{Development Environment Setup}
+
+\subsection{Tools and Technologies}
+
+The development environment consists of:
+\begin{itemize}
+    \item \textbf{Operating System:} Windows 11
+    \item \textbf{IDE:} Visual Studio Code with Python extension
+    \item \textbf{Python:} Version 3.12
+    \item \textbf{Django:} Version 5.2.8
+    \item \textbf{Database:} PostgreSQL 13
+    \item \textbf{Version Control:} Git and GitHub
+\end{itemize}
+
+\subsection{Project Structure}
+
+The project follows Django's standard structure:
+
+\begin{lstlisting}
+BDIMS/
+|-- accounts/           # Authentication app
+|-- admin_panel/        # Admin features
+|-- donor/              # Donor features
+|-- blood_donation/     # Main project settings
+|-- static/             # CSS, JS, images
+|-- templates/          # HTML templates
+|-- utils/              # Helper functions
+|-- manage.py           # Django management script
+`-- requirements.txt    # Dependencies
+\end{lstlisting}
+
+\section{Core Module Implementation}
+
+\subsection{Models Implementation}
+
+\subsubsection{Donor Model}
+
+\begin{lstlisting}[language=Python]
+from django.db import models
+from django.contrib.auth.models import User
+
+class Donor(models.Model):
+    BLOOD_GROUPS = [
+        ('A+', 'A+'), ('A-', 'A-'),
+        ('B+', 'B+'), ('B-', 'B-'),
+        ('O+', 'O+'), ('O-', 'O-'),
+        ('AB+', 'AB+'), ('AB-', 'AB-'),
+    ]
+    
+    user = models.OneToOneField(User, on_delete=models.CASCADE)
+    blood_group = models.CharField(max_length=3, choices=BLOOD_GROUPS)
+    date_of_birth = models.DateField()
+    gender = models.CharField(max_length=10)
+    phone_number = models.CharField(max_length=15)
+    address = models.TextField()
+    city = models.CharField(max_length=100)
+    latitude = models.DecimalField(max_digits=10, decimal_places=8, null=True)
+    longitude = models.DecimalField(max_digits=11, decimal_places=8, null=True)
+    last_donation_date = models.DateField(null=True, blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+    
+    def __str__(self):
+        return f"{self.user.get_full_name()} - {self.blood_group}"
+    
+    def is_eligible(self):
+        """Check if donor is eligible to donate"""
+        if not self.last_donation_date:
+            return True
+        days_since = (timezone.now().date() - self.last_donation_date).days
+        return days_since >= 56
+\end{lstlisting}
+
+\subsubsection{HealthMetrics Model}
+
+\begin{lstlisting}[language=Python]
+class HealthMetrics(models.Model):
+    donor = models.ForeignKey(Donor, on_delete=models.CASCADE, 
+                             related_name='health_metrics')
+    weight = models.DecimalField(max_digits=5, decimal_places=2)
+    blood_pressure_systolic = models.IntegerField()
+    blood_pressure_diastolic = models.IntegerField()
+    hemoglobin_level = models.DecimalField(max_digits=4, decimal_places=2)
+    recorded_at = models.DateTimeField(auto_now_add=True)
+    
+    class Meta:
+        ordering = ['-recorded_at']
+        verbose_name_plural = "Health Metrics"
+    
+    def __str__(self):
+        return f"{self.donor.user.username} - {self.recorded_at}"
+\end{lstlisting}
+
+\subsubsection{Hospital Model}
+
+\begin{lstlisting}[language=Python]
+class Hospital(models.Model):
+    HOSPITAL_TYPES = [
+        ('government', 'Government Hospital'),
+        ('private', 'Private Hospital'),
+        ('blood_bank', 'Blood Bank'),
+    ]
+    
+    admin_user = models.OneToOneField(User, on_delete=models.CASCADE)
+    name = models.CharField(max_length=200)
+    phone = models.CharField(max_length=15)
+    email = models.EmailField()
+    address = models.TextField()
+    city = models.CharField(max_length=100)
+    hospital_type = models.CharField(max_length=20, choices=HOSPITAL_TYPES)
+    operating_hours = models.CharField(max_length=100, default="24/7")
+    created_at = models.DateTimeField(auto_now_add=True)
+    
+    def __str__(self):
+        return self.name
+\end{lstlisting}
+
+\subsection{Views Implementation}
+
+\subsubsection{Registration View}
+
+\begin{lstlisting}[language=Python]
+from django.contrib.auth import login
+from django.contrib.auth.models import User
+from django.shortcuts import render, redirect
+
+@ratelimit(key='ip', rate='5/h', method='POST')
+def register_view(request):
+    if request.method == 'POST':
+        # Get form data
+        username = request.POST.get('username')
+        password = request.POST.get('password')
+        role = request.POST.get('role')
+        
+        # Create user
+        user = User.objects.create_user(
+            username=username,
+            password=password,
+            first_name=request.POST.get('first_name'),
+            last_name=request.POST.get('last_name'),
+            email=request.POST.get('email')
+        )
+        
+        if role == 'donor':
+            # Create donor profile
+            Donor.objects.create(
+                user=user,
+                blood_group=request.POST.get('blood_group'),
+                date_of_birth=request.POST.get('dob'),
+                gender=request.POST.get('gender'),
+                phone_number=request.POST.get('phone'),
+                address=request.POST.get('address'),
+                city=request.POST.get('city')
+            )
+            login(request, user)
+            return redirect('donor:dashboard')
+        
+        elif role == 'admin':
+            # Set staff status
+            user.is_staff = True
+            user.save()
+            
+            # Create hospital
+            hospital = Hospital.objects.create(
+                admin_user=user,
+                name=request.POST.get('hospital_name'),
+                phone=request.POST.get('hospital_phone'),
+                email=request.POST.get('hospital_email'),
+                address=request.POST.get('hospital_address'),
+                city=request.POST.get('hospital_city'),
+                hospital_type=request.POST.get('hospital_type')
+            )
+            
+            # Initialize blood inventory
+            blood_groups = ['A+', 'A-', 'B+', 'B-', 'O+', 'O-', 'AB+', 'AB-']
+            for bg in blood_groups:
+                BloodInventory.objects.create(
+                    hospital=hospital,
+                    blood_group=bg,
+                    units_available=0
+                )
+            
+            login(request, user)
+            return redirect('admin_panel:dashboard')
+    
+    return render(request, 'accounts/register.html')
+\end{lstlisting}
+
+\subsubsection{Donor Dashboard View}
+
+\begin{lstlisting}[language=Python]
+from django.contrib.auth.decorators import login_required
+from django.db.models import Count
+
+@login_required
+def donor_dashboard(request):
+    donor = request.user.donor
+    
+    # Get statistics
+    total_donations = DonationHistory.objects.filter(donor=donor).count()
+    pending_requests = DonationRequest.objects.filter(
+        donor=donor, 
+        status='pending'
+    ).count()
+    
+    # Get recent donations
+    recent_donations = DonationHistory.objects.filter(
+        donor=donor
+    ).order_by('-donation_date')[:5]
+    
+    # Check eligibility
+    is_eligible = donor.is_eligible()
+    
+    # Get latest health metrics
+    latest_metrics = donor.health_metrics.first()
+    
+    context = {
+        'donor': donor,
+        'total_donations': total_donations,
+        'pending_requests': pending_requests,
+        'recent_donations': recent_donations,
+        'is_eligible': is_eligible,
+        'latest_metrics': latest_metrics,
+    }
+    
+    return render(request, 'donor/dashboard.html', context)
+\end{lstlisting}
+
+\subsubsection{Schedule Donation View}
+
+\begin{lstlisting}[language=Python]
+@login_required
+def schedule_donation(request):
+    donor = request.user.donor
+    
+    if request.method == 'POST':
+        # Check eligibility
+        if not donor.is_eligible():
+            messages.error(request, 'You are not eligible to donate yet.')
+            return redirect('donor:dashboard')
+        
+        # Create donation request
+        DonationRequest.objects.create(
+            donor=donor,
+            hospital_id=request.POST.get('hospital'),
+            requested_date=request.POST.get('donation_date'),
+            notes=request.POST.get('notes'),
+            status='pending'
+        )
+        
+        messages.success(request, 'Donation request submitted successfully!')
+        return redirect('donor:donation_history')
+    
+    # Get all hospitals
+    hospitals = Hospital.objects.all()
+    
+    context = {
+        'hospitals': hospitals,
+        'is_eligible': donor.is_eligible(),
+    }
+    
+    return render(request, 'donor/schedule_donation.html', context)
+\end{lstlisting}
+
+\subsection{Template Implementation}
+
+\subsubsection{Base Template}
+
+\begin{lstlisting}[language=HTML]
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}BDIMS{% endblock %}</title>
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+    {% block extra_css %}{% endblock %}
+</head>
+<body>
+    <nav class="navbar">
+        <div class="container">
+            <a href="/" class="logo">BDIMS</a>
+            <ul class="nav-links">
+                {% if user.is_authenticated %}
+                    <li><a href="{% url 'accounts:logout' %}">Logout</a></li>
+                {% else %}
+                    <li><a href="{% url 'accounts:login' %}">Login</a></li>
+                    <li><a href="{% url 'accounts:register' %}">Register</a></li>
+                {% endif %}
+            </ul>
+        </div>
+    </nav>
+    
+    <main class="content">
+        {% if messages %}
+            {% for message in messages %}
+                <div class="alert alert-{{ message.tags }}">
+                    {{ message }}
+                </div>
+            {% endfor %}
+        {% endif %}
+        
+        {% block content %}{% endblock %}
+    </main>
+    
+    <footer>
+        <p>&copy; 2025 BDIMS. All rights reserved.</p>
+    </footer>
+    
+    {% block extra_js %}{% endblock %}
+</body>
+</html>
+\end{lstlisting}
+
+\subsubsection{Donor Dashboard Template}
+
+\begin{lstlisting}[language=HTML]
+{% extends 'donor/base_donor.html' %}
+
+{% block content %}
+<div class="dashboard">
+    <h1>Welcome, {{ user.get_full_name }}</h1>
+    
+    <div class="stats-grid">
+        <div class="stat-card">
+            <h3>Total Donations</h3>
+            <p class="stat-number">{{ total_donations }}</p>
+        </div>
+        
+        <div class="stat-card">
+            <h3>Pending Requests</h3>
+            <p class="stat-number">{{ pending_requests }}</p>
+        </div>
+        
+        <div class="stat-card">
+            <h3>Eligibility Status</h3>
+            {% if is_eligible %}
+                <p class="status eligible">Eligible</p>
+            {% else %}
+                <p class="status not-eligible">Not Eligible</p>
+            {% endif %}
+        </div>
+    </div>
+    
+    <div class="actions">
+        <a href="{% url 'donor:schedule_donation' %}" class="btn btn-primary">
+            Schedule Donation
+        </a>
+        <a href="{% url 'donor:update_profile' %}" class="btn btn-secondary">
+            Update Profile
+        </a>
+    </div>
+    
+    <div class="recent-donations">
+        <h2>Recent Donations</h2>
+        <table>
+            <thead>
+                <tr>
+                    <th>Date</th>
+                    <th>Hospital</th>
+                    <th>Units</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for donation in recent_donations %}
+                <tr>
+                    <td>{{ donation.donation_date }}</td>
+                    <td>{{ donation.hospital_name }}</td>
+                    <td>{{ donation.units_donated }}</td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="3">No donations yet</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}
+\end{lstlisting}
+
+\section{Interactive Map Implementation}
+
+\subsection{Leaflet.js Integration}
+
+\begin{lstlisting}[language=JavaScript]
+// Initialize map
+const map = L.map('map').setView([27.7172, 85.3240], 13);
+
+// Add tile layer
+L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    attribution: '&copy; OpenStreetMap contributors'
+}).addTo(map);
+
+// Marker variable
+let marker;
+
+// Click to place marker
+map.on('click', function(e) {
+    const lat = e.latlng.lat;
+    const lng = e.latlng.lng;
+    
+    // Remove existing marker
+    if (marker) {
+        map.removeLayer(marker);
+    }
+    
+    // Add new marker
+    marker = L.marker([lat, lng]).addTo(map);
+    
+    // Update hidden form fields
+    document.getElementById('latitude').value = lat;
+    document.getElementById('longitude').value = lng;
+    
+    // Reverse geocode
+    reverseGeocode(lat, lng);
+});
+
+// Reverse geocoding function
+function reverseGeocode(lat, lng) {
+    fetch(`https://nominatim.openstreetmap.org/reverse?lat=${lat}&lon=${lng}&format=json`)
+        .then(response => response.json())
+        .then(data => {
+            document.getElementById('address').value = data.display_name;
+        });
+}
+
+// Get current location
+document.getElementById('getCurrentLocation').addEventListener('click', function() {
+    if (navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition(function(position) {
+            const lat = position.coords.latitude;
+            const lng = position.coords.longitude;
+            
+            map.setView([lat, lng], 15);
+            
+            if (marker) {
+                map.removeLayer(marker);
+            }
+            
+            marker = L.marker([lat, lng]).addTo(map);
+            
+            document.getElementById('latitude').value = lat;
+            document.getElementById('longitude').value = lng;
+            
+            reverseGeocode(lat, lng);
+        });
+    }
+});
+\end{lstlisting}
+
+\section{Database Configuration}
+
+\subsection{PostgreSQL Setup}
+
+\begin{lstlisting}[language=Python]
+# settings.py
+DATABASES = {
+    'default': {
+        'ENGINE': 'django.db.backends.postgresql',
+        'NAME': '1',
+        'USER': 'postgres',
+        'PASSWORD': '0',
+        'HOST': 'localhost',
+        'PORT': '5432',
+    }
+}
+\end{lstlisting}
+
+\subsection{Migrations}
+
+\begin{lstlisting}[language=bash]
+# Create migrations
+python manage.py makemigrations
+
+# Apply migrations
+python manage.py migrate
+
+# Create superuser
+python manage.py createsuperuser
+\end{lstlisting}
+
+\section{Security Implementation}
+
+\subsection{CSRF Protection}
+
+All forms include CSRF tokens:
+\begin{lstlisting}[language=HTML]
+<form method="post">
+    {% csrf_token %}
+    <!-- form fields -->
+</form>
+\end{lstlisting}
+
+\subsection{Password Hashing}
+
+Django automatically hashes passwords using PBKDF2:
+\begin{lstlisting}[language=Python]
+# In settings.py
+PASSWORD_HASHERS = [
+    'django.contrib.auth.hashers.PBKDF2PasswordHasher',
+    'django.contrib.auth.hashers.PBKDF2SHA1PasswordHasher',
+]
+\end{lstlisting}
+
+\subsection{Rate Limiting}
+
+Implemented using django-ratelimit:
+\begin{lstlisting}[language=Python]
+from django_ratelimit.decorators import ratelimit
+
+@ratelimit(key='ip', rate='5/h', method='POST')
+def register_view(request):
+    # Registration logic
+    pass
+\end{lstlisting}
+
+\section{Deployment Considerations}
+
+\subsection{Production Settings}
+
+\begin{lstlisting}[language=Python]
+# Production settings
+DEBUG = False
+ALLOWED_HOSTS = ['yourdomain.com', 'www.yourdomain.com']
+
+# Static files
+STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
+
+# Security
+SECURE_SSL_REDIRECT = True
+SESSION_COOKIE_SECURE = True
+CSRF_COOKIE_SECURE = True
+\end{lstlisting}
+
+\subsection{Server Configuration}
+
+For production deployment:
+\begin{itemize}
+    \item Use Gunicorn or uWSGI as WSGI server
+    \item Configure Nginx as reverse proxy
+    \item Set up SSL certificates
+    \item Configure automated backups
+    \item Implement monitoring and logging
+\end{itemize}

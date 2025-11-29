@@ -1,7 +1,6 @@
 from django.db import models
 from django.contrib.auth.models import User
 from django.utils import timezone
-from donor.models import Donor, DonationCenter
 
 class AdminProfile(models.Model):
     """Admin profile with additional information"""

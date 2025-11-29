@@ -1,0 +1,566 @@
+{% extends 'donor/base_donor.html' %}
+{% load static %}
+
+{% block title %}Update Location | Blood Donor System{% endblock %}
+
+{% block extra_css %}
+<!-- Leaflet CSS -->
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" crossorigin=""/>
+<style>
+    .location-container {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: var(--space-6);
+    }
+
+    .page-header {
+        background: white;
+        padding: var(--space-8);
+        border-radius: var(--radius-xl);
+        margin-bottom: var(--space-8);
+        text-align: center;
+        box-shadow: var(--shadow-lg);
+        border: 1px solid var(--color-gray-200);
+    }
+
+    .page-header h1 {
+        color: var(--color-primary-600);
+        margin-bottom: var(--space-3);
+        font-size: var(--text-3xl);
+        font-weight: 700;
+    }
+
+    .page-header p {
+        color: var(--color-gray-700);
+        font-size: var(--text-lg);
+        font-weight: 500;
+    }
+
+    #map {
+        height: 500px;
+        width: 100%;
+        border-radius: var(--radius-lg);
+        box-shadow: var(--shadow-lg);
+        margin-bottom: var(--space-6);
+        border: 2px solid var(--color-gray-200);
+    }
+
+    .map-controls {
+        background: white;
+        padding: var(--space-6);
+        border-radius: var(--radius-lg);
+        box-shadow: var(--shadow-md);
+        margin-bottom: var(--space-6);
+    }
+
+    .form-container {
+        background: white;
+        padding: var(--space-8);
+        border-radius: var(--radius-xl);
+        box-shadow: var(--shadow-md);
+        margin-bottom: var(--space-6);
+    }
+
+    .form-section {
+        margin-bottom: var(--space-6);
+    }
+
+    .form-section h3 {
+        color: var(--color-gray-900);
+        font-size: var(--text-xl);
+        font-weight: 700;
+        margin-bottom: var(--space-4);
+        padding-bottom: var(--space-3);
+        border-bottom: 2px solid var(--color-gray-200);
+    }
+
+    .form-group {
+        margin-bottom: var(--space-4);
+    }
+
+    label {
+        display: block;
+        margin-bottom: var(--space-2);
+        color: var(--color-gray-800);
+        font-weight: 600;
+    }
+
+    .form-control {
+        width: 100%;
+        padding: var(--space-3);
+        border: 2px solid var(--color-gray-300);
+        border-radius: var(--radius-lg);
+        font-size: var(--text-base);
+        transition: border-color 0.3s;
+        color: var(--color-gray-900);
+    }
+
+    .form-control:focus {
+        outline: none;
+        border-color: var(--color-primary-600);
+    }
+
+    .btn {
+        background: linear-gradient(135deg, var(--color-primary-600), var(--color-primary-700));
+        color: white;
+        padding: var(--space-3) var(--space-6);
+        border: none;
+        border-radius: var(--radius-lg);
+        font-size: var(--text-base);
+        font-weight: 600;
+        cursor: pointer;
+        transition: transform 0.3s;
+        margin-right: var(--space-2);
+        margin-bottom: var(--space-2);
+        display: inline-flex;
+        align-items: center;
+        gap: var(--space-2);
+    }
+
+    .btn:hover {
+        transform: translateY(-2px);
+    }
+
+    .btn-secondary {
+        background: var(--color-gray-600);
+    }
+
+    .btn-success {
+        background: var(--color-success-600);
+    }
+
+    .alert {
+        padding: var(--space-4);
+        margin-bottom: var(--space-4);
+        border-radius: var(--radius-lg);
+        font-weight: 500;
+    }
+
+    .alert-success {
+        background-color: var(--color-success-50);
+        border: 1px solid var(--color-success-600);
+        color: var(--color-success-700);
+    }
+
+    .alert-error {
+        background-color: var(--color-danger-50);
+        border: 1px solid var(--color-danger-600);
+        color: var(--color-danger-700);
+    }
+
+    .current-location {
+        background: var(--color-info-50);
+        padding: var(--space-6);
+        border-radius: var(--radius-lg);
+        margin-bottom: var(--space-6);
+        border-left: 4px solid var(--color-info-600);
+        box-shadow: var(--shadow-sm);
+    }
+
+    .current-location h4 {
+        color: var(--color-info-700);
+        margin-bottom: var(--space-3);
+        font-weight: 600);
+    }
+
+    .current-location p {
+        color: var(--color-gray-800);
+        font-weight: 500;
+        margin-bottom: var(--space-2);
+    }
+
+    .location-info {
+        background: var(--color-warning-50);
+        padding: var(--space-6);
+        border-radius: var(--radius-lg);
+        margin-bottom: var(--space-6);
+        border-left: 4px solid var(--color-warning-600);
+        box-shadow: var(--shadow-sm);
+    }
+
+    .location-info h4 {
+        color: var(--color-warning-700);
+        margin-bottom: var(--space-3);
+        font-weight: 600;
+    }
+
+    .location-info p {
+        color: var(--color-gray-800);
+        font-weight: 500;
+        margin: 0;
+    }
+
+    .form-row {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: var(--space-4);
+    }
+
+    @media (max-width: 768px) {
+        .form-row {
+            grid-template-columns: 1fr;
+        }
+        #map {
+            height: 350px;
+        }
+    }
+
+    .map-instructions {
+        background: var(--color-blue-50);
+        border: 1px solid var(--color-blue-600);
+        padding: var(--space-4);
+        border-radius: var(--radius-md);
+        margin-bottom: var(--space-4);
+        color: var(--color-blue-700);
+    }
+
+    .map-instructions p {
+        margin: 0;
+        display: flex;
+        align-items: center;
+        gap: var(--space-2);
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="location-container">
+    <div class="page-header">
+        <h1><i class="fas fa-map-marked-alt"></i> Update Your Location</h1>
+        <p>Click on the map to select your location or use GPS detection</p>
+    </div>
+
+    {% if messages %}
+        {% for message in messages %}
+            <div class="alert alert-{% if message.tags == 'error' %}error{% else %}{{ message.tags }}{% endif %}">
+                {{ message }}
+            </div>
+        {% endfor %}
+    {% endif %}
+
+    {% if donor.latitude and donor.longitude %}
+        <div class="current-location">
+            <h4><i class="fas fa-check-circle"></i> Current Location Saved</h4>
+            <p><strong>Address:</strong> {{ donor.full_location }}</p>
+            <p><strong>Coordinates:</strong> {{ donor.latitude|floatformat:6 }}, {{ donor.longitude|floatformat:6 }}</p>
+        </div>
+    {% else %}
+        <div class="location-info">
+            <h4><i class="fas fa-exclamation-triangle"></i> No Location Set</h4>
+            <p>Please set your location to help us find you during blood emergencies.</p>
+        </div>
+    {% endif %}
+
+    <!-- Map Instructions -->
+    <div class="map-instructions">
+        <p>
+            <i class="fas fa-info-circle"></i>
+            <strong>How to use:</strong> Click anywhere on the map to select your location, or use the "Detect My Location" button to automatically find you.
+        </p>
+    </div>
+
+    <!-- Map Controls -->
+    <div class="map-controls">
+        <button type="button" class="btn btn-success" onclick="detectLocation()">
+            <i class="fas fa-crosshairs"></i> Detect My Location
+        </button>
+        <button type="button" class="btn btn-secondary" onclick="searchLocation()">
+            <i class="fas fa-search"></i> Search Location
+        </button>
+        <div id="location-status" style="margin-top: 15px; display: none;"></div>
+    </div>
+
+    <!-- Interactive Map -->
+    <div id="map"></div>
+
+    <!-- Location Form -->
+    <div class="form-container">
+        <form method="POST" id="locationForm">
+            {% csrf_token %}
+            <input type="hidden" name="form_type" value="map">
+            
+            <div class="form-group">
+                <label for="address">Selected Address</label>
+                <textarea id="address" name="address" class="form-control" rows="2" readonly>Click on the map to select a location</textarea>
+            </div>
+            
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="latitude">Latitude</label>
+                    <input type="text" id="latitude" name="latitude" class="form-control" readonly>
+                </div>
+                <div class="form-group">
+                    <label for="longitude">Longitude</label>
+                    <input type="text" id="longitude" name="longitude" class="form-control" readonly>
+                </div>
+            </div>
+            
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="city">City</label>
+                    <input type="text" id="city" name="city" class="form-control">
+                </div>
+                <div class="form-group">
+                    <label for="state">State/Province</label>
+                    <input type="text" id="state" name="state" class="form-control">
+                </div>
+            </div>
+            
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="postal_code">Postal Code</label>
+                    <input type="text" id="postal_code" name="postal_code" class="form-control">
+                </div>
+                <div class="form-group">
+                    <label for="country">Country</label>
+                    <input type="text" id="country" name="country" class="form-control" value="Nepal">
+                </div>
+            </div>
+            
+            <button type="submit" class="btn" id="saveBtn" disabled>
+                <i class="fas fa-save"></i> Save Location
+            </button>
+        </form>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<!-- Leaflet JS -->
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" crossorigin=""></script>
+
+<script>
+    let map, marker;
+    const defaultLat = {% if donor.latitude %}{{ donor.latitude }}{% else %}27.7172{% endif %};
+    const defaultLng = {% if donor.longitude %}{{ donor.longitude }}{% else %}85.3240{% endif %};
+
+    // Initialize map
+    function initMap() {
+        console.log('Initializing map...');
+        try {
+            map = L.map('map').setView([defaultLat, defaultLng], 13);
+
+        // Add OpenStreetMap tiles
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            attribution: '© OpenStreetMap contributors',
+            maxZoom: 19
+        }).addTo(map);
+
+        // Add initial marker if location exists
+        {% if donor.latitude and donor.longitude %}
+        marker = L.marker([defaultLat, defaultLng], {draggable: true}).addTo(map);
+        marker.bindPopup('Your current location').openPopup();
+        marker.on('dragend', function(e) {
+            const position = marker.getLatLng();
+            updateFormFromCoordinates(position.lat, position.lng);
+        });
+        {% endif %}
+
+        // Click event to add/move marker
+        map.on('click', function(e) {
+            const lat = e.latlng.lat;
+            const lng = e.latlng.lng;
+            
+            if (marker) {
+                marker.setLatLng([lat, lng]);
+            } else {
+                marker = L.marker([lat, lng], {draggable: true}).addTo(map);
+                marker.on('dragend', function(e) {
+                    const position = marker.getLatLng();
+                    updateFormFromCoordinates(position.lat, position.lng);
+                });
+            }
+            
+            marker.bindPopup('Selected location').openPopup();
+            updateFormFromCoordinates(lat, lng);
+        });
+        
+        console.log('Map initialized successfully');
+    } catch (error) {
+        console.error('Error initializing map:', error);
+        alert('Error loading map. Please refresh the page.');
+    }
+    }
+
+    // Update form fields from coordinates
+    function updateFormFromCoordinates(lat, lng) {
+        document.getElementById('latitude').value = lat.toFixed(6);
+        document.getElementById('longitude').value = lng.toFixed(6);
+        document.getElementById('saveBtn').disabled = false;
+
+        // Reverse geocode to get address
+        fetch(`https://nominatim.openstreetmap.org/reverse?lat=${lat}&lon=${lng}&format=json`)
+            .then(response => response.json())
+            .then(data => {
+                if (data.address) {
+                    const addr = data.address;
+                    document.getElementById('address').value = data.display_name || '';
+                    document.getElementById('city').value = addr.city || addr.town || addr.village || '';
+                    document.getElementById('state').value = addr.state || '';
+                    document.getElementById('postal_code').value = addr.postcode || '';
+                    document.getElementById('country').value = addr.country || 'Nepal';
+                }
+            })
+            .catch(error => {
+                console.error('Reverse geocoding error:', error);
+                document.getElementById('address').value = `Location: ${lat.toFixed(6)}, ${lng.toFixed(6)}`;
+            });
+    }
+
+    // Detect current location using GPS
+    function detectLocation() {
+        const statusDiv = document.getElementById('location-status');
+        statusDiv.style.display = 'block';
+        statusDiv.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Detecting your location...';
+
+        if (navigator.geolocation) {
+            navigator.geolocation.getCurrentPosition(
+                function(position) {
+                    const lat = position.coords.latitude;
+                    const lng = position.coords.longitude;
+
+                    map.setView([lat, lng], 15);
+                    
+                    if (marker) {
+                        marker.setLatLng([lat, lng]);
+                    } else {
+                        marker = L.marker([lat, lng], {draggable: true}).addTo(map);
+                        marker.on('dragend', function(e) {
+                            const position = marker.getLatLng();
+                            updateFormFromCoordinates(position.lat, position.lng);
+                        });
+                    }
+                    
+                    marker.bindPopup('Your current location').openPopup();
+                    updateFormFromCoordinates(lat, lng);
+
+                    statusDiv.innerHTML = '<i class="fas fa-check"></i> Location detected successfully!';
+                    statusDiv.style.color = 'green';
+                },
+                function(error) {
+                    statusDiv.innerHTML = `<i class="fas fa-times"></i> GPS Error: ${error.message}`;
+                    statusDiv.style.color = 'red';
+                },
+                {
+                    enableHighAccuracy: true,
+                    timeout: 15000,
+                    maximumAge: 0
+                }
+            );
+        } else {
+            statusDiv.innerHTML = '<i class="fas fa-times"></i> Geolocation is not supported by this browser.';
+            statusDiv.style.color = 'red';
+        }
+    }
+
+    // Search for a location
+    function searchLocation() {
+        const query = prompt('Enter a location to search (e.g., "Kathmandu, Nepal" or "Thamel"):');
+        if (query) {
+            fetch(`https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(query)}&format=json&limit=1`)
+                .then(response => response.json())
+                .then(data => {
+                    if (data && data.length > 0) {
+                        const result = data[0];
+                        const lat = parseFloat(result.lat);
+                        const lng = parseFloat(result.lon);
+
+                        map.setView([lat, lng], 15);
+                        
+                        if (marker) {
+                            marker.setLatLng([lat, lng]);
+                        } else {
+                            marker = L.marker([lat, lng], {draggable: true}).addTo(map);
+                            marker.on('dragend', function(e) {
+                                const position = marker.getLatLng();
+                                updateFormFromCoordinates(position.lat, position.lng);
+                            });
+                        }
+                        
+                        marker.bindPopup(result.display_name).openPopup();
+                        updateFormFromCoordinates(lat, lng);
+                    } else {
+                        alert('Location not found. Please try a different search term.');
+                    }
+                })
+                .catch(error => {
+                    console.error('Search error:', error);
+                    alert('Error searching for location. Please try again.');
+                });
+        }
+    }
+
+    // Initialize map when page loads
+    document.addEventListener('DOMContentLoaded', function() {
+        console.log('DOM loaded');
+        console.log('Leaflet available:', typeof L !== 'undefined');
+        console.log('Map element:', document.getElementById('map'));
+        
+        if (typeof L === 'undefined') {
+            alert('Leaflet library failed to load. Please check your internet connection and refresh.');
+            return;
+        }
+        
+        initMap();
+    });
+
+    // Handle form submission
+    document.getElementById('locationForm').addEventListener('submit', function(e) {
+        e.preventDefault();
+        
+        const latitude = document.getElementById('latitude').value;
+        const longitude = document.getElementById('longitude').value;
+        const city = document.getElementById('city').value;
+        const state = document.getElementById('state').value;
+        const postal_code = document.getElementById('postal_code').value;
+        const address = document.getElementById('address').value;
+        
+        if (!latitude || !longitude) {
+            alert('Please select a location on the map first.');
+            return;
+        }
+        
+        const saveBtn = document.getElementById('saveBtn');
+        saveBtn.disabled = true;
+        saveBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Saving...';
+        
+        // Get CSRF token
+        const csrftoken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+        
+        // Send data as JSON
+        fetch('{% url "donor:update_location_map" %}', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': csrftoken
+            },
+            body: JSON.stringify({
+                latitude: latitude,
+                longitude: longitude,
+                city: city,
+                state: state,
+                postal_code: postal_code,
+                address: address
+            })
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                alert('Location updated successfully!');
+                window.location.href = '{% url "donor:donor_dashboard" %}';
+            } else {
+                alert('Error: ' + data.message);
+                saveBtn.disabled = false;
+                saveBtn.innerHTML = '<i class="fas fa-save"></i> Save Location';
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert('Failed to save location. Please try again.');
+            saveBtn.disabled = false;
+            saveBtn.innerHTML = '<i class="fas fa-save"></i> Save Location';
+        });
+    });
+
+</script>
+{% endblock %}

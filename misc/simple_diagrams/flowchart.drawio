@@ -1,0 +1,324 @@
+<mxfile host="app.diagrams.net" modified="2025-11-29T00:00:00.000Z" agent="Draw.io" version="22.1.0">
+  <diagram name="Flowchart" id="flowchart">
+    <mxGraphModel dx="900" dy="1200" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="900" pageHeight="1600" background="#ffffff">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        
+        <!-- Title -->
+        <mxCell id="title" value="BDIMS Donation Request Flowchart" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;fontSize=16;fontStyle=1" vertex="1" parent="1">
+          <mxGeometry x="300" y="30" width="300" height="30" as="geometry" />
+        </mxCell>
+        
+        <!-- Start -->
+        <mxCell id="start" value="Start" style="ellipse;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#000000;strokeWidth=2;fontSize=12;" vertex="1" parent="1">
+          <mxGeometry x="385" y="80" width="130" height="60" as="geometry" />
+        </mxCell>
+        
+        <!-- Step 1: Open System -->
+        <mxCell id="step1" value="Open BDIMS&#xa;Application" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#000000;strokeWidth=2;fontSize=11;" vertex="1" parent="1">
+          <mxGeometry x="385" y="180" width="130" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="flow1" value="" style="endArrow=classic;html=1;strokeColor=#000000;strokeWidth=2;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" edge="1" parent="1" source="start" target="step1">
+          <mxGeometry width="50" height="50" relative="1" as="geometry">
+            <mxPoint x="400" y="500" as="sourcePoint" />
+            <mxPoint x="450" y="450" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        
+        <!-- Decision 1: Registered? -->
+        <mxCell id="decision1" value="Registered?" style="rhombus;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#000000;strokeWidth=2;fontSize=11;" vertex="1" parent="1">
+          <mxGeometry x="370" y="270" width="160" height="80" as="geometry" />
+        </mxCell>
+        <mxCell id="flow2" value="" style="endArrow=classic;html=1;strokeColor=#000000;strokeWidth=2;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" edge="1" parent="1" source="step1" target="decision1">
+          <mxGeometry width="50" height="50" relative="1" as="geometry">
+            <mxPoint x="400" y="500" as="sourcePoint" />
+            <mxPoint x="450" y="450" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        
+        <!-- Step 2: Register -->
+        <mxCell id="step2" value="Register&#xa;New Account" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#000000;strokeWidth=2;fontSize=11;" vertex="1" parent="1">
+          <mxGeometry x="180" y="285" width="130" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="flow3" value="" style="endArrow=classic;html=1;strokeColor=#000000;strokeWidth=2;exitX=0;exitY=0.5;exitDx=0;exitDy=0;entryX=1;entryY=0.5;entryDx=0;entryDy=0;" edge="1" parent="1" source="decision1" target="step2">
+          <mxGeometry width="50" height="50" relative="1" as="geometry">
+            <mxPoint x="400" y="500" as="sourcePoint" />
+            <mxPoint x="450" y="450" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="flow3_label" value="No" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;fontSize=10;" vertex="1" parent="1">
+          <mxGeometry x="320" y="285" width="40" height="20" as="geometry" />
+        </mxCell>
+        
+        <!-- Step 3: Login -->
+        <mxCell id="step3" value="Login to&#xa;System" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#000000;strokeWidth=2;fontSize=11;" vertex="1" parent="1">
+          <mxGeometry x="385" y="390" width="130" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="flow4" value="" style="endArrow=classic;html=1;strokeColor=#000000;strokeWidth=2;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" edge="1" parent="1" source="decision1" target="step3">
+          <mxGeometry width="50" height="50" relative="1" as="geometry">
+            <mxPoint x="400" y="500" as="sourcePoint" />
+            <mxPoint x="450" y="450" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="flow4_label" value="Yes" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;fontSize=10;" vertex="1" parent="1">
+          <mxGeometry x="455" y="355" width="40" height="20" as="geometry" />
+        </mxCell>
+        
+        <!-- Connect Registration to Login -->
+        <mxCell id="flow5" value="" style="endArrow=classic;html=1;strokeColor=#000000;strokeWidth=2;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" edge="1" parent="1" source="step2" target="step3">
+          <mxGeometry width="50" height="50" relative="1" as="geometry">
+            <mxPoint x="400" y="500" as="sourcePoint" />
+            <mxPoint x="450" y="450" as="targetPoint" />
+            <Array as="points">
+              <mxPoint x="245" y="415" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        
+        <!-- Decision 2: Valid Credentials? -->
+        <mxCell id="decision2" value="Valid&#xa;Credentials?" style="rhombus;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#000000;strokeWidth=2;fontSize=11;" vertex="1" parent="1">
+          <mxGeometry x="370" y="480" width="160" height="80" as="geometry" />
+        </mxCell>
+        <mxCell id="flow6" value="" style="endArrow=classic;html=1;strokeColor=#000000;strokeWidth=2;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" edge="1" parent="1" source="step3" target="decision2">
+          <mxGeometry width="50" height="50" relative="1" as="geometry">
+            <mxPoint x="400" y="500" as="sourcePoint" />
+            <mxPoint x="450" y="450" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        
+        <!-- Step 4: Show Error -->
+        <mxCell id="step4" value="Show Error&#xa;Message" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#000000;strokeWidth=2;fontSize=11;" vertex="1" parent="1">
+          <mxGeometry x="590" y="495" width="130" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="flow7" value="" style="endArrow=classic;html=1;strokeColor=#000000;strokeWidth=2;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" edge="1" parent="1" source="decision2" target="step4">
+          <mxGeometry width="50" height="50" relative="1" as="geometry">
+            <mxPoint x="400" y="500" as="sourcePoint" />
+            <mxPoint x="450" y="450" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="flow7_label" value="No" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;fontSize=10;" vertex="1" parent="1">
+          <mxGeometry x="540" y="495" width="40" height="20" as="geometry" />
+        </mxCell>
+        
+        <!-- Loop back to login -->
+        <mxCell id="flow8" value="" style="endArrow=classic;html=1;strokeColor=#000000;strokeWidth=2;exitX=0.5;exitY=0;exitDx=0;exitDy=0;entryX=1;entryY=0.5;entryDx=0;entryDy=0;" edge="1" parent="1" source="step4" target="step3">
+          <mxGeometry width="50" height="50" relative="1" as="geometry">
+            <mxPoint x="400" y="500" as="sourcePoint" />
+            <mxPoint x="450" y="450" as="targetPoint" />
+            <Array as="points">
+              <mxPoint x="655" y="415" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        
+        <!-- Step 5: Dashboard -->
+        <mxCell id="step5" value="View Donor&#xa;Dashboard" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#000000;strokeWidth=2;fontSize=11;" vertex="1" parent="1">
+          <mxGeometry x="385" y="600" width="130" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="flow9" value="" style="endArrow=classic;html=1;strokeColor=#000000;strokeWidth=2;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" edge="1" parent="1" source="decision2" target="step5">
+          <mxGeometry width="50" height="50" relative="1" as="geometry">
+            <mxPoint x="400" y="500" as="sourcePoint" />
+            <mxPoint x="450" y="450" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="flow9_label" value="Yes" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;fontSize=10;" vertex="1" parent="1">
+          <mxGeometry x="455" y="565" width="40" height="20" as="geometry" />
+        </mxCell>
+        
+        <!-- Step 6: Select Schedule Donation -->
+        <mxCell id="step6" value="Select&#xa;Schedule Donation" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#000000;strokeWidth=2;fontSize=11;" vertex="1" parent="1">
+          <mxGeometry x="385" y="690" width="130" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="flow10" value="" style="endArrow=classic;html=1;strokeColor=#000000;strokeWidth=2;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" edge="1" parent="1" source="step5" target="step6">
+          <mxGeometry width="50" height="50" relative="1" as="geometry">
+            <mxPoint x="400" y="800" as="sourcePoint" />
+            <mxPoint x="450" y="750" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        
+        <!-- Decision 3: Eligible to Donate? -->
+        <mxCell id="decision3" value="Eligible&#xa;to Donate?" style="rhombus;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#000000;strokeWidth=2;fontSize=11;" vertex="1" parent="1">
+          <mxGeometry x="370" y="780" width="160" height="80" as="geometry" />
+        </mxCell>
+        <mxCell id="flow11" value="" style="endArrow=classic;html=1;strokeColor=#000000;strokeWidth=2;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" edge="1" parent="1" source="step6" target="decision3">
+          <mxGeometry width="50" height="50" relative="1" as="geometry">
+            <mxPoint x="400" y="800" as="sourcePoint" />
+            <mxPoint x="450" y="750" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        
+        <!-- Step 7: Show Ineligible Message -->
+        <mxCell id="step7" value="Show Ineligible&#xa;Message" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#000000;strokeWidth=2;fontSize=11;" vertex="1" parent="1">
+          <mxGeometry x="180" y="795" width="130" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="flow12" value="" style="endArrow=classic;html=1;strokeColor=#000000;strokeWidth=2;exitX=0;exitY=0.5;exitDx=0;exitDy=0;entryX=1;entryY=0.5;entryDx=0;entryDy=0;" edge="1" parent="1" source="decision3" target="step7">
+          <mxGeometry width="50" height="50" relative="1" as="geometry">
+            <mxPoint x="400" y="800" as="sourcePoint" />
+            <mxPoint x="450" y="750" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="flow12_label" value="No" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;fontSize=10;" vertex="1" parent="1">
+          <mxGeometry x="320" y="795" width="40" height="20" as="geometry" />
+        </mxCell>
+        
+        <!-- Return to dashboard from ineligible -->
+        <mxCell id="flow13" value="" style="endArrow=classic;html=1;strokeColor=#000000;strokeWidth=2;exitX=0.5;exitY=0;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" edge="1" parent="1" source="step7" target="step5">
+          <mxGeometry width="50" height="50" relative="1" as="geometry">
+            <mxPoint x="400" y="800" as="sourcePoint" />
+            <mxPoint x="450" y="750" as="targetPoint" />
+            <Array as="points">
+              <mxPoint x="245" y="625" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        
+        <!-- Step 8: Fill Donation Form -->
+        <mxCell id="step8" value="Fill Donation&#xa;Request Form" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#000000;strokeWidth=2;fontSize=11;" vertex="1" parent="1">
+          <mxGeometry x="385" y="900" width="130" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="flow14" value="" style="endArrow=classic;html=1;strokeColor=#000000;strokeWidth=2;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" edge="1" parent="1" source="decision3" target="step8">
+          <mxGeometry width="50" height="50" relative="1" as="geometry">
+            <mxPoint x="400" y="800" as="sourcePoint" />
+            <mxPoint x="450" y="750" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="flow14_label" value="Yes" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;fontSize=10;" vertex="1" parent="1">
+          <mxGeometry x="455" y="865" width="40" height="20" as="geometry" />
+        </mxCell>
+        
+        <!-- Step 9: Select Center & Date -->
+        <mxCell id="step9" value="Select Center&#xa;and Date" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#000000;strokeWidth=2;fontSize=11;" vertex="1" parent="1">
+          <mxGeometry x="385" y="990" width="130" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="flow15" value="" style="endArrow=classic;html=1;strokeColor=#000000;strokeWidth=2;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" edge="1" parent="1" source="step8" target="step9">
+          <mxGeometry width="50" height="50" relative="1" as="geometry">
+            <mxPoint x="400" y="1100" as="sourcePoint" />
+            <mxPoint x="450" y="1050" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        
+        <!-- Step 10: Submit Request -->
+        <mxCell id="step10" value="Submit&#xa;Request" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#000000;strokeWidth=2;fontSize=11;" vertex="1" parent="1">
+          <mxGeometry x="385" y="1080" width="130" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="flow16" value="" style="endArrow=classic;html=1;strokeColor=#000000;strokeWidth=2;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" edge="1" parent="1" source="step9" target="step10">
+          <mxGeometry width="50" height="50" relative="1" as="geometry">
+            <mxPoint x="400" y="1100" as="sourcePoint" />
+            <mxPoint x="450" y="1050" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        
+        <!-- Step 11: Admin Review -->
+        <mxCell id="step11" value="Admin Reviews&#xa;Request" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#000000;strokeWidth=2;fontSize=11;" vertex="1" parent="1">
+          <mxGeometry x="385" y="1170" width="130" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="flow17" value="" style="endArrow=classic;html=1;strokeColor=#000000;strokeWidth=2;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" edge="1" parent="1" source="step10" target="step11">
+          <mxGeometry width="50" height="50" relative="1" as="geometry">
+            <mxPoint x="400" y="1100" as="sourcePoint" />
+            <mxPoint x="450" y="1050" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        
+        <!-- Decision 4: Approved? -->
+        <mxCell id="decision4" value="Approved?" style="rhombus;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#000000;strokeWidth=2;fontSize=11;" vertex="1" parent="1">
+          <mxGeometry x="370" y="1260" width="160" height="80" as="geometry" />
+        </mxCell>
+        <mxCell id="flow18" value="" style="endArrow=classic;html=1;strokeColor=#000000;strokeWidth=2;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" edge="1" parent="1" source="step11" target="decision4">
+          <mxGeometry width="50" height="50" relative="1" as="geometry">
+            <mxPoint x="400" y="1100" as="sourcePoint" />
+            <mxPoint x="450" y="1050" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        
+        <!-- Step 12: Send Rejection -->
+        <mxCell id="step12" value="Send Rejection&#xa;Notification" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#000000;strokeWidth=2;fontSize=11;" vertex="1" parent="1">
+          <mxGeometry x="180" y="1275" width="130" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="flow19" value="" style="endArrow=classic;html=1;strokeColor=#000000;strokeWidth=2;exitX=0;exitY=0.5;exitDx=0;exitDy=0;entryX=1;entryY=0.5;entryDx=0;entryDy=0;" edge="1" parent="1" source="decision4" target="step12">
+          <mxGeometry width="50" height="50" relative="1" as="geometry">
+            <mxPoint x="400" y="1100" as="sourcePoint" />
+            <mxPoint x="450" y="1050" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="flow19_label" value="No" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;fontSize=10;" vertex="1" parent="1">
+          <mxGeometry x="320" y="1275" width="40" height="20" as="geometry" />
+        </mxCell>
+        
+        <!-- End from rejection -->
+        <mxCell id="end1" value="End" style="ellipse;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#000000;strokeWidth=2;fontSize=12;" vertex="1" parent="1">
+          <mxGeometry x="180" y="1370" width="130" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="flow20" value="" style="endArrow=classic;html=1;strokeColor=#000000;strokeWidth=2;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" edge="1" parent="1" source="step12" target="end1">
+          <mxGeometry width="50" height="50" relative="1" as="geometry">
+            <mxPoint x="400" y="1100" as="sourcePoint" />
+            <mxPoint x="450" y="1050" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        
+        <!-- Step 13: Send Approval -->
+        <mxCell id="step13" value="Send Approval&#xa;Notification" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#000000;strokeWidth=2;fontSize=11;" vertex="1" parent="1">
+          <mxGeometry x="385" y="1380" width="130" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="flow21" value="" style="endArrow=classic;html=1;strokeColor=#000000;strokeWidth=2;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" edge="1" parent="1" source="decision4" target="step13">
+          <mxGeometry width="50" height="50" relative="1" as="geometry">
+            <mxPoint x="400" y="1100" as="sourcePoint" />
+            <mxPoint x="450" y="1050" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="flow21_label" value="Yes" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;fontSize=10;" vertex="1" parent="1">
+          <mxGeometry x="455" y="1345" width="40" height="20" as="geometry" />
+        </mxCell>
+        
+        <!-- Step 14: Update Donation History -->
+        <mxCell id="step14" value="Update Donation&#xa;History" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#000000;strokeWidth=2;fontSize=11;" vertex="1" parent="1">
+          <mxGeometry x="385" y="1470" width="130" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="flow22" value="" style="endArrow=classic;html=1;strokeColor=#000000;strokeWidth=2;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" edge="1" parent="1" source="step13" target="step14">
+          <mxGeometry width="50" height="50" relative="1" as="geometry">
+            <mxPoint x="400" y="1100" as="sourcePoint" />
+            <mxPoint x="450" y="1050" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        
+        <!-- End from approval -->
+        <mxCell id="end2" value="End" style="ellipse;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#000000;strokeWidth=2;fontSize=12;" vertex="1" parent="1">
+          <mxGeometry x="385" y="1560" width="130" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="flow23" value="" style="endArrow=classic;html=1;strokeColor=#000000;strokeWidth=2;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" edge="1" parent="1" source="step14" target="end2">
+          <mxGeometry width="50" height="50" relative="1" as="geometry">
+            <mxPoint x="400" y="1100" as="sourcePoint" />
+            <mxPoint x="450" y="1050" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        
+        <!-- Legend -->
+        <mxCell id="legend_bg" value="" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#000000;strokeWidth=1;" vertex="1" parent="1">
+          <mxGeometry x="60" y="80" width="200" height="140" as="geometry" />
+        </mxCell>
+        <mxCell id="legend_title" value="LEGEND" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;whiteSpace=wrap;fontSize=12;fontStyle=1" vertex="1" parent="1">
+          <mxGeometry x="70" y="85" width="80" height="20" as="geometry" />
+        </mxCell>
+        <mxCell id="legend_start" value="" style="ellipse;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#000000;strokeWidth=2;fontSize=10;" vertex="1" parent="1">
+          <mxGeometry x="70" y="110" width="50" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="legend_start_label" value="Start/End" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;whiteSpace=wrap;fontSize=10;" vertex="1" parent="1">
+          <mxGeometry x="130" y="110" width="70" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="legend_process" value="" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#000000;strokeWidth=2;fontSize=10;" vertex="1" parent="1">
+          <mxGeometry x="70" y="145" width="50" height="25" as="geometry" />
+        </mxCell>
+        <mxCell id="legend_process_label" value="Process" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;whiteSpace=wrap;fontSize=10;" vertex="1" parent="1">
+          <mxGeometry x="130" y="140" width="70" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="legend_decision" value="" style="rhombus;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#000000;strokeWidth=2;fontSize=10;" vertex="1" parent="1">
+          <mxGeometry x="70" y="175" width="50" height="35" as="geometry" />
+        </mxCell>
+        <mxCell id="legend_decision_label" value="Decision" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;whiteSpace=wrap;fontSize=10;" vertex="1" parent="1">
+          <mxGeometry x="130" y="175" width="70" height="35" as="geometry" />
+        </mxCell>
+        
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

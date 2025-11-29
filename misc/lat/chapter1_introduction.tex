@@ -1,0 +1,150 @@
+\chapter{INTRODUCTION}
+
+\section{Background}
+
+Blood donation is a critical component of healthcare systems worldwide, providing essential support for emergency medical interventions, surgical procedures, and treatment of chronic diseases. In Nepal, the healthcare sector faces significant challenges in managing blood donation information efficiently. Traditional paper-based systems and fragmented digital solutions have proven inadequate in meeting the complex demands of modern blood donation management.
+
+According to the Ministry of Health and Population, Nepal requires approximately 300,000 units of blood annually. However, the gap between supply and demand remains significant, particularly in rural areas and during emergency situations. This shortage is not solely due to lack of willing donors, but stems from systemic inefficiencies in donor information management, poor coordination between blood banks and hospitals, and delayed response to emergency blood requests.
+
+The Blood Donor Information Management System (BDIMS) addresses these challenges by providing a centralized, web-based platform for comprehensive donor information management. Built using the Django framework and PostgreSQL database, BDIMS streamlines the entire blood donation lifecycle from donor registration to emergency response coordination.
+
+\section{Problem Statement}
+
+Healthcare institutions currently face several critical challenges in blood donation management:
+
+\begin{itemize}
+    \item \textbf{Manual Record Keeping:} Most blood banks still rely on paper registers or basic spreadsheets, leading to data loss, duplication, and difficulty in searching donor information quickly.
+    
+    \item \textbf{Lack of Centralization:} Different blood banks maintain separate databases with no mechanism for information sharing, resulting in inefficient resource utilization.
+    
+    \item \textbf{Complex Eligibility Tracking:} Determining donor eligibility requires checking multiple factors including the 56-day donation interval, health metrics, and medical conditions. Manual tracking is error-prone and time-consuming.
+    
+    \item \textbf{Emergency Response Delays:} During medical emergencies requiring urgent blood transfusions, the current system cannot rapidly identify and contact eligible donors in specific geographic areas.
+    
+    \item \textbf{Limited Donor Engagement:} Without systematic tracking and communication, many potential repeat donors are never contacted again after their initial donation.
+    
+    \item \textbf{Inventory Management Difficulties:} Tracking blood stock levels across different blood types and monitoring expiration dates requires constant manual updates.
+\end{itemize}
+
+These problems collectively impact the ability of healthcare institutions to ensure adequate blood supply and timely response to emergencies.
+
+\section{Objectives}
+
+The primary objective of this project is to develop a comprehensive web-based Blood Donor Information Management System that modernizes and streamlines blood donation management processes.
+
+\subsection{Specific Objectives}
+
+\begin{enumerate}
+    \item To design and implement a secure donor registration and authentication system
+    \item To develop a centralized database for storing and managing comprehensive donor information
+    \item To create an automated eligibility verification system based on the 56-day donation rule and health metrics
+    \item To implement real-time blood inventory tracking across multiple blood types
+    \item To develop an emergency request system with automated donor matching and notification
+    \item To integrate interactive mapping features for location-based donor search
+    \item To implement role-based access control for administrators and donors
+    \item To create comprehensive reporting and analytics capabilities
+    \item To ensure data security through encryption and proper authentication mechanisms
+\end{enumerate}
+
+\section{Scope of the Project}
+
+\subsection{Functional Scope}
+
+The system encompasses the following functional areas:
+
+\textbf{For Administrators:}
+\begin{itemize}
+    \item Donor registration and profile management
+    \item Donation request approval and tracking
+    \item Blood inventory management
+    \item Emergency request creation and management
+    \item System-wide notifications
+    \item Report generation and analytics
+\end{itemize}
+
+\textbf{For Donors:}
+\begin{itemize}
+    \item User registration and authentication
+    \item Personal profile management
+    \item Health metrics tracking
+    \item Donation history viewing
+    \item Location updates with interactive maps
+    \item Emergency alert responses
+\end{itemize}
+
+\subsection{Technical Scope}
+
+\begin{itemize}
+    \item Web-based application accessible through modern browsers
+    \item Responsive design for desktop and mobile devices
+    \item RESTful architecture for potential future API integration
+    \item PostgreSQL database for reliable data storage
+    \item Django ORM for database operations
+\end{itemize}
+
+\subsection{Limitations}
+
+\begin{itemize}
+    \item The system is designed for single-institution deployment initially
+    \item Real-time SMS notifications require third-party integration
+    \item Advanced machine learning features for donor prediction are out of scope
+    \item Integration with national health information systems is not included in the current version
+\end{itemize}
+
+\section{System Features}
+
+\subsection{Key Features}
+
+\textbf{1. Interactive Location Mapping}
+\begin{itemize}
+    \item Click-to-select location on interactive maps
+    \item GPS-based automatic location detection
+    \item Reverse geocoding for address lookup
+    \item Distance-based donor search
+\end{itemize}
+
+\textbf{2. Health Metrics Tracking}
+\begin{itemize}
+    \item Hemoglobin level monitoring
+    \item Blood pressure tracking
+    \item Weight management
+    \item Medical condition recording
+\end{itemize}
+
+\textbf{3. Automated Eligibility Verification}
+\begin{itemize}
+    \item 56-day interval calculation
+    \item Health parameter validation
+    \item Blood type compatibility checking
+    \item Medical condition screening
+\end{itemize}
+
+\textbf{4. Emergency Response System}
+\begin{itemize}
+    \item Urgent blood request creation
+    \item Automated eligible donor matching
+    \item Multi-channel notifications
+    \item Real-time request tracking
+\end{itemize}
+
+\textbf{5. Comprehensive Reporting}
+\begin{itemize}
+    \item Donor statistics and analytics
+    \item Blood inventory reports
+    \item Donation history summaries
+    \item Emergency response metrics
+\end{itemize}
+
+\section{Project Organization}
+
+This report is organized into seven chapters:
+
+\begin{itemize}
+    \item \textbf{Chapter 1: Introduction} - Provides background, problem statement, objectives, scope, and features
+    \item \textbf{Chapter 2: Literature Review} - Reviews existing systems and technologies
+    \item \textbf{Chapter 3: System Analysis} - Describes requirements analysis and feasibility study
+    \item \textbf{Chapter 4: System Design} - Presents architecture, database design, and UML diagrams
+    \item \textbf{Chapter 5: Implementation} - Details the implementation of core modules
+    \item \textbf{Chapter 6: Testing and Results} - Describes testing methodology and results
+    \item \textbf{Chapter 7: Conclusion} - Summarizes achievements, limitations, and future work
+\end{itemize}

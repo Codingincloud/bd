@@ -157,6 +157,16 @@
             transform: translateY(-2px);
         }
 
+        .btn-danger {
+            background: #dc3545;
+            color: white;
+        }
+
+        .btn-danger:hover {
+            background: #c82333;
+            transform: translateY(-2px);
+        }
+
         .stats-grid {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
@@ -351,6 +361,12 @@
                 <a href="{% url 'donor:donor_dashboard' %}" class="btn btn-secondary">
                     <i class="fas fa-arrow-left"></i> Back to Dashboard
                 </a>
+                <form method="POST" action="{% url 'donor:deactivate_account' %}" style="margin: 0;" onsubmit="return confirm('Are you sure you want to deactivate your account? You will need to contact an admin to reactivate it.');">
+                    {% csrf_token %}
+                    <button type="submit" class="btn btn-danger">
+                        <i class="fas fa-user-times"></i> Deactivate Account
+                    </button>
+                </form>
             </div>
         </div>
 {% endblock %}

@@ -1,0 +1,201 @@
+<mxfile host="app.diagrams.net" modified="2025-11-29T00:00:00.000Z" agent="BDIMS" version="22.1.0" etag="ER_DIAGRAM">
+  <diagram name="ER Diagram - BDIMS" id="er-diagram-bdims">
+    <mxGraphModel dx="1422" dy="794" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1169" pageHeight="827" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        
+        <!-- User Entity -->
+        <mxCell id="user-entity" value="USER" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontStyle=1;fontSize=14;" vertex="1" parent="1">
+          <mxGeometry x="40" y="40" width="160" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="user-attrs" value="• id (PK)&#xa;• username&#xa;• email&#xa;• password&#xa;• first_name&#xa;• last_name&#xa;• is_staff&#xa;• is_active&#xa;• date_joined" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#f5f5f5;strokeColor=#666666;align=left;verticalAlign=top;fontFamily=Courier New;" vertex="1" parent="1">
+          <mxGeometry x="40" y="80" width="160" height="140" as="geometry" />
+        </mxCell>
+        
+        <!-- Donor Entity -->
+        <mxCell id="donor-entity" value="DONOR" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;fontStyle=1;fontSize=14;" vertex="1" parent="1">
+          <mxGeometry x="280" y="40" width="180" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="donor-attrs" value="• id (PK)&#xa;• user_id (FK → User)&#xa;• blood_group&#xa;• date_of_birth&#xa;• gender&#xa;• phone_number&#xa;• address&#xa;• city, state, postal_code&#xa;• country&#xa;• latitude, longitude&#xa;• weight, height&#xa;• medical_conditions&#xa;• last_donation_date&#xa;• is_eligible&#xa;• emergency_contact_name&#xa;• emergency_contact_phone&#xa;• allow_emergency_contact&#xa;• created_at, updated_at" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#f5f5f5;strokeColor=#666666;align=left;verticalAlign=top;fontFamily=Courier New;" vertex="1" parent="1">
+          <mxGeometry x="280" y="80" width="180" height="280" as="geometry" />
+        </mxCell>
+        
+        <!-- AdminProfile Entity -->
+        <mxCell id="admin-entity" value="ADMIN_PROFILE" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#ffe6cc;strokeColor=#d79b00;fontStyle=1;fontSize=14;" vertex="1" parent="1">
+          <mxGeometry x="40" y="260" width="160" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="admin-attrs" value="• id (PK)&#xa;• user_id (FK → User)&#xa;• name&#xa;• contact_no&#xa;• address&#xa;• city, state&#xa;• postal_code, country&#xa;• latitude, longitude&#xa;• email&#xa;• photo&#xa;• department&#xa;• created_at, updated_at" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#f5f5f5;strokeColor=#666666;align=left;verticalAlign=top;fontFamily=Courier New;" vertex="1" parent="1">
+          <mxGeometry x="40" y="300" width="160" height="200" as="geometry" />
+        </mxCell>
+        
+        <!-- DonationHistory Entity -->
+        <mxCell id="history-entity" value="DONATION_HISTORY" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;fontStyle=1;fontSize=14;" vertex="1" parent="1">
+          <mxGeometry x="520" y="40" width="180" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="history-attrs" value="• id (PK)&#xa;• donor_id (FK → Donor)&#xa;• donation_date&#xa;• donation_center_name&#xa;• units_donated&#xa;• blood_pressure&#xa;• hemoglobin_level&#xa;• notes&#xa;• blood_center_id (FK)&#xa;• pre_donation_weight&#xa;• temperature&#xa;• pulse_rate&#xa;• created_at" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#f5f5f5;strokeColor=#666666;align=left;verticalAlign=top;fontFamily=Courier New;" vertex="1" parent="1">
+          <mxGeometry x="520" y="80" width="180" height="220" as="geometry" />
+        </mxCell>
+        
+        <!-- DonationRequest Entity -->
+        <mxCell id="request-entity" value="DONATION_REQUEST" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;fontStyle=1;fontSize=14;" vertex="1" parent="1">
+          <mxGeometry x="760" y="40" width="180" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="request-attrs" value="• id (PK)&#xa;• donor_id (FK → Donor)&#xa;• donation_center_id (FK)&#xa;• requested_date&#xa;• preferred_time&#xa;• status&#xa;• notes&#xa;• admin_notes&#xa;• rejection_reason&#xa;• rejected_by (FK → User)&#xa;• rejected_at&#xa;• completed_at&#xa;• created_at, updated_at" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#f5f5f5;strokeColor=#666666;align=left;verticalAlign=top;fontFamily=Courier New;" vertex="1" parent="1">
+          <mxGeometry x="760" y="80" width="180" height="220" as="geometry" />
+        </mxCell>
+        
+        <!-- DonationCenter Entity -->
+        <mxCell id="center-entity" value="DONATION_CENTER" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#f8cecc;strokeColor=#b85450;fontStyle=1;fontSize=14;" vertex="1" parent="1">
+          <mxGeometry x="280" y="400" width="180" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="center-attrs" value="• id (PK)&#xa;• name&#xa;• address&#xa;• city, state&#xa;• phone_number&#xa;• email&#xa;• is_active&#xa;• created_at, updated_at" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#f5f5f5;strokeColor=#666666;align=left;verticalAlign=top;fontFamily=Courier New;" vertex="1" parent="1">
+          <mxGeometry x="280" y="440" width="180" height="140" as="geometry" />
+        </mxCell>
+        
+        <!-- Hospital Entity -->
+        <mxCell id="hospital-entity" value="HOSPITAL" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#b1ddf0;strokeColor=#10739e;fontStyle=1;fontSize=14;" vertex="1" parent="1">
+          <mxGeometry x="520" y="340" width="180" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="hospital-attrs" value="• id (PK)&#xa;• name&#xa;• address&#xa;• city, state&#xa;• phone_number, email&#xa;• latitude, longitude&#xa;• hospital_type&#xa;• has_blood_bank&#xa;• accepts_donations&#xa;• emergency_contact&#xa;• operating_hours&#xa;• services&#xa;• is_active&#xa;• created_at, updated_at" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#f5f5f5;strokeColor=#666666;align=left;verticalAlign=top;fontFamily=Courier New;" vertex="1" parent="1">
+          <mxGeometry x="520" y="380" width="180" height="240" as="geometry" />
+        </mxCell>
+        
+        <!-- BloodInventory Entity -->
+        <mxCell id="inventory-entity" value="BLOOD_INVENTORY" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#fad7ac;strokeColor=#b46504;fontStyle=1;fontSize=14;" vertex="1" parent="1">
+          <mxGeometry x="760" y="340" width="180" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="inventory-attrs" value="• id (PK)&#xa;• blood_group (UNIQUE)&#xa;• units_available&#xa;• units_reserved&#xa;• last_updated&#xa;• updated_by (FK → User)&#xa;• notes" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#f5f5f5;strokeColor=#666666;align=left;verticalAlign=top;fontFamily=Courier New;" vertex="1" parent="1">
+          <mxGeometry x="760" y="380" width="180" height="120" as="geometry" />
+        </mxCell>
+        
+        <!-- EmergencyRequest Entity -->
+        <mxCell id="emergency-entity" value="EMERGENCY_REQUEST" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#ffcccc;strokeColor=#cc0000;fontStyle=1;fontSize=14;" vertex="1" parent="1">
+          <mxGeometry x="40" y="550" width="180" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="emergency-attrs" value="• id (PK)&#xa;• blood_group_needed&#xa;• units_needed&#xa;• hospital_name&#xa;• contact_person&#xa;• contact_phone&#xa;• location&#xa;• urgency_level&#xa;• required_by&#xa;• status&#xa;• notes&#xa;• created_at, updated_at" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#f5f5f5;strokeColor=#666666;align=left;verticalAlign=top;fontFamily=Courier New;" vertex="1" parent="1">
+          <mxGeometry x="40" y="590" width="180" height="200" as="geometry" />
+        </mxCell>
+        
+        <!-- EmergencyResponse Entity -->
+        <mxCell id="response-entity" value="EMERGENCY_RESPONSE" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#ffdddd;strokeColor=#cc3333;fontStyle=1;fontSize=14;" vertex="1" parent="1">
+          <mxGeometry x="280" y="620" width="180" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="response-attrs" value="• id (PK)&#xa;• emergency_request_id (FK)&#xa;• donor_id (FK → Donor)&#xa;• response_message&#xa;• selected_hospital_id (FK)&#xa;• status&#xa;• responded_at&#xa;• confirmed_at&#xa;• completed_at&#xa;• units_donated&#xa;• donation_notes&#xa;• confirmed_by (FK → User)&#xa;• admin_notes" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#f5f5f5;strokeColor=#666666;align=left;verticalAlign=top;fontFamily=Courier New;" vertex="1" parent="1">
+          <mxGeometry x="280" y="660" width="180" height="220" as="geometry" />
+        </mxCell>
+        
+        <!-- HealthMetrics Entity -->
+        <mxCell id="metrics-entity" value="HEALTH_METRICS" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#d4edda;strokeColor=#5a9e6f;fontStyle=1;fontSize=14;" vertex="1" parent="1">
+          <mxGeometry x="520" y="660" width="180" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="metrics-attrs" value="• id (PK)&#xa;• donor_id (FK → Donor)&#xa;• weight&#xa;• blood_pressure_systolic&#xa;• blood_pressure_diastolic&#xa;• resting_heart_rate&#xa;• notes&#xa;• recorded_at" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#f5f5f5;strokeColor=#666666;align=left;verticalAlign=top;fontFamily=Courier New;" vertex="1" parent="1">
+          <mxGeometry x="520" y="700" width="180" height="140" as="geometry" />
+        </mxCell>
+        
+        <!-- SystemNotification Entity -->
+        <mxCell id="sysnotif-entity" value="SYSTEM_NOTIFICATION" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#cfe2f3;strokeColor=#6d9eeb;fontStyle=1;fontSize=14;" vertex="1" parent="1">
+          <mxGeometry x="760" y="540" width="180" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="sysnotif-attrs" value="• id (PK)&#xa;• title&#xa;• message&#xa;• notification_type&#xa;• priority&#xa;• is_active&#xa;• target_audience&#xa;• created_by (FK → User)&#xa;• created_at&#xa;• expires_at&#xa;• action_url&#xa;• target_user (FK → User)&#xa;• is_read" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#f5f5f5;strokeColor=#666666;align=left;verticalAlign=top;fontFamily=Courier New;" vertex="1" parent="1">
+          <mxGeometry x="760" y="580" width="180" height="220" as="geometry" />
+        </mxCell>
+        
+        <!-- UserNotification Entity -->
+        <mxCell id="usernotif-entity" value="USER_NOTIFICATION" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#d9ead3;strokeColor=#93c47d;fontStyle=1;fontSize=14;" vertex="1" parent="1">
+          <mxGeometry x="1000" y="40" width="180" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="usernotif-attrs" value="• id (PK)&#xa;• user_id (FK → User)&#xa;• title&#xa;• message&#xa;• notification_type&#xa;• is_read&#xa;• created_at&#xa;• action_url&#xa;• related_donation_request&#xa;• related_emergency" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#f5f5f5;strokeColor=#666666;align=left;verticalAlign=top;fontFamily=Courier New;" vertex="1" parent="1">
+          <mxGeometry x="1000" y="80" width="180" height="180" as="geometry" />
+        </mxCell>
+        
+        <!-- Relationships -->
+        <!-- User to Donor (1:1) -->
+        <mxCell id="rel-user-donor" style="endArrow=classic;html=1;exitX=1;exitY=0.5;entryX=0;entryY=0.5;strokeWidth=2;" edge="1" parent="1" source="user-entity" target="donor-entity">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="rel-user-donor-label" value="1:1" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];fontStyle=1;fontSize=12;" vertex="1" connectable="0" parent="rel-user-donor">
+          <mxGeometry x="-0.2" y="1" relative="1" as="geometry">
+            <mxPoint x="10" y="-10" as="offset" />
+          </mxGeometry>
+        </mxCell>
+        
+        <!-- User to AdminProfile (1:1) -->
+        <mxCell id="rel-user-admin" style="endArrow=classic;html=1;exitX=0.5;exitY=1;entryX=0.5;entryY=0;strokeWidth=2;" edge="1" parent="1" source="user-entity" target="admin-entity">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="rel-user-admin-label" value="1:1" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];fontStyle=1;fontSize=12;" vertex="1" connectable="0" parent="rel-user-admin">
+          <mxGeometry x="-0.2" y="1" relative="1" as="geometry">
+            <mxPoint x="15" as="offset" />
+          </mxGeometry>
+        </mxCell>
+        
+        <!-- Donor to DonationHistory (1:N) -->
+        <mxCell id="rel-donor-history" style="endArrow=classic;html=1;exitX=1;exitY=0.5;entryX=0;entryY=0.5;strokeWidth=2;" edge="1" parent="1" source="donor-entity" target="history-entity">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="rel-donor-history-label" value="1:N" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];fontStyle=1;fontSize=12;" vertex="1" connectable="0" parent="rel-donor-history">
+          <mxGeometry x="-0.2" y="1" relative="1" as="geometry">
+            <mxPoint x="10" y="-10" as="offset" />
+          </mxGeometry>
+        </mxCell>
+        
+        <!-- Donor to DonationRequest (1:N) -->
+        <mxCell id="rel-donor-request" style="endArrow=classic;html=1;exitX=1;exitY=0.8;entryX=0;entryY=0.8;strokeWidth=2;curved=1;" edge="1" parent="1" source="donor-attrs" target="request-attrs">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="rel-donor-request-label" value="1:N" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];fontStyle=1;fontSize=12;" vertex="1" connectable="0" parent="rel-donor-request">
+          <mxGeometry x="-0.2" y="1" relative="1" as="geometry">
+            <mxPoint x="10" y="-10" as="offset" />
+          </mxGeometry>
+        </mxCell>
+        
+        <!-- Donor to HealthMetrics (1:N) -->
+        <mxCell id="rel-donor-metrics" style="endArrow=classic;html=1;exitX=0.5;exitY=1;entryX=0;entryY=0.5;strokeWidth=2;curved=1;" edge="1" parent="1" source="donor-attrs" target="metrics-entity">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="rel-donor-metrics-label" value="1:N" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];fontStyle=1;fontSize=12;" vertex="1" connectable="0" parent="rel-donor-metrics">
+          <mxGeometry x="-0.2" y="1" relative="1" as="geometry">
+            <mxPoint x="10" y="-10" as="offset" />
+          </mxGeometry>
+        </mxCell>
+        
+        <!-- DonationCenter to DonationRequest (1:N) -->
+        <mxCell id="rel-center-request" style="endArrow=classic;html=1;exitX=1;exitY=0.5;entryX=0;entryY=1;strokeWidth=2;curved=1;" edge="1" parent="1" source="center-entity" target="request-attrs">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="rel-center-request-label" value="1:N" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];fontStyle=1;fontSize=12;" vertex="1" connectable="0" parent="rel-center-request">
+          <mxGeometry x="-0.2" y="1" relative="1" as="geometry">
+            <mxPoint x="10" y="-10" as="offset" />
+          </mxGeometry>
+        </mxCell>
+        
+        <!-- EmergencyRequest to EmergencyResponse (1:N) -->
+        <mxCell id="rel-emergency-response" style="endArrow=classic;html=1;exitX=1;exitY=0.5;entryX=0;entryY=0.5;strokeWidth=2;" edge="1" parent="1" source="emergency-entity" target="response-entity">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="rel-emergency-response-label" value="1:N" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];fontStyle=1;fontSize=12;" vertex="1" connectable="0" parent="rel-emergency-response">
+          <mxGeometry x="-0.2" y="1" relative="1" as="geometry">
+            <mxPoint x="10" y="-10" as="offset" />
+          </mxGeometry>
+        </mxCell>
+        
+        <!-- Donor to EmergencyResponse (1:N) -->
+        <mxCell id="rel-donor-response" style="endArrow=classic;html=1;exitX=0.2;exitY=1;entryX=0.5;entryY=0;strokeWidth=2;curved=1;" edge="1" parent="1" source="donor-attrs" target="response-entity">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="rel-donor-response-label" value="1:N" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];fontStyle=1;fontSize=12;" vertex="1" connectable="0" parent="rel-donor-response">
+          <mxGeometry x="-0.2" y="1" relative="1" as="geometry">
+            <mxPoint x="10" y="-10" as="offset" />
+          </mxGeometry>
+        </mxCell>
+        
+        <!-- Title -->
+        <mxCell id="title" value="BDIMS - Entity Relationship Diagram" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=20;fontStyle=1;fontColor=#000000;" vertex="1" parent="1">
+          <mxGeometry x="400" y="5" width="400" height="30" as="geometry" />
+        </mxCell>
+        
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

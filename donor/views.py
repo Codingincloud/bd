@@ -1,132 +1,154 @@
+## Import necessary Django modules
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from django.http import JsonResponse
 from django.utils import timezone
-from django.core.mail import send_mail
-from django.conf import settings
 from datetime import date, timedelta
 import json
-from utils.notification_service import NotificationService
-from .models import Donor, DonationRequest, DonationHistory, EmergencyRequest, DonationCenter, Hospital
+
+# Import my models
+from .models import Donor, DonationRequest, DonationHistory, EmergencyRequest, Hospital, HealthMetrics
 from .forms import LocationUpdateForm, SimpleLocationForm, MedicalInfoUpdateForm, HealthMetricsForm
-from .models import HealthMetrics
-from datetime import timedelta, datetime, date
+from utils.notification_service import NotificationService
+
 
 @login_required
 def donor_dashboard(request):
+    # Get current logged-in donor
     try:
         donor = request.user.donor
-        
-        # Get donation history
-        donation_history = DonationHistory.objects.filter(donor=donor).order_by('-donation_date')[:5]
-        
-        # Get donation requests by status
-        all_requests = DonationRequest.objects.filter(donor=donor)
-        pending_requests = all_requests.filter(status='pending').order_by('requested_date')
-        approved_requests = all_requests.filter(status='approved').order_by('requested_date')
-        completed_requests = all_requests.filter(status='completed').order_by('-completed_at')
-        cancelled_requests = all_requests.filter(status='cancelled').count()
-        rejected_requests = all_requests.filter(status='rejected').count()
-        
-        # Get emergency requests where this donor can help
-        can_receive_from_donor = {
-            'O-': ['O-'],
-            'O+': ['O-', 'O+'],
-            'A-': ['O-', 'A-'],
-            'A+': ['O-', 'O+', 'A-', 'A+'],
-            'B-': ['O-', 'B-'],
-            'B+': ['O-', 'O+', 'B-', 'B+'],
-            'AB-': ['O-', 'A-', 'B-', 'AB-'],
-            'AB+': ['O-', 'O+', 'A-', 'A+', 'B-', 'B+', 'AB-', 'AB+'],
-        }
-        
-        all_emergencies = EmergencyRequest.objects.filter(
-            status='active',
-            required_by__gte=timezone.now()
-        ).order_by('-urgency_level', 'required_by')
-        
-        # Filter compatible emergencies
-        emergency_requests = []
-        for req in all_emergencies:
-            blood_donors = can_receive_from_donor.get(req.blood_group_needed, [])
-            if donor.blood_group in blood_donors:
-                emergency_requests.append(req)
-                if len(emergency_requests) >= 5:
-                    break
-        
-        # Calculate statistics
-        from django.db import models
-        total_donations = DonationHistory.objects.filter(donor=donor).count()
-        total_units_donated = DonationHistory.objects.filter(donor=donor).aggregate(
-            total=models.Sum('units_donated')
-        )['total'] or 0
-        
-        # Total completed appointments (from requests)
-        total_completed_appointments = completed_requests.count()
-
-        # Get notifications for the user (recent ones for dashboard) - reduced queries
-        user_notifications = NotificationService.get_user_notifications(request.user, unread_only=False)[:3]
-        system_notifications = NotificationService.get_system_notifications('donors', user=request.user)[:2]
-        unread_count = NotificationService.get_notification_count(request.user, unread_only=True)
-        
-        # Get donation eligibility
-        can_donate, eligibility_message = donor.can_donate()
-        
-        # Calculate impact statistics
-        lives_helped = total_donations * 3  # Each donation can help up to 3 people
-        
-        # Get latest health metrics
-        latest_health_metrics = HealthMetrics.objects.filter(donor=donor).order_by('-recorded_at').first()
-        
-        # Get recent health metrics for trends (last 6 months)
-        six_months_ago = timezone.now() - timedelta(days=180)
-        health_metrics_history = HealthMetrics.objects.filter(
-            donor=donor,
-            recorded_at__gte=six_months_ago
-        ).order_by('recorded_at')
-        
-        # Calculate days until next eligible donation
-        days_until_eligible = None
-        if donor.next_eligible_date:
-            delta = donor.next_eligible_date - date.today()
-            days_until_eligible = delta.days if delta.days > 0 else 0
-
-        context = {
-            'donor': donor,
-            'can_donate': can_donate,
-            'eligibility_message': eligibility_message,
-            'donation_history': donation_history,
-            'pending_requests': pending_requests,
-            'approved_requests': approved_requests,
-            'completed_requests': completed_requests,
-            'cancelled_requests': cancelled_requests,
-            'rejected_requests': rejected_requests,
-            'emergency_requests': emergency_requests,
-            'total_donations': total_donations,
-            'total_units_donated': total_units_donated,
-            'total_completed_appointments': total_completed_appointments,
-            'next_eligible_date': donor.next_eligible_date,
-            'user_notifications': user_notifications,
-            'system_notifications': system_notifications,
-            'unread_count': unread_count,
-            'lives_helped': lives_helped,
-            'latest_health_metrics': latest_health_metrics,
-            'health_metrics_history': health_metrics_history,
-            'days_until_eligible': days_until_eligible,
-        }
-        return render(request, 'donor/donor_dashboard.html', context)
-    except Donor.DoesNotExist:
-        messages.error(request, 'Donor profile not found. Please contact support.')
+    except:
+        messages.error(request, 'Donor profile not found.')
         return redirect('accounts:login')
+    
+    # Get last 5 donation history records
+    donation_history = DonationHistory.objects.filter(donor=donor).order_by('-donation_date')[:5]
+    
+    # Get all donation requests for this donor
+    all_requests = DonationRequest.objects.filter(donor=donor)
+    
+    # Filter requests by status
+    pending_requests = all_requests.filter(status='pending').order_by('requested_date')
+    approved_requests = all_requests.filter(status='approved').order_by('requested_date')
+    completed_requests = all_requests.filter(status='completed').order_by('-completed_at')
+    cancelled_requests = all_requests.filter(status='cancelled').count()
+    rejected_requests = all_requests.filter(status='rejected').count()
+    
+    # Blood compatibility dictionary - who the donor can donate to
+    donor_can_donate_to = {
+        'O-': ['O-', 'O+', 'A-', 'A+', 'B-', 'B+', 'AB-', 'AB+'],  # Universal donor
+        'O+': ['O+', 'A+', 'B+', 'AB+'],
+        'A-': ['A-', 'A+', 'AB-', 'AB+'],
+        'A+': ['A+', 'AB+'],
+        'B-': ['B-', 'B+', 'AB-', 'AB+'],
+        'B+': ['B+', 'AB+'],
+        'AB-': ['AB-', 'AB+'],
+        'AB+': ['AB+'],
+    }
+    
+    # Get active emergency requests
+    all_emergencies = EmergencyRequest.objects.filter(
+        status='active',
+        required_by__gte=timezone.now()
+    ).order_by('-urgency_level', 'required_by')
+    
+    # Filter emergencies compatible with donor's blood group
+    emergency_requests = []
+    for req in all_emergencies:
+        # Check if donor can donate to the needed blood group
+        compatible_groups = donor_can_donate_to.get(donor.blood_group, [])
+        if req.blood_group_needed in compatible_groups:
+            emergency_requests.append(req)
+            if len(emergency_requests) >= 5:
+                break
+    
+    # Calculate total donations
+    total_donations = DonationHistory.objects.filter(donor=donor).count()
+    
+    # Calculate total units donated
+    total_units = 0
+    for donation in DonationHistory.objects.filter(donor=donor):
+        total_units += donation.units_donated
+    
+    # Count completed appointments
+    total_completed_appointments = completed_requests.count()
+
+    # Get recent notifications
+    user_notifications = NotificationService.get_user_notifications(request.user, unread_only=False)[:3]
+    system_notifications = NotificationService.get_system_notifications('donors', user=request.user)[:2]
+    unread_count = NotificationService.get_notification_count(request.user, unread_only=True)
+    
+    # Check if donor can donate
+    can_donate, eligibility_message = donor.can_donate()
+    
+    # Calculate lives helped (each donation helps 3 people)
+    lives_helped = total_donations * 3
+    
+    # Get latest health metrics
+    latest_health_metrics = HealthMetrics.objects.filter(donor=donor).order_by('-recorded_at').first()
+    
+    # Get health metrics from last 6 months
+    six_months_ago = timezone.now() - timedelta(days=180)
+    health_metrics_history = HealthMetrics.objects.filter(
+        donor=donor,
+        recorded_at__gte=six_months_ago
+    ).order_by('recorded_at')
+    
+    # Calculate days until eligible to donate again
+    days_until_eligible = None
+    if donor.next_eligible_date:
+        delta = donor.next_eligible_date - date.today()
+        days_until_eligible = delta.days if delta.days > 0 else 0
+
+    # Prepare context dictionary for template
+    context = {
+        'donor': donor,
+        'can_donate': can_donate,
+        'eligibility_message': eligibility_message,
+        'donation_history': donation_history,
+        'pending_requests': pending_requests,
+        'approved_requests': approved_requests,
+        'completed_requests': completed_requests,
+        'cancelled_requests': cancelled_requests,
+        'rejected_requests': rejected_requests,
+        'emergency_requests': emergency_requests,
+        'total_donations': total_donations,
+        'total_units_donated': total_units,
+        'total_completed_appointments': total_completed_appointments,
+        'next_eligible_date': donor.next_eligible_date,
+        'user_notifications': user_notifications,
+        'system_notifications': system_notifications,
+        'unread_count': unread_count,
+        'lives_helped': lives_helped,
+        'latest_health_metrics': latest_health_metrics,
+        'health_metrics_history': health_metrics_history,
+        'days_until_eligible': days_until_eligible,
+    }
+    return render(request, 'donor/donor_dashboard.html', context)
+
 
 @login_required
 def schedule_donation(request):
+    # Get donor profile
     try:
         donor = request.user.donor
-    except Donor.DoesNotExist:
-        messages.error(request, 'Donor profile not found. Please contact support.')
+    except:
+        messages.error(request, 'Donor profile not found.')
         return redirect('accounts:login')
+    
+    # Check if responding to an emergency request
+    emergency_id = request.GET.get('emergency')
+    emergency_request = None
+    if emergency_id:
+        try:
+            emergency_request = EmergencyRequest.objects.get(id=emergency_id, status='pending')
+            # Check if donor's blood type matches
+            if donor.blood_group != emergency_request.blood_type:
+                messages.warning(request, f'This emergency requires {emergency_request.blood_type} blood type, but you are {donor.blood_group}.')
+        except EmergencyRequest.DoesNotExist:
+            messages.warning(request, 'Emergency request not found or already resolved.')
+            emergency_request = None
     
     # Check donation eligibility
     eligible, eligibility_message = donor.can_donate()
@@ -136,42 +158,67 @@ def schedule_donation(request):
             # Parse the date and time from form
             requested_date = request.POST.get('requested_date')
             preferred_time = request.POST.get('preferred_time')
-            donation_center_id = request.POST.get('donation_center')
+            hospital_id = request.POST.get('hospital')
             
+            # Validate required fields
             if not requested_date or not preferred_time:
                 messages.error(request, 'Please select both date and time for your donation.')
                 return redirect('donor:schedule_donation')
             
-            # Get donation center if specified
-            donation_center = None
-            if donation_center_id:
-                try:
-                    donation_center = DonationCenter.objects.get(id=donation_center_id, is_active=True)
-                except DonationCenter.DoesNotExist:
-                    pass
+            if not hospital_id:
+                messages.error(request, 'Please select a blood bank / hospital for your donation.')
+                return redirect('donor:schedule_donation')
             
+            # Get hospital - now required
+            try:
+                hospital = Hospital.objects.get(id=hospital_id, is_active=True)
+            except Hospital.DoesNotExist:
+                messages.error(request, 'Selected hospital not found or inactive.')
+                return redirect('donor:schedule_donation')
+            
+            # Create donation request with emergency reference
             donation_request = DonationRequest(
                 donor=donor,
-                donation_center=donation_center,
+                hospital=hospital,
                 requested_date=requested_date,
                 preferred_time=preferred_time,
                 notes=request.POST.get('notes', '')
             )
+            
+            # If responding to emergency, add reference in notes
+            if emergency_id:
+                emergency_ref = f"[Emergency Response #{emergency_id}] "
+                donation_request.notes = emergency_ref + donation_request.notes
+            
             donation_request.save()
 
             # Create notification for donation scheduled
             NotificationService.notify_donation_scheduled(donation_request)
+            
+            # If emergency response, notify emergency contact
+            if emergency_request:
+                try:
+                    NotificationService.notify_emergency_response(
+                        emergency_request, 
+                        donor, 
+                        f"Donor scheduled donation for {requested_date} at {preferred_time}"
+                    )
+                except Exception as e:
+                    print(f"Emergency notification error: {e}")
 
             # Send confirmation email
             try:
                 if donor.user.email:
                     subject = 'Donation Appointment Scheduled - Blood Donation System'
-                    center_info = f"- Location: {donation_request.donation_center.name}, {donation_request.donation_center.city}" if donation_request.donation_center else "- Location: To be determined"
+                    center_info = f"- Location: {hospital.name}, {hospital.city}" if hospital else "- Location: To be determined"
+                    emergency_info = f"\n*** EMERGENCY RESPONSE ***\nThis donation is in response to Emergency Request #{emergency_id}\nBlood Type: {emergency_request.blood_type}\nHospital: {emergency_request.hospital.name if emergency_request.hospital else 'N/A'}\n" if emergency_request else ""
+                    
                     message = f"""
 Dear {donor.user.get_full_name() or donor.user.username},
 
 Your blood donation appointment has been successfully scheduled!
 
+{emergency_info}
 Appointment Details:
 - Date: {donation_request.requested_date}
 - Time: {donation_request.preferred_time}
@@ -219,8 +266,8 @@ Blood Donation System Team
     if donor.last_donation_date:
         next_eligible_date = donor.last_donation_date + timedelta(days=56)  # 8 weeks
     
-    # Get active donation centers
-    donation_centers = DonationCenter.objects.filter(is_active=True).order_by('city', 'name')
+    # Get active hospitals that accept donations
+    hospitals = Hospital.objects.filter(is_active=True, accepts_donations=True).order_by('city', 'name')
     
     context = {
         'donor': donor,
@@ -228,7 +275,8 @@ Blood Donation System Team
         'next_eligible_date': next_eligible_date,
         'eligible': eligible,
         'eligibility_message': eligibility_message,
-        'donation_centers': donation_centers,
+        'hospitals': hospitals,
+        'emergency_request': emergency_request,  # Pass emergency data to template
     }
     return render(request, 'donor/schedule_donation.html', context)
 
@@ -272,16 +320,16 @@ def emergency_requests(request):
         return redirect('accounts:login')
     
     # Get emergency requests where this donor can help
-    # Build reverse compatibility: which blood groups can receive from this donor
-    can_receive_from_donor = {
-        'O-': ['O-'],
-        'O+': ['O-', 'O+'],
-        'A-': ['O-', 'A-'],
-        'A+': ['O-', 'O+', 'A-', 'A+'],
-        'B-': ['O-', 'B-'],
-        'B+': ['O-', 'O+', 'B-', 'B+'],
-        'AB-': ['O-', 'A-', 'B-', 'AB-'],
-        'AB+': ['O-', 'O+', 'A-', 'A+', 'B-', 'B+', 'AB-', 'AB+'],  # Universal recipient
+    # Build compatibility: which blood groups this donor can donate to
+    donor_can_donate_to = {
+        'O-': ['O-', 'O+', 'A-', 'A+', 'B-', 'B+', 'AB-', 'AB+'],  # Universal donor
+        'O+': ['O+', 'A+', 'B+', 'AB+'],
+        'A-': ['A-', 'A+', 'AB-', 'AB+'],
+        'A+': ['A+', 'AB+'],
+        'B-': ['B-', 'B+', 'AB-', 'AB+'],
+        'B+': ['B+', 'AB+'],
+        'AB-': ['AB-', 'AB+'],
+        'AB+': ['AB+'],
     }
     
     # Get all active emergency requests
@@ -293,8 +341,8 @@ def emergency_requests(request):
     # Filter to only include requests where donor's blood type can help
     compatible_requests = []
     for req in all_emergencies:
-        blood_donors = can_receive_from_donor.get(req.blood_group_needed, [])
-        if donor.blood_group in blood_donors:
+        compatible_groups = donor_can_donate_to.get(donor.blood_group, [])
+        if req.blood_group_needed in compatible_groups:
             compatible_requests.append(req)
     
     # Sort by urgency and deadline (urgency_level is a string: critical > high > medium > low)
@@ -627,6 +675,82 @@ def update_location(request):
     return render(request, 'donor/update_location.html', context)
 
 @login_required
+def update_location_map_view(request):
+    """Interactive map-based location update for donors"""
+    donor = get_object_or_404(Donor, user=request.user)
+
+    if request.method == 'POST':
+        try:
+            import json
+            data = json.loads(request.body)
+            
+            # Extract location data
+            latitude = data.get('latitude')
+            longitude = data.get('longitude')
+            city = data.get('city', '').strip()
+            state = data.get('state', 'Nepal').strip()
+            postal_code = data.get('postal_code', '').strip()
+            address = data.get('address', '').strip()
+
+            # Validate required fields
+            if not latitude or not longitude:
+                return JsonResponse({
+                    'success': False,
+                    'message': 'Location coordinates are required.'
+                }, status=400)
+
+            # Update donor location
+            donor.latitude = float(latitude)
+            donor.longitude = float(longitude)
+            donor.city = city or donor.city or 'Unknown'
+            donor.state = state or 'Nepal'
+            donor.postal_code = postal_code
+            
+            # Build address if not provided
+            if not address:
+                address_parts = [city, state, postal_code]
+                address = ', '.join(filter(None, address_parts)) or 'Nepal'
+            donor.address = address
+
+            donor.save()
+
+            # Create notification for location update
+            try:
+                NotificationService.notify_location_updated(donor)
+            except Exception as e:
+                print(f"Notification error: {e}")
+
+            return JsonResponse({
+                'success': True,
+                'message': f'Location updated to {donor.city} successfully!',
+                'location': {
+                    'city': donor.city,
+                    'state': donor.state,
+                    'address': donor.address,
+                    'latitude': donor.latitude,
+                    'longitude': donor.longitude
+                }
+            })
+        except json.JSONDecodeError:
+            return JsonResponse({
+                'success': False,
+                'message': 'Invalid JSON data.'
+            }, status=400)
+        except Exception as e:
+            return JsonResponse({
+                'success': False,
+                'message': f'Error updating location: {str(e)}'
+            }, status=500)
+    
+    # GET request - show map interface
+    unread_count = NotificationService.get_notification_count(request.user, unread_only=True)
+    context = {
+        'donor': donor,
+        'unread_count': unread_count,
+    }
+    return render(request, 'donor/update_location_with_map.html', context)
+
+@login_required
 def detect_location(request):
     """Auto-detect user location using GPS with detailed information"""
     if request.method == 'POST':
@@ -925,61 +1049,121 @@ def compatibility_check(request):
 
 @login_required
 def blood_inventory(request):
-    """Show current blood stock levels"""
-    try:
-        donor = request.user.donor
-    except Donor.DoesNotExist:
-        messages.error(request, 'Donor profile not found. Please contact support.')
-        return redirect('accounts:login')
-
-    # Get real blood inventory data from database
-    from .models import BloodInventory
-    blood_inventory = {}
-    total_units = 0
-
-    for blood_group, blood_group_display in Donor.BLOOD_GROUPS:
+    """Show current blood stock levels
+    - Donors: See combined inventory from all hospitals in the system
+    - Admins: See only their hospital's inventory
+    """
+    # Check if user is admin or donor
+    is_admin = request.user.is_staff and hasattr(request.user, 'hospital')
+    
+    if is_admin:
+        # Admin sees only their hospital's inventory
         try:
-            inventory = BloodInventory.objects.get(blood_group=blood_group)
-            units = inventory.units_available
-            last_updated = inventory.last_updated
-        except BloodInventory.DoesNotExist:
-            # Create default inventory record if it doesn't exist
-            inventory = BloodInventory.objects.create(
-                blood_group=blood_group,
-                units_available=0,
-                notes='Initial inventory record'
-            )
-            units = 0
-            last_updated = inventory.last_updated
+            admin_hospital = request.user.hospital
+        except Hospital.DoesNotExist:
+            messages.error(request, 'Hospital profile not found for your admin account.')
+            return redirect('admin_panel:dashboard')
+        
+        # Get blood inventory data from database for this hospital only
+        from .models import BloodInventory
+        blood_inventory = {}
+        total_units = 0
 
-        # Determine status based on units available
-        if units <= 0:
-            status = 'critical'
-        elif units <= 5:
-            status = 'low'
-        elif units <= 15:
-            status = 'adequate'
-        else:
-            status = 'good'
+        for blood_group, blood_group_display in Donor.BLOOD_GROUPS:
+            try:
+                inventory = BloodInventory.objects.get(blood_group=blood_group, hospital=admin_hospital)
+                units = inventory.units_available
+                last_updated = inventory.last_updated
+            except BloodInventory.DoesNotExist:
+                # Return 0 if no inventory exists for this blood group
+                units = 0
+                last_updated = None
 
-        blood_inventory[blood_group] = {
-            'units': int(units),
-            'status': status,
-            'last_updated': last_updated.strftime('%B %d, %Y at %I:%M %p') if last_updated else 'Never'
+            # Determine status based on units available
+            if units <= 0:
+                status = 'critical'
+            elif units <= 5:
+                status = 'low'
+            elif units <= 15:
+                status = 'adequate'
+            else:
+                status = 'good'
+
+            blood_inventory[blood_group] = {
+                'units': int(units),
+                'status': status,
+                'last_updated': last_updated.strftime('%B %d, %Y at %I:%M %p') if last_updated else 'Never'
+            }
+            total_units += int(units)
+
+        # Get urgent needs (critical and low stock)
+        urgent_needs = {k: v for k, v in blood_inventory.items() if v['status'] in ['critical', 'low']}
+
+        context = {
+            'hospital': admin_hospital,
+            'blood_inventory': blood_inventory,
+            'total_units': total_units,
+            'urgent_needs': urgent_needs,
+            'is_admin': True,
         }
-        total_units += int(units)
+        return render(request, 'donor/blood_inventory.html', context)
+    
+    else:
+        # Donor sees combined inventory from ALL hospitals
+        try:
+            donor = request.user.donor
+        except Donor.DoesNotExist:
+            messages.error(request, 'Donor profile not found. Please contact support.')
+            return redirect('accounts:login')
 
-    # Get urgent needs (critical and low stock)
-    urgent_needs = {k: v for k, v in blood_inventory.items() if v['status'] in ['critical', 'low']}
+        # Get combined blood inventory data from ALL hospitals
+        from .models import BloodInventory
+        from django.db.models import Sum
+        
+        blood_inventory = {}
+        total_units = 0
 
-    context = {
-        'donor': donor,
-        'blood_inventory': blood_inventory,
-        'total_units': total_units,
-        'urgent_needs': urgent_needs,
-    }
+        for blood_group, blood_group_display in Donor.BLOOD_GROUPS:
+            # Sum units from all hospitals for this blood group
+            result = BloodInventory.objects.filter(blood_group=blood_group).aggregate(
+                total_units=Sum('units_available')
+            )
+            units = result['total_units'] or 0
+            
+            # Get most recent update time
+            latest_inventory = BloodInventory.objects.filter(blood_group=blood_group).order_by('-last_updated').first()
+            last_updated = latest_inventory.last_updated if latest_inventory else None
 
-    return render(request, 'donor/blood_inventory.html', context)
+            # Determine status based on combined units available
+            if units <= 0:
+                status = 'critical'
+            elif units <= 10:
+                status = 'low'
+            elif units <= 30:
+                status = 'adequate'
+            else:
+                status = 'good'
+
+            blood_inventory[blood_group] = {
+                'units': int(units),
+                'status': status,
+                'last_updated': last_updated.strftime('%B %d, %Y at %I:%M %p') if last_updated else 'Never'
+            }
+            total_units += int(units)
+
+        # Get urgent needs (critical and low stock)
+        urgent_needs = {k: v for k, v in blood_inventory.items() if v['status'] in ['critical', 'low']}
+
+        context = {
+            'donor': donor,
+            'blood_inventory': blood_inventory,
+            'total_units': total_units,
+            'urgent_needs': urgent_needs,
+            'is_admin': False,
+            'is_combined': True,  # Flag to show this is combined data
+        }
+
+        return render(request, 'donor/blood_inventory.html', context)
 
 @login_required
 def donation_centers(request):
@@ -998,12 +1182,10 @@ def donation_centers(request):
 
         # Get both hospitals and donation centers
         hospitals = Hospital.objects.filter(is_active=True, accepts_donations=True)
-        donation_centers_qs = DonationCenter.objects.filter(is_active=True)
 
         # Filter by city if provided
         if city_filter:
             hospitals = hospitals.filter(city__icontains=city_filter)
-            donation_centers_qs = donation_centers_qs.filter(city__icontains=city_filter)
 
         # Calculate distances and prepare hospital/center data
         centers = []
@@ -1040,27 +1222,6 @@ def donation_centers(request):
             }
             centers.append(center_data)
 
-        # Add DonationCenter objects as well
-        for dc in donation_centers_qs:
-            # DonationCenter doesn't have distance calculation, so skip distance filtering
-            center_data = {
-                'name': dc.name,
-                'address': dc.address,
-                'city': dc.city,
-                'state': dc.state,
-                'phone': dc.phone_number,
-                'email': dc.email,
-                'hours': "Contact for hours",
-                'services': ["Blood Donation"],
-                'distance': 'N/A',
-                'hospital_type': 'Donation Center',
-                'id': dc.id,
-                'latitude': None,
-                'longitude': None,
-                'has_location': False
-            }
-            centers.append(center_data)
-
         # Sort by distance if available
         if has_location:
             try:
@@ -1079,14 +1240,11 @@ def donation_centers(request):
         else:
             location_message = "Please update your location to find nearby centers."
 
-        # Get all cities from both hospitals and donation centers
+        # Get all cities from hospitals
         hospital_cities = set(Hospital.objects.filter(is_active=True, accepts_donations=True)
                             .exclude(city__isnull=True).exclude(city='')
                             .values_list('city', flat=True))
-        dc_cities = set(DonationCenter.objects.filter(is_active=True)
-                       .exclude(city__isnull=True).exclude(city='')
-                       .values_list('city', flat=True))
-        all_cities = sorted(hospital_cities.union(dc_cities))
+        all_cities = sorted(hospital_cities)
 
         context = {
             'donor': donor,
@@ -1105,27 +1263,41 @@ def donation_centers(request):
         return redirect('accounts:login')
     except Exception as e:
         import traceback
-        print(f"Error in donation_centers view: {str(e)}")
-        print(traceback.format_exc())
-        
-        # Try to get donor for context, fall back to None
-        try:
-            donor = request.user.donor
-        except:
-            donor = None
-            
-        # Return a safe fallback context
-        context = {
-            'donor': donor,
-            'centers': [],
-            'user_location': None,
-            'location_message': 'Unable to load centers at this time.',
-            'search_radius': 25,
-            'has_location': False,
-            'cities': [],
-        }
-        messages.error(request, 'An error occurred while loading donation centers.')
-        return render(request, 'donor/donation_centers.html', context)
+
+
+@login_required
+def hospitals_list(request):
+    """Show all hospitals in the system - accessible to both donors and admins"""
+    # Get all active hospitals
+    hospitals = Hospital.objects.filter(is_active=True).order_by('name')
+    
+    # Get search/filter parameters
+    city_filter = request.GET.get('city', '').strip()
+    hospital_type_filter = request.GET.get('type', '').strip()
+    
+    # Apply filters
+    if city_filter:
+        hospitals = hospitals.filter(city__icontains=city_filter)
+    if hospital_type_filter:
+        hospitals = hospitals.filter(hospital_type=hospital_type_filter)
+    
+    # Get all unique cities for filter dropdown
+    hospital_cities = Hospital.objects.filter(is_active=True).exclude(city__isnull=True).exclude(city='').values_list('city', flat=True).distinct().order_by('city')
+    
+    # Get all hospital types for filter
+    hospital_types = Hospital.objects.filter(is_active=True).values_list('hospital_type', flat=True).distinct()
+    
+    context = {
+        'hospitals': hospitals,
+        'total_hospitals': hospitals.count(),
+        'cities': hospital_cities,
+        'hospital_types': hospital_types,
+        'selected_city': city_filter,
+        'selected_type': hospital_type_filter,
+    }
+    
+    return render(request, 'donor/hospitals_list.html', context)
+
 
 @login_required
 def medical_reports(request):
@@ -1577,3 +1749,30 @@ def get_nearest_hospitals(request):
             })
     
     return JsonResponse({'success': False, 'error': 'Invalid request method'})
+
+
+@login_required
+def deactivate_account(request):
+    """Deactivate donor account"""
+    if request.method == 'POST':
+        try:
+            donor = get_object_or_404(Donor, user=request.user)
+            
+            # Deactivate the user account
+            request.user.is_active = False
+            request.user.save()
+            
+            # Log the user out
+            from django.contrib.auth import logout
+            logout(request)
+            
+            messages.success(request, 'Your account has been deactivated successfully. Contact admin to reactivate.')
+            return redirect('accounts:login')
+            
+        except Exception as e:
+            messages.error(request, f'Error deactivating account: {str(e)}')
+            return redirect('donor:profile')
+    
+    return redirect('donor:profile')
+
+

@@ -1,0 +1,630 @@
+<mxGraphModel dx="1445" dy="773" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1400" pageHeight="2800" math="0" shadow="0">
+  <root>
+    <mxCell id="0" />
+    <mxCell id="1" parent="0" />
+    
+    <!-- Start -->
+    <mxCell id="start" value="Start" style="ellipse;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontSize=12;fontStyle=1;" parent="1" vertex="1">
+      <mxGeometry x="640" y="30" width="120" height="60" as="geometry" />
+    </mxCell>
+    
+    <!-- Home Page -->
+    <mxCell id="home-page" value="Home Page" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;fontSize=11;" parent="1" vertex="1">
+      <mxGeometry x="640" y="130" width="120" height="60" as="geometry" />
+    </mxCell>
+    
+    <!-- Account Choice -->
+    <mxCell id="user-choice" value="Account Exists?" style="rhombus;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;fontSize=11;" parent="1" vertex="1">
+      <mxGeometry x="615" y="230" width="170" height="90" as="geometry" />
+    </mxCell>
+    
+    <!-- Registration -->
+    <mxCell id="register" value="Register New Account" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;fontSize=11;" parent="1" vertex="1">
+      <mxGeometry x="350" y="245" width="130" height="60" as="geometry" />
+    </mxCell>
+    
+    <!-- Select Role (Registration) -->
+    <mxCell id="select-role-register" value="Select Role?" style="rhombus;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;fontSize=11;" parent="1" vertex="1">
+      <mxGeometry x="330" y="350" width="170" height="90" as="geometry" />
+    </mxCell>
+    
+    <!-- Donor Registration -->
+    <mxCell id="donor-registration" value="Donor Registration Form" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;fontSize=10;" parent="1" vertex="1">
+      <mxGeometry x="140" y="380" width="130" height="60" as="geometry" />
+    </mxCell>
+    
+    <!-- Admin Registration -->
+    <mxCell id="admin-registration" value="Admin Registration Form" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;fontSize=10;" parent="1" vertex="1">
+      <mxGeometry x="550" y="380" width="130" height="60" as="geometry" />
+    </mxCell>
+    
+    <!-- Login Credentials -->
+    <mxCell id="enter-credentials" value="Enter Username &amp; Password" style="shape=parallelogram;perimeter=parallelogramPerimeter;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontSize=10;" parent="1" vertex="1">
+      <mxGeometry x="615" y="480" width="170" height="60" as="geometry" />
+    </mxCell>
+    
+    <!-- Validate Credentials -->
+    <mxCell id="validate-credentials" value="Valid Credentials?" style="rhombus;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;fontSize=11;" parent="1" vertex="1">
+      <mxGeometry x="620" y="580" width="160" height="90" as="geometry" />
+    </mxCell>
+    
+    <!-- Login -->
+    <mxCell id="login" value="Authentication Successful" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;fontSize=10;" parent="1" vertex="1">
+      <mxGeometry x="640" y="710" width="120" height="60" as="geometry" />
+    </mxCell>
+    
+    <!-- Select Role (Login) -->
+    <mxCell id="select-role" value="User Role?" style="rhombus;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;fontSize=11;fontStyle=1;" parent="1" vertex="1">
+      <mxGeometry x="625" y="810" width="150" height="90" as="geometry" />
+    </mxCell>
+    
+    <!-- DONOR SIDE -->
+    
+    <!-- Donor Dashboard -->
+    <mxCell id="donor-dashboard" value="Donor Dashboard" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;fontSize=11;fontStyle=1;" parent="1" vertex="1">
+      <mxGeometry x="940" y="825" width="140" height="60" as="geometry" />
+    </mxCell>
+    
+    <!-- Donor Functions -->
+    <mxCell id="donor-function" value="Select Function?" style="rhombus;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;fontSize=10;" parent="1" vertex="1">
+      <mxGeometry x="935" y="930" width="150" height="80" as="geometry" />
+    </mxCell>
+    
+    <!-- Donor Features -->
+    <mxCell id="view-profile" value="View Profile" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;fontSize=10;" parent="1" vertex="1">
+      <mxGeometry x="730" y="1050" width="100" height="50" as="geometry" />
+    </mxCell>
+    
+    <mxCell id="edit-profile" value="Edit Profile" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;fontSize=10;" parent="1" vertex="1">
+      <mxGeometry x="850" y="1050" width="100" height="50" as="geometry" />
+    </mxCell>
+    
+    <mxCell id="schedule-donation" value="Schedule Donation" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;fontSize=10;" parent="1" vertex="1">
+      <mxGeometry x="970" y="1050" width="100" height="50" as="geometry" />
+    </mxCell>
+    
+    <mxCell id="donation-history" value="Donation History" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;fontSize=10;" parent="1" vertex="1">
+      <mxGeometry x="1090" y="1050" width="100" height="50" as="geometry" />
+    </mxCell>
+    
+    <mxCell id="update-location" value="Update Location (Map)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;fontSize=10;" parent="1" vertex="1">
+      <mxGeometry x="730" y="1130" width="100" height="50" as="geometry" />
+    </mxCell>
+    
+    <mxCell id="health-metrics" value="Add Health Metrics" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;fontSize=10;" parent="1" vertex="1">
+      <mxGeometry x="850" y="1130" width="100" height="50" as="geometry" />
+    </mxCell>
+    
+    <mxCell id="view-emergencies" value="View Emergency Requests" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;fontSize=10;" parent="1" vertex="1">
+      <mxGeometry x="970" y="1130" width="100" height="50" as="geometry" />
+    </mxCell>
+    
+    <mxCell id="compatibility-check" value="Blood Compatibility Check" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;fontSize=10;" parent="1" vertex="1">
+      <mxGeometry x="1090" y="1130" width="100" height="50" as="geometry" />
+    </mxCell>
+    
+    <mxCell id="blood-inventory-donor" value="View Blood Inventory" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;fontSize=10;" parent="1" vertex="1">
+      <mxGeometry x="790" y="1210" width="100" height="50" as="geometry" />
+    </mxCell>
+    
+    <mxCell id="medical-reports" value="Medical Reports" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;fontSize=10;" parent="1" vertex="1">
+      <mxGeometry x="920" y="1210" width="100" height="50" as="geometry" />
+    </mxCell>
+    
+    <mxCell id="notifications-donor" value="View Notifications" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;fontSize=10;" parent="1" vertex="1">
+      <mxGeometry x="1050" y="1210" width="100" height="50" as="geometry" />
+    </mxCell>
+    
+    <!-- ADMIN SIDE -->
+    
+    <!-- Admin Dashboard -->
+    <mxCell id="admin-dashboard" value="Admin Dashboard" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f8cecc;strokeColor=#b85450;fontSize=11;fontStyle=1;" parent="1" vertex="1">
+      <mxGeometry x="300" y="825" width="140" height="60" as="geometry" />
+    </mxCell>
+    
+    <!-- Admin Functions -->
+    <mxCell id="admin-function" value="Select Function?" style="rhombus;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;fontSize=10;" parent="1" vertex="1">
+      <mxGeometry x="295" y="930" width="150" height="80" as="geometry" />
+    </mxCell>
+    
+    <!-- Admin Features -->
+    <mxCell id="manage-donors" value="Manage Donors" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f8cecc;strokeColor=#b85450;fontSize=10;" parent="1" vertex="1">
+      <mxGeometry x="50" y="1050" width="100" height="50" as="geometry" />
+    </mxCell>
+    
+    <mxCell id="donor-detail" value="View Donor Details" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f8cecc;strokeColor=#b85450;fontSize=9;" parent="1" vertex="1">
+      <mxGeometry x="30" y="1130" width="70" height="40" as="geometry" />
+    </mxCell>
+    
+    <mxCell id="edit-donor" value="Edit Donor Info" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f8cecc;strokeColor=#b85450;fontSize=9;" parent="1" vertex="1">
+      <mxGeometry x="120" y="1130" width="70" height="40" as="geometry" />
+    </mxCell>
+    
+    <mxCell id="manage-requests" value="Manage Donation Requests" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f8cecc;strokeColor=#b85450;fontSize=10;" parent="1" vertex="1">
+      <mxGeometry x="180" y="1050" width="100" height="50" as="geometry" />
+    </mxCell>
+    
+    <mxCell id="approve-request" value="Approve/Reject Request" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f8cecc;strokeColor=#b85450;fontSize=9;" parent="1" vertex="1">
+      <mxGeometry x="165" y="1130" width="65" height="40" as="geometry" />
+    </mxCell>
+    
+    <mxCell id="complete-request" value="Mark Complete" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f8cecc;strokeColor=#b85450;fontSize=9;" parent="1" vertex="1">
+      <mxGeometry x="245" y="1130" width="65" height="40" as="geometry" />
+    </mxCell>
+    
+    <mxCell id="create-emergency" value="Create Emergency Request" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f8cecc;strokeColor=#b85450;fontSize=10;" parent="1" vertex="1">
+      <mxGeometry x="320" y="1050" width="100" height="50" as="geometry" />
+    </mxCell>
+    
+    <mxCell id="emergency-form" value="Fill Emergency Form" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f8cecc;strokeColor=#b85450;fontSize=9;" parent="1" vertex="1">
+      <mxGeometry x="320" y="1130" width="70" height="40" as="geometry" />
+    </mxCell>
+    
+    <mxCell id="notify-donors" value="Notify Compatible Donors" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f8cecc;strokeColor=#b85450;fontSize=9;" parent="1" vertex="1">
+      <mxGeometry x="410" y="1130" width="70" height="40" as="geometry" />
+    </mxCell>
+    
+    <mxCell id="manage-inventory" value="Manage Blood Inventory" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f8cecc;strokeColor=#b85450;fontSize=10;" parent="1" vertex="1">
+      <mxGeometry x="460" y="1050" width="100" height="50" as="geometry" />
+    </mxCell>
+    
+    <mxCell id="update-inventory" value="Update Stock Levels" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f8cecc;strokeColor=#b85450;fontSize=9;" parent="1" vertex="1">
+      <mxGeometry x="465" y="1130" width="90" height="40" as="geometry" />
+    </mxCell>
+    
+    <mxCell id="view-reports" value="View Reports &amp; Analytics" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f8cecc;strokeColor=#b85450;fontSize=10;" parent="1" vertex="1">
+      <mxGeometry x="590" y="1050" width="100" height="50" as="geometry" />
+    </mxCell>
+    
+    <mxCell id="donor-tracking" value="Donor Tracking" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f8cecc;strokeColor=#b85450;fontSize=10;" parent="1" vertex="1">
+      <mxGeometry x="230" y="1210" width="100" height="50" as="geometry" />
+    </mxCell>
+    
+    <mxCell id="manage-centers" value="Manage Blood Centers" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f8cecc;strokeColor=#b85450;fontSize=10;" parent="1" vertex="1">
+      <mxGeometry x="360" y="1210" width="100" height="50" as="geometry" />
+    </mxCell>
+    
+    <mxCell id="admin-profile" value="Admin Profile" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f8cecc;strokeColor=#b85450;fontSize=10;" parent="1" vertex="1">
+      <mxGeometry x="490" y="1210" width="100" height="50" as="geometry" />
+    </mxCell>
+    
+    <!-- Eligibility Check -->
+    <mxCell id="check-eligibility" value="Check Donor Eligibility?" style="rhombus;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;fontSize=9;" parent="1" vertex="1">
+      <mxGeometry x="970" y="1310" width="120" height="70" as="geometry" />
+    </mxCell>
+    
+    <mxCell id="eligible-yes" value="Create Request" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;fontSize=9;" parent="1" vertex="1">
+      <mxGeometry x="890" y="1410" width="80" height="40" as="geometry" />
+    </mxCell>
+    
+    <mxCell id="eligible-no" value="Show Error Message" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f8cecc;strokeColor=#b85450;fontSize=9;" parent="1" vertex="1">
+      <mxGeometry x="1010" y="1410" width="80" height="40" as="geometry" />
+    </mxCell>
+    
+    <!-- Emergency Response -->
+    <mxCell id="respond-emergency" value="Respond to Emergency?" style="rhombus;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;fontSize=9;" parent="1" vertex="1">
+      <mxGeometry x="970" y="1500" width="120" height="70" as="geometry" />
+    </mxCell>
+    
+    <mxCell id="available" value="Mark Available" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;fontSize=9;" parent="1" vertex="1">
+      <mxGeometry x="890" y="1600" width="80" height="40" as="geometry" />
+    </mxCell>
+    
+    <mxCell id="not-available" value="Mark Not Available" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f8cecc;strokeColor=#b85450;fontSize=9;" parent="1" vertex="1">
+      <mxGeometry x="1010" y="1600" width="80" height="40" as="geometry" />
+    </mxCell>
+    
+    <!-- Logout -->
+    <mxCell id="logout" value="Logout" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontSize=11;fontStyle=1;" parent="1" vertex="1">
+      <mxGeometry x="640" y="1720" width="120" height="60" as="geometry" />
+    </mxCell>
+    
+    <!-- End -->
+    <mxCell id="end" value="End" style="ellipse;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontSize=12;fontStyle=1;" parent="1" vertex="1">
+      <mxGeometry x="640" y="1820" width="120" height="60" as="geometry" />
+    </mxCell>
+    
+    <!-- EDGES / CONNECTIONS -->
+    
+    <!-- Start to Home -->
+    <mxCell id="edge-start-home" value="" style="endArrow=classic;html=1;rounded=0;strokeWidth=2;" parent="1" source="start" target="home-page" edge="1">
+      <mxGeometry width="50" height="50" relative="1" as="geometry">
+        <mxPoint x="700" y="100" as="sourcePoint" />
+        <mxPoint x="700" y="130" as="targetPoint" />
+      </mxGeometry>
+    </mxCell>
+    
+    <!-- Home to Choice -->
+    <mxCell id="edge-home-choice" value="" style="endArrow=classic;html=1;rounded=0;strokeWidth=2;" parent="1" source="home-page" target="user-choice" edge="1">
+      <mxGeometry width="50" height="50" relative="1" as="geometry">
+        <mxPoint x="700" y="190" as="sourcePoint" />
+        <mxPoint x="700" y="230" as="targetPoint" />
+      </mxGeometry>
+    </mxCell>
+    
+    <!-- Choice to Register -->
+    <mxCell id="edge-choice-register" value="No" style="endArrow=classic;html=1;rounded=0;strokeWidth=2;" parent="1" source="user-choice" target="register" edge="1">
+      <mxGeometry width="50" height="50" relative="1" as="geometry">
+        <mxPoint x="615" y="275" as="sourcePoint" />
+        <mxPoint x="480" y="275" as="targetPoint" />
+      </mxGeometry>
+    </mxCell>
+    
+    <!-- Register to Role Select -->
+    <mxCell id="edge-register-role" value="" style="endArrow=classic;html=1;rounded=0;strokeWidth=2;" parent="1" source="register" target="select-role-register" edge="1">
+      <mxGeometry width="50" height="50" relative="1" as="geometry">
+        <mxPoint x="415" y="305" as="sourcePoint" />
+        <mxPoint x="415" y="350" as="targetPoint" />
+      </mxGeometry>
+    </mxCell>
+    
+    <!-- Role to Donor Registration -->
+    <mxCell id="edge-role-donor" value="Donor" style="endArrow=classic;html=1;rounded=0;strokeWidth=2;" parent="1" source="select-role-register" target="donor-registration" edge="1">
+      <mxGeometry width="50" height="50" relative="1" as="geometry">
+        <mxPoint x="330" y="395" as="sourcePoint" />
+        <mxPoint x="270" y="410" as="targetPoint" />
+      </mxGeometry>
+    </mxCell>
+    
+    <!-- Role to Admin Registration -->
+    <mxCell id="edge-role-admin" value="Admin" style="endArrow=classic;html=1;rounded=0;strokeWidth=2;" parent="1" source="select-role-register" target="admin-registration" edge="1">
+      <mxGeometry width="50" height="50" relative="1" as="geometry">
+        <mxPoint x="500" y="395" as="sourcePoint" />
+        <mxPoint x="550" y="410" as="targetPoint" />
+      </mxGeometry>
+    </mxCell>
+    
+    <!-- Registration Forms to Credentials -->
+    <mxCell id="edge-donor-reg-creds" value="" style="endArrow=classic;html=1;rounded=0;strokeWidth=1;dashed=1;" parent="1" source="donor-registration" target="enter-credentials" edge="1">
+      <mxGeometry width="50" height="50" relative="1" as="geometry">
+        <mxPoint x="270" y="410" as="sourcePoint" />
+        <mxPoint x="615" y="480" as="targetPoint" />
+      </mxGeometry>
+    </mxCell>
+    
+    <mxCell id="edge-admin-reg-creds" value="" style="endArrow=classic;html=1;rounded=0;strokeWidth=1;dashed=1;" parent="1" source="admin-registration" target="enter-credentials" edge="1">
+      <mxGeometry width="50" height="50" relative="1" as="geometry">
+        <mxPoint x="680" y="410" as="sourcePoint" />
+        <mxPoint x="700" y="480" as="targetPoint" />
+      </mxGeometry>
+    </mxCell>
+    
+    <!-- Choice to Credentials (Yes) -->
+    <mxCell id="edge-choice-creds" value="Yes" style="endArrow=classic;html=1;rounded=0;strokeWidth=2;" parent="1" source="user-choice" target="enter-credentials" edge="1">
+      <mxGeometry width="50" height="50" relative="1" as="geometry">
+        <mxPoint x="700" y="320" as="sourcePoint" />
+        <mxPoint x="700" y="480" as="targetPoint" />
+      </mxGeometry>
+    </mxCell>
+    
+    <!-- Credentials to Validate -->
+    <mxCell id="edge-creds-validate" value="" style="endArrow=classic;html=1;rounded=0;strokeWidth=2;" parent="1" source="enter-credentials" target="validate-credentials" edge="1">
+      <mxGeometry width="50" height="50" relative="1" as="geometry">
+        <mxPoint x="700" y="540" as="sourcePoint" />
+        <mxPoint x="700" y="580" as="targetPoint" />
+      </mxGeometry>
+    </mxCell>
+    
+    <!-- Validate to Login (Yes) -->
+    <mxCell id="edge-validate-login" value="Yes" style="endArrow=classic;html=1;rounded=0;strokeWidth=2;" parent="1" source="validate-credentials" target="login" edge="1">
+      <mxGeometry width="50" height="50" relative="1" as="geometry">
+        <mxPoint x="700" y="670" as="sourcePoint" />
+        <mxPoint x="700" y="710" as="targetPoint" />
+      </mxGeometry>
+    </mxCell>
+    
+    <!-- Validate to Home (No) -->
+    <mxCell id="edge-validate-home" value="No" style="endArrow=classic;html=1;rounded=0;strokeWidth=2;" parent="1" source="validate-credentials" target="home-page" edge="1">
+      <mxGeometry width="50" height="50" relative="1" as="geometry">
+        <mxPoint x="780" y="625" as="sourcePoint" />
+        <mxPoint x="900" y="170" as="targetPoint" />
+        <Array as="points">
+          <mxPoint x="900" y="625" />
+          <mxPoint x="900" y="160" />
+        </Array>
+      </mxGeometry>
+    </mxCell>
+    
+    <!-- Login to Role -->
+    <mxCell id="edge-login-role" value="" style="endArrow=classic;html=1;rounded=0;strokeWidth=2;" parent="1" source="login" target="select-role" edge="1">
+      <mxGeometry width="50" height="50" relative="1" as="geometry">
+        <mxPoint x="700" y="770" as="sourcePoint" />
+        <mxPoint x="700" y="810" as="targetPoint" />
+      </mxGeometry>
+    </mxCell>
+    
+    <!-- Role to Admin Dashboard -->
+    <mxCell id="edge-role-admin-dash" value="Admin" style="endArrow=classic;html=1;rounded=0;strokeWidth=2;" parent="1" source="select-role" target="admin-dashboard" edge="1">
+      <mxGeometry width="50" height="50" relative="1" as="geometry">
+        <mxPoint x="625" y="855" as="sourcePoint" />
+        <mxPoint x="440" y="855" as="targetPoint" />
+      </mxGeometry>
+    </mxCell>
+    
+    <!-- Role to Donor Dashboard -->
+    <mxCell id="edge-role-donor-dash" value="Donor" style="endArrow=classic;html=1;rounded=0;strokeWidth=2;" parent="1" source="select-role" target="donor-dashboard" edge="1">
+      <mxGeometry width="50" height="50" relative="1" as="geometry">
+        <mxPoint x="775" y="855" as="sourcePoint" />
+        <mxPoint x="940" y="855" as="targetPoint" />
+      </mxGeometry>
+    </mxCell>
+    
+    <!-- Admin Dashboard to Functions -->
+    <mxCell id="edge-admin-dash-func" value="" style="endArrow=classic;html=1;rounded=0;strokeWidth=2;" parent="1" source="admin-dashboard" target="admin-function" edge="1">
+      <mxGeometry width="50" height="50" relative="1" as="geometry">
+        <mxPoint x="370" y="885" as="sourcePoint" />
+        <mxPoint x="370" y="930" as="targetPoint" />
+      </mxGeometry>
+    </mxCell>
+    
+    <!-- Admin Functions to Features -->
+    <mxCell id="edge-admin-donors" value="Donors" style="endArrow=classic;html=1;rounded=0;strokeWidth=1;" parent="1" source="admin-function" target="manage-donors" edge="1">
+      <mxGeometry width="50" height="50" relative="1" as="geometry">
+        <mxPoint x="295" y="970" as="sourcePoint" />
+        <mxPoint x="150" y="1050" as="targetPoint" />
+      </mxGeometry>
+    </mxCell>
+    
+    <mxCell id="edge-admin-requests" value="Requests" style="endArrow=classic;html=1;rounded=0;strokeWidth=1;" parent="1" source="admin-function" target="manage-requests" edge="1">
+      <mxGeometry width="50" height="50" relative="1" as="geometry">
+        <mxPoint x="310" y="1010" as="sourcePoint" />
+        <mxPoint x="230" y="1050" as="targetPoint" />
+      </mxGeometry>
+    </mxCell>
+    
+    <mxCell id="edge-admin-emergency" value="Emergency" style="endArrow=classic;html=1;rounded=0;strokeWidth=1;" parent="1" source="admin-function" target="create-emergency" edge="1">
+      <mxGeometry width="50" height="50" relative="1" as="geometry">
+        <mxPoint x="370" y="1010" as="sourcePoint" />
+        <mxPoint x="370" y="1050" as="targetPoint" />
+      </mxGeometry>
+    </mxCell>
+    
+    <mxCell id="edge-admin-inventory" value="Inventory" style="endArrow=classic;html=1;rounded=0;strokeWidth=1;" parent="1" source="admin-function" target="manage-inventory" edge="1">
+      <mxGeometry width="50" height="50" relative="1" as="geometry">
+        <mxPoint x="445" y="970" as="sourcePoint" />
+        <mxPoint x="510" y="1050" as="targetPoint" />
+      </mxGeometry>
+    </mxCell>
+    
+    <mxCell id="edge-admin-reports" value="Reports" style="endArrow=classic;html=1;rounded=0;strokeWidth=1;" parent="1" source="admin-function" target="view-reports" edge="1">
+      <mxGeometry width="50" height="50" relative="1" as="geometry">
+        <mxPoint x="445" y="970" as="sourcePoint" />
+        <mxPoint x="640" y="1050" as="targetPoint" />
+      </mxGeometry>
+    </mxCell>
+    
+    <!-- Sub-features -->
+    <mxCell id="edge-donors-detail" value="" style="endArrow=classic;html=1;rounded=0;strokeWidth=1;dashed=1;" parent="1" source="manage-donors" target="donor-detail" edge="1">
+      <mxGeometry width="50" height="50" relative="1" as="geometry">
+        <mxPoint x="80" y="1100" as="sourcePoint" />
+        <mxPoint x="65" y="1130" as="targetPoint" />
+      </mxGeometry>
+    </mxCell>
+    
+    <mxCell id="edge-donors-edit" value="" style="endArrow=classic;html=1;rounded=0;strokeWidth=1;dashed=1;" parent="1" source="manage-donors" target="edit-donor" edge="1">
+      <mxGeometry width="50" height="50" relative="1" as="geometry">
+        <mxPoint x="120" y="1100" as="sourcePoint" />
+        <mxPoint x="155" y="1130" as="targetPoint" />
+      </mxGeometry>
+    </mxCell>
+    
+    <mxCell id="edge-requests-approve" value="" style="endArrow=classic;html=1;rounded=0;strokeWidth=1;dashed=1;" parent="1" source="manage-requests" target="approve-request" edge="1">
+      <mxGeometry width="50" height="50" relative="1" as="geometry">
+        <mxPoint x="210" y="1100" as="sourcePoint" />
+        <mxPoint x="197" y="1130" as="targetPoint" />
+      </mxGeometry>
+    </mxCell>
+    
+    <mxCell id="edge-requests-complete" value="" style="endArrow=classic;html=1;rounded=0;strokeWidth=1;dashed=1;" parent="1" source="manage-requests" target="complete-request" edge="1">
+      <mxGeometry width="50" height="50" relative="1" as="geometry">
+        <mxPoint x="250" y="1100" as="sourcePoint" />
+        <mxPoint x="277" y="1130" as="targetPoint" />
+      </mxGeometry>
+    </mxCell>
+    
+    <mxCell id="edge-emergency-form" value="" style="endArrow=classic;html=1;rounded=0;strokeWidth=1;dashed=1;" parent="1" source="create-emergency" target="emergency-form" edge="1">
+      <mxGeometry width="50" height="50" relative="1" as="geometry">
+        <mxPoint x="345" y="1100" as="sourcePoint" />
+        <mxPoint x="355" y="1130" as="targetPoint" />
+      </mxGeometry>
+    </mxCell>
+    
+    <mxCell id="edge-emergency-notify" value="" style="endArrow=classic;html=1;rounded=0;strokeWidth=1;dashed=1;" parent="1" source="create-emergency" target="notify-donors" edge="1">
+      <mxGeometry width="50" height="50" relative="1" as="geometry">
+        <mxPoint x="395" y="1100" as="sourcePoint" />
+        <mxPoint x="445" y="1130" as="targetPoint" />
+      </mxGeometry>
+    </mxCell>
+    
+    <mxCell id="edge-inventory-update" value="" style="endArrow=classic;html=1;rounded=0;strokeWidth=1;dashed=1;" parent="1" source="manage-inventory" target="update-inventory" edge="1">
+      <mxGeometry width="50" height="50" relative="1" as="geometry">
+        <mxPoint x="510" y="1100" as="sourcePoint" />
+        <mxPoint x="510" y="1130" as="targetPoint" />
+      </mxGeometry>
+    </mxCell>
+    
+    <!-- Admin secondary features -->
+    <mxCell id="edge-admin-tracking" value="" style="endArrow=classic;html=1;rounded=0;strokeWidth=1;dashed=1;" parent="1" source="admin-function" target="donor-tracking" edge="1">
+      <mxGeometry width="50" height="50" relative="1" as="geometry">
+        <mxPoint x="310" y="1010" as="sourcePoint" />
+        <mxPoint x="280" y="1210" as="targetPoint" />
+      </mxGeometry>
+    </mxCell>
+    
+    <mxCell id="edge-admin-centers" value="" style="endArrow=classic;html=1;rounded=0;strokeWidth=1;dashed=1;" parent="1" source="admin-function" target="manage-centers" edge="1">
+      <mxGeometry width="50" height="50" relative="1" as="geometry">
+        <mxPoint x="370" y="1010" as="sourcePoint" />
+        <mxPoint x="410" y="1210" as="targetPoint" />
+      </mxGeometry>
+    </mxCell>
+    
+    <mxCell id="edge-admin-profile" value="" style="endArrow=classic;html=1;rounded=0;strokeWidth=1;dashed=1;" parent="1" source="admin-function" target="admin-profile" edge="1">
+      <mxGeometry width="50" height="50" relative="1" as="geometry">
+        <mxPoint x="430" y="1010" as="sourcePoint" />
+        <mxPoint x="540" y="1210" as="targetPoint" />
+      </mxGeometry>
+    </mxCell>
+    
+    <!-- Donor Dashboard to Functions -->
+    <mxCell id="edge-donor-dash-func" value="" style="endArrow=classic;html=1;rounded=0;strokeWidth=2;" parent="1" source="donor-dashboard" target="donor-function" edge="1">
+      <mxGeometry width="50" height="50" relative="1" as="geometry">
+        <mxPoint x="1010" y="885" as="sourcePoint" />
+        <mxPoint x="1010" y="930" as="targetPoint" />
+      </mxGeometry>
+    </mxCell>
+    
+    <!-- Donor Functions to Features (Row 1) -->
+    <mxCell id="edge-donor-view-profile" value="Profile" style="endArrow=classic;html=1;rounded=0;strokeWidth=1;" parent="1" source="donor-function" target="view-profile" edge="1">
+      <mxGeometry width="50" height="50" relative="1" as="geometry">
+        <mxPoint x="935" y="970" as="sourcePoint" />
+        <mxPoint x="780" y="1050" as="targetPoint" />
+      </mxGeometry>
+    </mxCell>
+    
+    <mxCell id="edge-donor-edit-profile" value="Edit" style="endArrow=classic;html=1;rounded=0;strokeWidth=1;" parent="1" source="donor-function" target="edit-profile" edge="1">
+      <mxGeometry width="50" height="50" relative="1" as="geometry">
+        <mxPoint x="960" y="1010" as="sourcePoint" />
+        <mxPoint x="900" y="1050" as="targetPoint" />
+      </mxGeometry>
+    </mxCell>
+    
+    <mxCell id="edge-donor-schedule" value="Schedule" style="endArrow=classic;html=1;rounded=0;strokeWidth=1;" parent="1" source="donor-function" target="schedule-donation" edge="1">
+      <mxGeometry width="50" height="50" relative="1" as="geometry">
+        <mxPoint x="1010" y="1010" as="sourcePoint" />
+        <mxPoint x="1020" y="1050" as="targetPoint" />
+      </mxGeometry>
+    </mxCell>
+    
+    <mxCell id="edge-donor-history" value="History" style="endArrow=classic;html=1;rounded=0;strokeWidth=1;" parent="1" source="donor-function" target="donation-history" edge="1">
+      <mxGeometry width="50" height="50" relative="1" as="geometry">
+        <mxPoint x="1085" y="970" as="sourcePoint" />
+        <mxPoint x="1140" y="1050" as="targetPoint" />
+      </mxGeometry>
+    </mxCell>
+    
+    <!-- Donor Functions to Features (Row 2) -->
+    <mxCell id="edge-donor-location" value="Location" style="endArrow=classic;html=1;rounded=0;strokeWidth=1;" parent="1" source="donor-function" target="update-location" edge="1">
+      <mxGeometry width="50" height="50" relative="1" as="geometry">
+        <mxPoint x="935" y="1010" as="sourcePoint" />
+        <mxPoint x="780" y="1130" as="targetPoint" />
+      </mxGeometry>
+    </mxCell>
+    
+    <mxCell id="edge-donor-health" value="Health" style="endArrow=classic;html=1;rounded=0;strokeWidth=1;" parent="1" source="donor-function" target="health-metrics" edge="1">
+      <mxGeometry width="50" height="50" relative="1" as="geometry">
+        <mxPoint x="960" y="1010" as="sourcePoint" />
+        <mxPoint x="900" y="1130" as="targetPoint" />
+      </mxGeometry>
+    </mxCell>
+    
+    <mxCell id="edge-donor-emergencies" value="Emergencies" style="endArrow=classic;html=1;rounded=0;strokeWidth=1;" parent="1" source="donor-function" target="view-emergencies" edge="1">
+      <mxGeometry width="50" height="50" relative="1" as="geometry">
+        <mxPoint x="1010" y="1010" as="sourcePoint" />
+        <mxPoint x="1020" y="1130" as="targetPoint" />
+      </mxGeometry>
+    </mxCell>
+    
+    <mxCell id="edge-donor-compatibility" value="Compatibility" style="endArrow=classic;html=1;rounded=0;strokeWidth=1;" parent="1" source="donor-function" target="compatibility-check" edge="1">
+      <mxGeometry width="50" height="50" relative="1" as="geometry">
+        <mxPoint x="1085" y="1010" as="sourcePoint" />
+        <mxPoint x="1140" y="1130" as="targetPoint" />
+      </mxGeometry>
+    </mxCell>
+    
+    <!-- Donor Functions to Features (Row 3) -->
+    <mxCell id="edge-donor-inventory" value="Inventory" style="endArrow=classic;html=1;rounded=0;strokeWidth=1;dashed=1;" parent="1" source="donor-function" target="blood-inventory-donor" edge="1">
+      <mxGeometry width="50" height="50" relative="1" as="geometry">
+        <mxPoint x="950" y="1010" as="sourcePoint" />
+        <mxPoint x="840" y="1210" as="targetPoint" />
+      </mxGeometry>
+    </mxCell>
+    
+    <mxCell id="edge-donor-medical" value="Medical" style="endArrow=classic;html=1;rounded=0;strokeWidth=1;dashed=1;" parent="1" source="donor-function" target="medical-reports" edge="1">
+      <mxGeometry width="50" height="50" relative="1" as="geometry">
+        <mxPoint x="1000" y="1010" as="sourcePoint" />
+        <mxPoint x="970" y="1210" as="targetPoint" />
+      </mxGeometry>
+    </mxCell>
+    
+    <mxCell id="edge-donor-notifications" value="Notifications" style="endArrow=classic;html=1;rounded=0;strokeWidth=1;dashed=1;" parent="1" source="donor-function" target="notifications-donor" edge="1">
+      <mxGeometry width="50" height="50" relative="1" as="geometry">
+        <mxPoint x="1070" y="1010" as="sourcePoint" />
+        <mxPoint x="1100" y="1210" as="targetPoint" />
+      </mxGeometry>
+    </mxCell>
+    
+    <!-- Schedule Donation Flow -->
+    <mxCell id="edge-schedule-check" value="" style="endArrow=classic;html=1;rounded=0;strokeWidth=1;dashed=1;" parent="1" source="schedule-donation" target="check-eligibility" edge="1">
+      <mxGeometry width="50" height="50" relative="1" as="geometry">
+        <mxPoint x="1020" y="1100" as="sourcePoint" />
+        <mxPoint x="1030" y="1310" as="targetPoint" />
+      </mxGeometry>
+    </mxCell>
+    
+    <mxCell id="edge-eligible-yes" value="Eligible" style="endArrow=classic;html=1;rounded=0;strokeWidth=1;" parent="1" source="check-eligibility" target="eligible-yes" edge="1">
+      <mxGeometry width="50" height="50" relative="1" as="geometry">
+        <mxPoint x="1010" y="1380" as="sourcePoint" />
+        <mxPoint x="930" y="1410" as="targetPoint" />
+      </mxGeometry>
+    </mxCell>
+    
+    <mxCell id="edge-eligible-no" value="Not Eligible" style="endArrow=classic;html=1;rounded=0;strokeWidth=1;" parent="1" source="check-eligibility" target="eligible-no" edge="1">
+      <mxGeometry width="50" height="50" relative="1" as="geometry">
+        <mxPoint x="1050" y="1380" as="sourcePoint" />
+        <mxPoint x="1050" y="1410" as="targetPoint" />
+      </mxGeometry>
+    </mxCell>
+    
+    <!-- Emergency Response Flow -->
+    <mxCell id="edge-emergency-respond" value="" style="endArrow=classic;html=1;rounded=0;strokeWidth=1;dashed=1;" parent="1" source="view-emergencies" target="respond-emergency" edge="1">
+      <mxGeometry width="50" height="50" relative="1" as="geometry">
+        <mxPoint x="1020" y="1180" as="sourcePoint" />
+        <mxPoint x="1030" y="1500" as="targetPoint" />
+      </mxGeometry>
+    </mxCell>
+    
+    <mxCell id="edge-respond-available" value="Available" style="endArrow=classic;html=1;rounded=0;strokeWidth=1;" parent="1" source="respond-emergency" target="available" edge="1">
+      <mxGeometry width="50" height="50" relative="1" as="geometry">
+        <mxPoint x="1010" y="1570" as="sourcePoint" />
+        <mxPoint x="930" y="1600" as="targetPoint" />
+      </mxGeometry>
+    </mxCell>
+    
+    <mxCell id="edge-respond-not-available" value="Not Available" style="endArrow=classic;html=1;rounded=0;strokeWidth=1;" parent="1" source="respond-emergency" target="not-available" edge="1">
+      <mxGeometry width="50" height="50" relative="1" as="geometry">
+        <mxPoint x="1050" y="1570" as="sourcePoint" />
+        <mxPoint x="1050" y="1600" as="targetPoint" />
+      </mxGeometry>
+    </mxCell>
+    
+    <!-- Logout Paths -->
+    <mxCell id="edge-admin-logout" value="Logout" style="endArrow=classic;html=1;rounded=0;strokeWidth=2;" parent="1" source="admin-dashboard" target="logout" edge="1">
+      <mxGeometry width="50" height="50" relative="1" as="geometry">
+        <mxPoint x="370" y="885" as="sourcePoint" />
+        <mxPoint x="640" y="1720" as="targetPoint" />
+        <Array as="points">
+          <mxPoint x="370" y="1750" />
+        </Array>
+      </mxGeometry>
+    </mxCell>
+    
+    <mxCell id="edge-donor-logout" value="Logout" style="endArrow=classic;html=1;rounded=0;strokeWidth=2;" parent="1" source="donor-dashboard" target="logout" edge="1">
+      <mxGeometry width="50" height="50" relative="1" as="geometry">
+        <mxPoint x="1010" y="885" as="sourcePoint" />
+        <mxPoint x="760" y="1720" as="targetPoint" />
+        <Array as="points">
+          <mxPoint x="1010" y="1750" />
+        </Array>
+      </mxGeometry>
+    </mxCell>
+    
+    <!-- Logout to End -->
+    <mxCell id="edge-logout-end" value="" style="endArrow=classic;html=1;rounded=0;strokeWidth=2;" parent="1" source="logout" target="end" edge="1">
+      <mxGeometry width="50" height="50" relative="1" as="geometry">
+        <mxPoint x="700" y="1780" as="sourcePoint" />
+        <mxPoint x="700" y="1820" as="targetPoint" />
+      </mxGeometry>
+    </mxCell>
+    
+  </root>
+</mxGraphModel>

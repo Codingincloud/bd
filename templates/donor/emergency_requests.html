@@ -346,17 +346,18 @@
             {% endif %}
             
             <div class="emergency-actions">
-                {% if donor.is_eligible %}
-                <a href="{% url 'donor:schedule_donation' %}?emergency={{ request.id }}" class="btn btn-small btn-schedule">
-                    <i class="fas fa-calendar-plus"></i> Schedule Donation
-                </a>
-                {% endif %}
                 <a href="tel:{{ request.contact_phone }}" class="btn btn-small btn-contact">
                     <i class="fas fa-phone"></i> Call Hospital
                 </a>
-                <button class="btn btn-small btn-respond" onclick="respondToEmergency('{{ request.id }}')">
-                    <i class="fas fa-reply"></i> Respond
+                {% if donor.is_eligible %}
+                <a href="{% url 'donor:schedule_donation' %}?emergency={{ request.id }}" class="btn btn-small btn-schedule">
+                    <i class="fas fa-calendar-plus"></i> I Can Donate
+                </a>
+                {% else %}
+                <button class="btn btn-small" disabled style="opacity: 0.5; cursor: not-allowed;">
+                    <i class="fas fa-ban"></i> Not Eligible Yet
                 </button>
+                {% endif %}
             </div>
         </div>
         {% endfor %}
@@ -372,49 +373,11 @@
 
 {% block extra_js %}
 <script>
-    function respondToEmergency(emergencyId) {
-        const response = prompt('Enter your response to this emergency (e.g., "I can donate at [time] on [date]"):');
-        if (response) {
-            // Add CSRF token to the page if not present
-            let csrfToken = document.querySelector('[name=csrfmiddlewaretoken]');
-            if (!csrfToken) {
-                csrfToken = document.createElement('input');
-                csrfToken.type = 'hidden';
-                csrfToken.name = 'csrfmiddlewaretoken';
-                csrfToken.value = '{{ csrf_token }}';
-                document.body.appendChild(csrfToken);
-            }
-            
-            fetch(`/donor/emergencies/${emergencyId}/respond/`, {
-                method: 'POST',
-                headers: {
-                    'X-CSRFToken': csrfToken.value,
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({ response: response })
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (data.success) {
-                    alert('Response sent successfully to the hospital!');
-                    // Optionally reload the page to show updated status
-                    location.reload();
-                } else {
-                    alert('Error sending response: ' + data.message);
-                }
-            })
-            .catch(error => {
-                console.error('Error:', error);
-                alert('Error sending response. Please try again.');
-            });
-        }
-    }
-
-    // Auto-refresh every 30 seconds for critical emergencies
+    // Auto-refresh every 2 minutes for critical emergencies
     setInterval(function() {
         if (document.querySelector('.time-remaining')) {
             location.reload();
         }
-    }, 30000);
+    }, 120000); // 2 minutes
 </script>
 {% endblock %}

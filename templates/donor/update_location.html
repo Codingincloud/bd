@@ -211,6 +211,11 @@
         <div class="page-header">
             <h1><i class="fas fa-map-marker-alt"></i> Update Your Location</h1>
             <p>Help us find you during emergencies by updating your location</p>
+            <div style="margin-top: 20px;">
+                <a href="{% url 'donor:update_location_map' %}" class="btn" style="background: var(--color-success-600); color: white; padding: 12px 24px; border-radius: 8px; text-decoration: none; display: inline-flex; align-items: center; gap: 8px; font-weight: 600;">
+                    <i class="fas fa-map"></i> Use Interactive Map (Recommended)
+                </a>
+            </div>
         </div>
 
         {% if messages %}

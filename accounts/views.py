@@ -10,7 +10,7 @@ from django.contrib.auth.views import PasswordResetView
 from django.urls import reverse_lazy
 from django.core.exceptions import ValidationError
 from django.core.validators import validate_email
-from donor.models import Donor
+from donor.models import Donor, Hospital, BloodInventory
 from admin_panel.models import AdminProfile
 from datetime import date
 import re
@@ -162,6 +162,27 @@ def validate_registration_data(data):
             if not admin_address:
                 errors.append('Address is required for admin accounts.')
 
+            # Hospital validation
+            hospital_name = data.get('hospital_name', '').strip()
+            if not hospital_name:
+                errors.append('Hospital name is required.')
+            elif len(hospital_name) < 2:
+                errors.append('Please enter a valid hospital name.')
+
+            hospital_phone = data.get('hospital_phone', '').strip()
+            if not hospital_phone:
+                errors.append('Hospital contact number is required.')
+            elif not re.match(r'^\+?[\d\s\-\(\)]{10,15}$', hospital_phone):
+                errors.append('Please enter a valid hospital phone number.')
+
+            hospital_address = data.get('hospital_address', '').strip()
+            if not hospital_address:
+                errors.append('Hospital address is required.')
+
+            hospital_city = data.get('hospital_city', '').strip()
+            if not hospital_city:
+                errors.append('Hospital city is required.')
+
     except Exception as e:
         logger.error(f"Unexpected error in validation: {e}")
         errors.append('An unexpected error occurred during validation. Please try again.')
@@ -253,6 +274,47 @@ def register_view(request):
                         logger.info(f"Admin profile created for user {username}")
                     except Exception as e:
                         logger.error(f"Error creating admin profile for {username}: {e}")
+                        raise
+
+                    # Create hospital for this admin
+                    try:
+                        hospital_name = request.POST.get('hospital_name', '').strip()
+                        hospital_phone = request.POST.get('hospital_phone', '').strip()
+                        hospital_email = request.POST.get('hospital_email', email).strip()
+                        hospital_address = request.POST.get('hospital_address', '').strip()
+                        hospital_city = request.POST.get('hospital_city', '').strip()
+                        hospital_state = request.POST.get('hospital_state', 'Nepal').strip()
+                        hospital_type = request.POST.get('hospital_type', 'government')
+
+                        hospital = Hospital.objects.create(
+                            admin_user=user,
+                            name=hospital_name,
+                            phone_number=hospital_phone,
+                            email=hospital_email,
+                            address=hospital_address,
+                            city=hospital_city,
+                            state=hospital_state,
+                            hospital_type=hospital_type,
+                            has_blood_bank=True,
+                            accepts_donations=True,
+                            is_active=True
+                        )
+                        logger.info(f"Hospital '{hospital_name}' created for admin {username}")
+
+                        # Initialize blood inventory for all blood groups
+                        blood_groups = ['A+', 'A-', 'B+', 'B-', 'O+', 'O-', 'AB+', 'AB-']
+                        for bg in blood_groups:
+                            BloodInventory.objects.create(
+                                hospital=hospital,
+                                blood_group=bg,
+                                units_available=0.0,
+                                units_reserved=0.0,
+                                updated_by=user
+                            )
+                        logger.info(f"Blood inventory initialized for hospital '{hospital_name}'")
+
+                    except Exception as e:
+                        logger.error(f"Error creating hospital for {username}: {e}")
                         raise
 
                 elif role == 'donor':
@@ -378,7 +440,6 @@ Blood Donation System Team
     return render(request, 'accounts/register.html')
 
 @ratelimit(key='ip', rate='10/h', method='POST', block=True)
-@ratelimit(key='ip', rate='10/h', method='POST', block=True)
 def login_view(request):
     """Enhanced login view with comprehensive error handling and role validation"""
     if request.method == 'POST':
@@ -439,11 +500,21 @@ def login_view(request):
                         # Verify admin profile exists
                         try:
                             admin_profile = user.adminprofile
-                            login(request, user)
-                            # Set session expiry to 24 hours
-                            request.session.set_expiry(86400)  # 24 hours in seconds
-                            logger.info(f"Admin {username} logged in successfully with session key: {request.session.session_key}")
-                            return redirect('admin_panel:dashboard')
+                            # Verify hospital exists
+                            try:
+                                hospital = user.hospital
+                                login(request, user)
+                                # Set session expiry to 24 hours
+                                request.session.set_expiry(86400)  # 24 hours in seconds
+                                logger.info(f"Admin {username} logged in successfully with session key: {request.session.session_key}")
+                                return redirect('admin_panel:dashboard')
+                            except Hospital.DoesNotExist:
+                                logger.error(f"Hospital not found for admin {username}")
+                                return render(request, 'accounts/login.html', {
+                                    'error': 'Hospital not found for your account. Please contact support.',
+                                    'username': username,
+                                    'role': role
+                                })
                         except AdminProfile.DoesNotExist:
                             logger.error(f"Admin profile not found for {username}")
                             return render(request, 'accounts/login.html', {
