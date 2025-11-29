@@ -1,0 +1,855 @@
+\chapter{IMPLEMENTATION}
+
+\section{Introduction}
+
+This chapter describes the implementation of the Blood Donor Information Management System (BDIMS), including the development environment setup, technology stack, module-by-module implementation details, code structure, and key algorithms.
+
+\section{Development Environment}
+
+\subsection{Hardware Configuration}
+
+\textbf{Development Machines:}
+\begin{itemize}
+    \item Processor: Intel Core i5-8th Gen / AMD Ryzen 5
+    \item RAM: 8-16 GB DDR4
+    \item Storage: 256 GB SSD
+    \item Display: 1920x1080 resolution
+    \item Internet: 10 Mbps broadband connection
+\end{itemize}
+
+\subsection{Software Tools}
+
+\begin{table}[h]
+\centering
+\caption{Development Tools and Versions}
+\begin{tabular}{|p{4cm}|p{3cm}|p{5cm}|}
+\hline
+\textbf{Tool} & \textbf{Version} & \textbf{Purpose} \\
+\hline
+Operating System & Windows 10/11 & Development platform \\
+\hline
+Python & 3.12.0 & Programming language \\
+\hline
+Django & 5.2.8 & Web framework \\
+\hline
+PostgreSQL & 15.3 & Database system \\
+\hline
+VS Code & 1.85.0 & Code editor/IDE \\
+\hline
+Git & 2.42.0 & Version control \\
+\hline
+GitHub & N/A & Remote repository \\
+\hline
+Chrome DevTools & Latest & Frontend debugging \\
+\hline
+Postman & 10.18 & API testing \\
+\hline
+pgAdmin 4 & 7.8 & Database management \\
+\hline
+\end{tabular}
+\end{table}
+
+\subsection{VS Code Extensions}
+
+\begin{itemize}
+    \item Python (Microsoft)
+    \item Pylance
+    \item Django Template
+    \item GitLens
+    \item HTML CSS Support
+    \item JavaScript (ES6) code snippets
+    \item Prettier - Code formatter
+\end{itemize}
+
+\section{Technology Stack}
+
+\subsection{Backend Technologies}
+
+\subsubsection{Django Framework 5.2.8}
+
+Django is a high-level Python web framework that enables rapid development of secure and maintainable websites.
+
+\textbf{Key Features Used:}
+\begin{itemize}
+    \item \textbf{ORM (Object-Relational Mapping):} Database operations without writing SQL
+    \item \textbf{Admin Interface:} Built-in admin panel for data management
+    \item \textbf{Authentication:} User registration, login, session management
+    \item \textbf{Forms:} Form handling with validation
+    \item \textbf{Templates:} Dynamic HTML rendering with template inheritance
+    \item \textbf{URL Routing:} Clean URL patterns
+    \item \textbf{Security:} CSRF protection, password hashing, SQL injection prevention
+\end{itemize}
+
+\textbf{Django Architecture (MVT):}
+
+\begin{lstlisting}[language=Python, caption=Django MVT Pattern Example]
+# models.py (Model - Data Layer)
+class Donor(models.Model):
+    user = models.OneToOneField(User, on_delete=models.CASCADE)
+    blood_group = models.CharField(max_length=3)
+    # ... other fields
+
+# views.py (View - Logic Layer)
+def donor_dashboard(request):
+    donor = request.user.donor
+    donations = donor.donationhistory_set.all()[:5]
+    context = {'donor': donor, 'donations': donations}
+    return render(request, 'donor/dashboard.html', context)
+
+# urls.py (URL Routing)
+urlpatterns = [
+    path('dashboard/', views.donor_dashboard, name='dashboard'),
+]
+\end{lstlisting}
+
+\subsubsection{PostgreSQL 15.3}
+
+PostgreSQL is an advanced open-source relational database management system.
+
+\textbf{Why PostgreSQL:}
+\begin{itemize}
+    \item ACID compliance for data integrity
+    \item Advanced data types (JSON, arrays)
+    \item Robust indexing and query optimization
+    \item Excellent performance with large datasets
+    \item Strong community support
+    \item Free and open-source
+\end{itemize}
+
+\textbf{Database Configuration:}
+
+\begin{lstlisting}[language=Python, caption=Database Settings (settings.py)]
+DATABASES = {
+    'default': {
+        'ENGINE': 'django.db.backends.postgresql',
+        'NAME': 'bdims_db',
+        'USER': 'postgres',
+        'PASSWORD': 'your_password',
+        'HOST': 'localhost',
+        'PORT': '5432',
+    }
+}
+\end{lstlisting}
+
+\subsubsection{Python Libraries}
+
+\begin{table}[h]
+\centering
+\caption{Python Dependencies}
+\begin{tabular}{|p{3cm}|p{2cm}|p{7cm}|}
+\hline
+\textbf{Library} & \textbf{Version} & \textbf{Purpose} \\
+\hline
+psycopg2 & 2.9.9 & PostgreSQL database adapter \\
+\hline
+Pillow & 10.1.0 & Image processing for profile pictures \\
+\hline
+python-decouple & 3.8 & Environment variable management \\
+\hline
+whitenoise & 6.6.0 & Static file serving in production \\
+\hline
+\end{tabular}
+\end{table}
+
+\subsection{Frontend Technologies}
+
+\subsubsection{HTML5}
+
+Semantic HTML5 elements for structure:
+\begin{itemize}
+    \item \texttt{<header>}, \texttt{<nav>}, \texttt{<main>}, \texttt{<section>}, \texttt{<article>}, \texttt{<footer>}
+    \item Form elements with validation attributes
+    \item Accessible markup (ARIA labels where needed)
+\end{itemize}
+
+\subsubsection{CSS3}
+
+Modern CSS features for styling:
+\begin{itemize}
+    \item CSS Grid and Flexbox for responsive layouts
+    \item CSS Variables for theme consistency
+    \item Media queries for mobile responsiveness
+    \item Animations and transitions for smooth UX
+    \item Custom properties for maintainability
+\end{itemize}
+
+\begin{lstlisting}[language=HTML, caption=CSS Variables for Theme]
+:root {
+    --color-primary-600: #DC2626;
+    --color-primary-700: #B91C1C;
+    --color-success-600: #16A34A;
+    --space-4: 1rem;
+    --radius-lg: 0.75rem;
+    --shadow-md: 0 4px 6px rgba(0,0,0,0.1);
+}
+\end{lstlisting}
+
+\subsubsection{JavaScript (ES6+)}
+
+Client-side scripting for interactivity:
+\begin{itemize}
+    \item Form validation and real-time feedback
+    \item AJAX requests for dynamic content
+    \item DOM manipulation
+    \item Event handling
+\end{itemize}
+
+\subsubsection{Leaflet.js 1.9.4}
+
+Open-source JavaScript library for interactive maps:
+
+\begin{lstlisting}[language=HTML, caption=Leaflet Map Initialization]
+// Initialize map
+const map = L.map('map').setView([27.6915, 85.3240], 13);
+
+// Add OpenStreetMap tiles
+L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    attribution: '&copy; OpenStreetMap contributors'
+}).addTo(map);
+
+// Add marker on click
+map.on('click', function(e) {
+    const { lat, lng } = e.latlng;
+    updateDonorLocation(lat, lng);
+});
+\end{lstlisting}
+
+\subsubsection{Chart.js 4.4.0}
+
+JavaScript charting library for data visualization:
+
+\begin{lstlisting}[language=HTML, caption=Blood Inventory Chart]
+const ctx = document.getElementById('inventoryChart').getContext('2d');
+new Chart(ctx, {
+    type: 'bar',
+    data: {
+        labels: ['A+', 'A-', 'B+', 'B-', 'O+', 'O-', 'AB+', 'AB-'],
+        datasets: [{
+            label: 'Units Available',
+            data: [120, 45, 98, 32, 156, 28, 67, 19],
+            backgroundColor: 'rgba(220, 38, 38, 0.8)'
+        }]
+    },
+    options: { responsive: true, maintainAspectRatio: false }
+});
+\end{lstlisting}
+
+\subsubsection{Font Awesome 6.4.2}
+
+Icon library for visual elements:
+\begin{itemize}
+    \item \texttt{fa-tint} for blood-related features
+    \item \texttt{fa-heartbeat} for health metrics
+    \item \texttt{fa-calendar} for scheduling
+    \item \texttt{fa-user} for profile management
+\end{itemize}
+
+\section{Project Structure}
+
+\subsection{Directory Organization}
+
+\begin{lstlisting}[caption=BDIMS Project Structure]
+BDIMS/
+|-- accounts/              # Authentication module
+|   |-- views.py          # Login, register, logout
+|   |-- urls.py           # Auth URL patterns
+|   |-- templates/        # Login/register templates
+|
+|-- admin_panel/          # Admin dashboard module
+|   |-- views.py          # Admin functions
+|   |-- urls.py           # Admin URL patterns
+|   |-- templates/        # Admin templates
+|
+|-- donor/                # Donor functionality module
+|   |-- models.py         # Data models
+|   |-- views.py          # Donor views
+|   |-- forms.py          # Form classes
+|   |-- urls.py           # Donor URL patterns
+|   |-- admin.py          # Admin configuration
+|   |-- signals.py        # Django signals
+|   |-- middleware.py     # Custom middleware
+|   |-- templates/        # Donor templates
+|   |-- migrations/       # Database migrations
+|
+|-- blood_donation/       # Project settings
+|   |-- settings.py       # Django configuration
+|   |-- urls.py           # Root URL patterns
+|   |-- wsgi.py           # WSGI application
+|   |-- asgi.py           # ASGI application
+|
+|-- utils/                # Utility functions
+|   |-- constants.py      # System constants
+|   |-- validators.py     # Custom validators
+|   |-- decorators.py     # Custom decorators
+|   |-- geocoding.py      # Location services
+|   |-- notification_service.py  # Notifications
+|
+|-- static/               # Static files
+|   |-- css/             # Stylesheets
+|   |-- js/              # JavaScript files
+|   |-- images/          # Image assets
+|
+|-- templates/            # Global templates
+|   |-- home.html        # Landing page
+|   |-- components/      # Reusable components
+|
+|-- media/               # User-uploaded files
+|-- db.sqlite3           # Database file (dev)
+|-- manage.py            # Django management script
+|-- requirements.txt     # Python dependencies
+\end{lstlisting}
+
+\section{Module Implementation}
+
+\subsection{Authentication Module (accounts/)}
+
+\subsubsection{User Registration}
+
+\begin{lstlisting}[language=Python, caption=Donor Registration View]
+def register(request):
+    if request.method == 'POST':
+        # Extract form data
+        username = request.POST.get('username')
+        email = request.POST.get('email')
+        password = request.POST.get('password')
+        # ... other fields
+        
+        # Validate data
+        if User.objects.filter(username=username).exists():
+            messages.error(request, 'Username already exists')
+            return redirect('accounts:register')
+        
+        # Create user
+        user = User.objects.create_user(
+            username=username,
+            email=email,
+            password=password,
+            first_name=first_name,
+            last_name=last_name
+        )
+        
+        # Create donor profile
+        Donor.objects.create(
+            user=user,
+            blood_group=blood_group,
+            date_of_birth=date_of_birth,
+            # ... other fields
+        )
+        
+        messages.success(request, 'Registration successful!')
+        return redirect('accounts:login')
+    
+    return render(request, 'accounts/register.html')
+\end{lstlisting}
+
+\subsubsection{User Login}
+
+\begin{lstlisting}[language=Python, caption=Login View with Authentication]
+from django.contrib.auth import authenticate, login
+
+def user_login(request):
+    if request.method == 'POST':
+        username = request.POST.get('username')
+        password = request.POST.get('password')
+        
+        # Authenticate user
+        user = authenticate(request, username=username, password=password)
+        
+        if user is not None:
+            login(request, user)
+            
+            # Redirect based on role
+            if user.is_staff:
+                return redirect('admin_panel:dashboard')
+            else:
+                return redirect('donor:dashboard')
+        else:
+            messages.error(request, 'Invalid credentials')
+    
+    return render(request, 'accounts/login.html')
+\end{lstlisting}
+
+\subsection{Donor Module (donor/)}
+
+\subsubsection{Donor Model}
+
+\begin{lstlisting}[language=Python, caption=Donor Model with Properties]
+class Donor(models.Model):
+    BLOOD_GROUPS = [
+        ('A+', 'A+'), ('A-', 'A-'),
+        ('B+', 'B+'), ('B-', 'B-'),
+        ('O+', 'O+'), ('O-', 'O-'),
+        ('AB+', 'AB+'), ('AB-', 'AB-'),
+    ]
+    
+    user = models.OneToOneField(User, on_delete=models.CASCADE)
+    blood_group = models.CharField(max_length=3, choices=BLOOD_GROUPS)
+    date_of_birth = models.DateField()
+    latitude = models.DecimalField(max_digits=10, decimal_places=8, 
+                                  null=True, blank=True)
+    longitude = models.DecimalField(max_digits=11, decimal_places=8, 
+                                   null=True, blank=True)
+    last_donation_date = models.DateField(null=True, blank=True)
+    is_eligible = models.BooleanField(default=True)
+    
+    @property
+    def age(self):
+        today = date.today()
+        return today.year - self.date_of_birth.year - (
+            (today.month, today.day) < 
+            (self.date_of_birth.month, self.date_of_birth.day)
+        )
+    
+    @property
+    def next_eligible_date(self):
+        if self.last_donation_date:
+            return self.last_donation_date + timedelta(days=56)
+        return None
+    
+    def check_eligibility(self):
+        """Check if donor is eligible to donate"""
+        # Age check
+        if not (18 <= self.age <= 65):
+            return False, "Age must be between 18 and 65"
+        
+        # Weight check
+        if self.weight < 50:
+            return False, "Weight must be at least 50 kg"
+        
+        # Donation interval check (56 days)
+        if self.last_donation_date:
+            days_since = (date.today() - self.last_donation_date).days
+            if days_since < 56:
+                return False, f"Must wait {56 - days_since} more days"
+        
+        # Check recent health metrics
+        latest_metrics = self.healthmetrics_set.first()
+        if latest_metrics:
+            if latest_metrics.hemoglobin_level < 12.5:
+                return False, "Hemoglobin level too low"
+            if latest_metrics.blood_pressure_systolic > 140:
+                return False, "Blood pressure too high"
+        
+        return True, "Eligible to donate"
+\end{lstlisting}
+
+\subsubsection{Donor Dashboard}
+
+\begin{lstlisting}[language=Python, caption=Donor Dashboard View]
+@login_required
+def donor_dashboard(request):
+    try:
+        donor = request.user.donor
+    except Donor.DoesNotExist:
+        messages.error(request, 'Donor profile not found')
+        return redirect('accounts:login')
+    
+    # Get donation statistics
+    total_donations = donor.donationhistory_set.count()
+    last_donation = donor.donationhistory_set.first()
+    
+    # Get recent health metrics
+    recent_metrics = donor.healthmetrics_set.all()[:5]
+    
+    # Check eligibility
+    is_eligible, eligibility_message = donor.check_eligibility()
+    
+    # Get emergency requests matching blood type
+    emergency_requests = EmergencyRequest.objects.filter(
+        blood_group=donor.blood_group,
+        is_active=True
+    )
+    
+    # Get pending donation requests
+    pending_requests = DonationRequest.objects.filter(
+        donor=donor,
+        status='pending'
+    )
+    
+    context = {
+        'donor': donor,
+        'total_donations': total_donations,
+        'last_donation': last_donation,
+        'recent_metrics': recent_metrics,
+        'is_eligible': is_eligible,
+        'eligibility_message': eligibility_message,
+        'emergency_requests': emergency_requests,
+        'pending_requests': pending_requests,
+    }
+    
+    return render(request, 'donor/dashboard.html', context)
+\end{lstlisting}
+
+\subsubsection{Health Metrics Tracking}
+
+\begin{lstlisting}[language=Python, caption=Add Health Metrics View]
+@login_required
+def add_health_metrics(request):
+    donor = request.user.donor
+    
+    if request.method == 'POST':
+        hemoglobin = request.POST.get('hemoglobin_level')
+        bp_systolic = request.POST.get('bp_systolic')
+        bp_diastolic = request.POST.get('bp_diastolic')
+        weight = request.POST.get('weight')
+        temperature = request.POST.get('temperature')
+        pulse_rate = request.POST.get('pulse_rate')
+        
+        # Create health metrics record
+        HealthMetrics.objects.create(
+            donor=donor,
+            hemoglobin_level=hemoglobin,
+            blood_pressure_systolic=bp_systolic,
+            blood_pressure_diastolic=bp_diastolic,
+            weight=weight,
+            temperature=temperature,
+            pulse_rate=pulse_rate
+        )
+        
+        # Update donor weight
+        donor.weight = weight
+        donor.save()
+        
+        messages.success(request, 'Health metrics added successfully')
+        return redirect('donor:dashboard')
+    
+    # Get previous metrics for reference
+    previous_metrics = donor.healthmetrics_set.all()[:10]
+    
+    return render(request, 'donor/add_health_metrics.html', {
+        'donor': donor,
+        'previous_metrics': previous_metrics
+    })
+\end{lstlisting}
+
+\subsection{Inventory Management}
+
+\subsubsection{Blood Inventory Model}
+
+\begin{lstlisting}[language=Python, caption=Blood Inventory with Signals]
+class BloodInventory(models.Model):
+    hospital = models.ForeignKey('Hospital', on_delete=models.CASCADE)
+    blood_group = models.CharField(max_length=5, choices=Donor.BLOOD_GROUPS)
+    units_available = models.FloatField(default=0.0)
+    units_reserved = models.FloatField(default=0.0)
+    last_updated = models.DateTimeField(auto_now=True)
+    
+    class Meta:
+        unique_together = [['hospital', 'blood_group']]
+    
+    @property
+    def status_level(self):
+        """Return inventory status"""
+        if self.units_available < 10:
+            return 'critical'
+        elif self.units_available < 25:
+            return 'low'
+        elif self.units_available < 50:
+            return 'medium'
+        else:
+            return 'good'
+    
+    @property
+    def total_units(self):
+        return self.units_available + self.units_reserved
+
+# Signal to auto-update inventory on donation
+@receiver(post_save, sender=DonationHistory)
+def update_inventory_on_donation(sender, instance, created, **kwargs):
+    if created and instance.hospital:
+        inventory, _ = BloodInventory.objects.get_or_create(
+            hospital=instance.hospital,
+            blood_group=instance.donor.blood_group
+        )
+        inventory.units_available += float(instance.units_donated)
+        inventory.save()
+\end{lstlisting}
+
+\subsection{Emergency Response System}
+
+\begin{lstlisting}[language=Python, caption=Emergency Request Matching]
+@login_required
+@user_passes_test(lambda u: u.is_staff)
+def create_emergency_request(request):
+    if request.method == 'POST':
+        blood_group = request.POST.get('blood_group')
+        units_needed = request.POST.get('units_needed')
+        urgency_level = request.POST.get('urgency_level')
+        hospital_id = request.POST.get('hospital')
+        
+        # Create emergency request
+        emergency = EmergencyRequest.objects.create(
+            blood_group=blood_group,
+            units_needed=units_needed,
+            urgency_level=urgency_level,
+            hospital_id=hospital_id,
+            created_by=request.user
+        )
+        
+        # Find matching eligible donors
+        matching_donors = Donor.objects.filter(
+            blood_group=blood_group,
+            is_eligible=True,
+            allow_emergency_contact=True
+        )
+        
+        # Filter by proximity (if hospital has coordinates)
+        if emergency.hospital.latitude and emergency.hospital.longitude:
+            nearby_donors = []
+            for donor in matching_donors:
+                if donor.latitude and donor.longitude:
+                    distance = donor.distance_to(
+                        emergency.hospital.latitude,
+                        emergency.hospital.longitude
+                    )
+                    if distance and distance < 50:  # Within 50km
+                        nearby_donors.append(donor)
+            matching_donors = nearby_donors
+        
+        # Notify donors (placeholder for future SMS/email)
+        donor_count = len(matching_donors)
+        messages.success(
+            request, 
+            f'Emergency request created. {donor_count} matching donors found.'
+        )
+        
+        return redirect('admin_panel:emergency_requests')
+    
+    hospitals = Hospital.objects.all()
+    return render(request, 'admin_panel/create_emergency.html', {
+        'hospitals': hospitals
+    })
+\end{lstlisting}
+
+\subsection{Location Tracking Implementation}
+
+\subsubsection{Interactive Map Update}
+
+\begin{lstlisting}[language=HTML, caption=Leaflet Map for Location Update]
+<div id="map" style="height: 500px;"></div>
+
+<script>
+// Initialize map centered on Kathmandu
+const map = L.map('map').setView([27.6915, 85.3240], 13);
+
+// Add tile layer
+L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
+
+let marker;
+
+// GPS auto-detect
+document.getElementById('gps-btn').onclick = function() {
+    navigator.geolocation.getCurrentPosition(function(position) {
+        const lat = position.coords.latitude;
+        const lng = position.coords.longitude;
+        updateLocation(lat, lng);
+    });
+};
+
+// Click to select location
+map.on('click', function(e) {
+    updateLocation(e.latlng.lat, e.latlng.lng);
+});
+
+function updateLocation(lat, lng) {
+    // Update or create marker
+    if (marker) {
+        marker.setLatLng([lat, lng]);
+    } else {
+        marker = L.marker([lat, lng]).addTo(map);
+    }
+    
+    // Update form fields
+    document.getElementById('id_latitude').value = lat;
+    document.getElementById('id_longitude').value = lng;
+    
+    // Reverse geocode to get address
+    fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}`)
+        .then(res => res.json())
+        .then(data => {
+            document.getElementById('address-display').innerText = data.display_name;
+        });
+    
+    map.setView([lat, lng], 15);
+}
+</script>
+\end{lstlisting}
+
+\section{Key Algorithms}
+
+\subsection{Eligibility Calculation Algorithm}
+
+\begin{lstlisting}[language=Python, caption=Comprehensive Eligibility Check]
+def calculate_eligibility(donor):
+    """
+    Calculate donor eligibility based on multiple criteria.
+    Returns (is_eligible: bool, message: str, details: dict)
+    """
+    details = {}
+    
+    # 1. Age check (18-65 years)
+    age = donor.age
+    if not (18 <= age <= 65):
+        return False, f"Age ({age}) must be 18-65", details
+    details['age'] = {'status': 'pass', 'value': age}
+    
+    # 2. Weight check (>= 50 kg)
+    if donor.weight < 50:
+        return False, f"Weight ({donor.weight} kg) must be >= 50 kg", details
+    details['weight'] = {'status': 'pass', 'value': float(donor.weight)}
+    
+    # 3. Donation interval check (56 days)
+    if donor.last_donation_date:
+        days_since = (date.today() - donor.last_donation_date).days
+        if days_since < 56:
+            next_date = donor.last_donation_date + timedelta(days=56)
+            return False, f"Must wait {56 - days_since} days (until {next_date})", details
+        details['interval'] = {'status': 'pass', 'days_since': days_since}
+    else:
+        details['interval'] = {'status': 'pass', 'days_since': None}
+    
+    # 4. Health metrics check
+    latest_metrics = donor.healthmetrics_set.first()
+    if latest_metrics:
+        # Hemoglobin check (>= 12.5 g/dL for females, >= 13.0 for males)
+        min_hb = 13.0 if donor.gender == 'M' else 12.5
+        if latest_metrics.hemoglobin_level < min_hb:
+            return False, f"Hemoglobin ({latest_metrics.hemoglobin_level} g/dL) too low", details
+        details['hemoglobin'] = {'status': 'pass', 'value': float(latest_metrics.hemoglobin_level)}
+        
+        # Blood pressure check (90-140 systolic, 60-90 diastolic)
+        if not (90 <= latest_metrics.blood_pressure_systolic <= 140):
+            return False, "Blood pressure outside acceptable range", details
+        if not (60 <= latest_metrics.blood_pressure_diastolic <= 90):
+            return False, "Blood pressure outside acceptable range", details
+        details['blood_pressure'] = {'status': 'pass', 'value': f"{latest_metrics.blood_pressure_systolic}/{latest_metrics.blood_pressure_diastolic}"}
+    
+    # All checks passed
+    return True, "Eligible to donate blood", details
+\end{lstlisting}
+
+\subsection{Distance Calculation (Haversine Formula)}
+
+\begin{lstlisting}[language=Python, caption=Geographic Distance Calculation]
+import math
+
+def haversine_distance(lat1, lon1, lat2, lon2):
+    """
+    Calculate the great-circle distance between two points
+    on Earth using Haversine formula.
+    Returns distance in kilometers.
+    """
+    R = 6371  # Earth's radius in kilometers
+    
+    # Convert degrees to radians
+    lat1_rad = math.radians(lat1)
+    lat2_rad = math.radians(lat2)
+    delta_lat = math.radians(lat2 - lat1)
+    delta_lon = math.radians(lon2 - lon1)
+    
+    # Haversine formula
+    a = (math.sin(delta_lat / 2) ** 2 +
+         math.cos(lat1_rad) * math.cos(lat2_rad) *
+         math.sin(delta_lon / 2) ** 2)
+    
+    c = 2 * math.asin(math.sqrt(a))
+    
+    distance = R * c
+    return round(distance, 2)
+
+# Usage in Donor model
+def distance_to(self, other_lat, other_lng):
+    if not (self.latitude and self.longitude and other_lat and other_lng):
+        return None
+    return haversine_distance(
+        float(self.latitude), float(self.longitude),
+        float(other_lat), float(other_lng)
+    )
+\end{lstlisting}
+
+\section{Security Implementation}
+
+\subsection{CSRF Protection}
+
+\begin{lstlisting}[language=HTML, caption=CSRF Token in Forms]
+<form method="POST">
+    {% csrf_token %}
+    <input type="text" name="username" required>
+    <input type="password" name="password" required>
+    <button type="submit">Login</button>
+</form>
+\end{lstlisting}
+
+\subsection{Custom Decorators}
+
+\begin{lstlisting}[language=Python, caption=Role-Based Access Decorator]
+from functools import wraps
+from django.shortcuts import redirect
+from django.contrib import messages
+
+def donor_required(view_func):
+    """Decorator to require donor role"""
+    @wraps(view_func)
+    def wrapper(request, *args, **kwargs):
+        if not request.user.is_authenticated:
+            return redirect('accounts:login')
+        
+        if request.user.is_staff:
+            messages.error(request, 'This page is for donors only')
+            return redirect('admin_panel:dashboard')
+        
+        try:
+            donor = request.user.donor
+        except Donor.DoesNotExist:
+            messages.error(request, 'Donor profile not found')
+            return redirect('accounts:login')
+        
+        return view_func(request, *args, **kwargs)
+    return wrapper
+
+# Usage
+@donor_required
+def donor_dashboard(request):
+    # View implementation
+    pass
+\end{lstlisting}
+
+\section{Database Migrations}
+
+\begin{lstlisting}[language=Python, caption=Creating and Applying Migrations]
+# Generate migrations from model changes
+python manage.py makemigrations
+
+# Apply migrations to database
+python manage.py migrate
+
+# View migration SQL (without applying)
+python manage.py sqlmigrate donor 0001
+
+# List all migrations
+python manage.py showmigrations
+\end{lstlisting}
+
+\section{Challenges and Solutions}
+
+\subsection{Challenge 1: Real-time Eligibility Checking}
+
+\textbf{Problem:} Calculating eligibility requires checking multiple conditions across different tables (Donor, HealthMetrics, DonationHistory).
+
+\textbf{Solution:} Implemented a comprehensive \texttt{check\_eligibility()} method in the Donor model that aggregates all checks in a single database-efficient query, with caching of results in the session.
+
+\subsection{Challenge 2: Location-based Donor Matching}
+
+\textbf{Problem:} Finding nearby donors requires calculating distances between geographic coordinates for potentially thousands of donors.
+
+\textbf{Solution:} Implemented Haversine formula for distance calculation with database-level filtering using latitude/longitude bounds before applying the precise calculation to reduce computational overhead.
+
+\subsection{Challenge 3: Blood Type Compatibility}
+
+\textbf{Problem:} Emergency requests need to match not just exact blood types but also compatible types (e.g., O- is universal donor).
+
+\textbf{Solution:} Created a \texttt{BLOOD\_COMPATIBILITY} constant dictionary in \texttt{utils/constants.py} defining compatible blood types, used in donor matching algorithms.
+
+\section{Summary}
+
+This chapter detailed the implementation of BDIMS, covering the development environment, technology stack (Django, PostgreSQL, Leaflet.js, Chart.js), project structure, and module-by-module implementation. Key implementations include the authentication system, donor management with eligibility checking, health metrics tracking, blood inventory management with automatic updates, emergency response with donor matching, and interactive location tracking. The chapter also presented important algorithms including eligibility calculation and distance measurement using the Haversine formula. Security measures including CSRF protection and role-based access control were implemented throughout. The next chapter covers the testing procedures used to validate the system.

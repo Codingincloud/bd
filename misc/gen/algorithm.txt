@@ -1,0 +1,44 @@
+Algorithm
+
+1. Start: Initialize BDIMS and establish database connection.
+
+2. Display Home Page: Show login and registration options.
+
+3. User Authentication:
+   a. Register: Enter credentials and role (Donor/Admin), provide required details 
+      (blood group for donor, hospital info for admin), validate and create account.
+   b. Login: Enter credentials and role, verify against database, create session 
+      and redirect to dashboard.
+
+4. Donor Dashboard Operations:
+   a. View profile, total donations, eligibility status, and health metrics.
+   b. Check donation eligibility based on 56-day rule.
+   c. Schedule donation by selecting hospital, date, and time.
+   d. View donation history and request statuses.
+   e. Update health metrics (weight, blood pressure, heart rate).
+   f. View and respond to emergency blood requests.
+   g. Update location using GPS, predefined cities, or manual entry.
+   h. View blood inventory across all hospitals.
+   i. Update personal information and emergency contacts.
+   j. View notifications and alerts.
+
+5. Admin Dashboard Operations:
+   a. View system analytics and statistics.
+   b. Manage donation requests (approve, reject, or mark complete).
+   c. Manage blood inventory (add, remove, or set units).
+   d. Create and manage emergency blood requests.
+   e. Track and search donors with filters.
+   f. Manage hospital details and settings.
+   g. Search donors by location and blood group.
+   h. Generate and export reports.
+
+6. Blood Compatibility: O- donates to all, O+ to O+/A+/B+/AB+, A- to 
+   A-/A+/AB-/AB+, A+ to A+/AB+, B- to B-/B+/AB-/AB+, B+ to B+/AB+, AB- to 
+   AB-/AB+, AB+ to AB+ only.
+
+7. Database Operations: Validate inputs, execute queries, use transactions, 
+   update timestamps, create notifications, maintain integrity.
+
+8. Logout: Clear session and redirect to login.
+
+9. End: Return to step 2.

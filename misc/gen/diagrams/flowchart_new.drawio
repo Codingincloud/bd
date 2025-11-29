@@ -1,0 +1,415 @@
+<mxGraphModel dx="1042" dy="534" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="827" pageHeight="1169" math="0" shadow="0">
+  <root>
+    <mxCell id="0" />
+    <mxCell id="1" parent="0" />
+    
+    <!-- System Boundary -->
+    <mxCell id="system-box" parent="1" style="rounded=0;whiteSpace=wrap;html=1;strokeWidth=2;fillColor=none;dashed=1;dashPattern=8 8;" value="" vertex="1">
+      <mxGeometry height="1040" width="760" x="34" y="90" as="geometry" />
+    </mxCell>
+    
+    <!-- Start -->
+    <mxCell id="start" parent="1" style="ellipse;whiteSpace=wrap;html=1;strokeWidth=2;fillColor=#FFFFFF;strokeColor=#000000;" value="Start" vertex="1">
+      <mxGeometry height="60" width="120" x="354" y="20" as="geometry" />
+    </mxCell>
+    
+    <!-- Do you have account? -->
+    <mxCell id="has-account" parent="1" style="rhombus;whiteSpace=wrap;html=1;strokeWidth=2;fillColor=#FFFFFF;strokeColor=#000000;" value="Do you have&#xa;account?" vertex="1">
+      <mxGeometry height="80" width="120" x="354" y="110" as="geometry" />
+    </mxCell>
+    
+    <!-- Arrow Start to Has Account -->
+    <mxCell id="arrow1" edge="1" parent="1" source="start" target="has-account" style="endArrow=classic;html=1;rounded=0;strokeWidth=2;strokeColor=#000000;">
+      <mxGeometry relative="1" as="geometry" />
+    </mxCell>
+    
+    <!-- Select Role -->
+    <mxCell id="select-role" parent="1" style="rhombus;whiteSpace=wrap;html=1;strokeWidth=2;fillColor=#FFFFFF;strokeColor=#000000;" value="Select Role" vertex="1">
+      <mxGeometry height="80" width="120" x="544" y="130" as="geometry" />
+    </mxCell>
+    
+    <!-- Arrow no to Select Role -->
+    <mxCell id="arrow-no-role" edge="1" parent="1" source="has-account" target="select-role" style="endArrow=classic;html=1;rounded=0;strokeWidth=2;strokeColor=#000000;">
+      <mxGeometry relative="1" as="geometry" />
+    </mxCell>
+    <mxCell id="label-no" parent="1" style="text;html=1;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;" value="no" vertex="1">
+      <mxGeometry height="20" width="30" x="490" y="130" as="geometry" />
+    </mxCell>
+    
+    <!-- Donor Registration -->
+    <mxCell id="donor-reg" parent="1" style="rounded=0;whiteSpace=wrap;html=1;strokeWidth=2;fillColor=#FFFFFF;strokeColor=#000000;" value="Donor Registration" vertex="1">
+      <mxGeometry height="50" width="140" x="670" y="145" as="geometry" />
+    </mxCell>
+    
+    <!-- Arrow Select Role to Donor Reg -->
+    <mxCell id="arrow-donor-reg" edge="1" parent="1" source="select-role" target="donor-reg" style="endArrow=classic;html=1;rounded=0;strokeWidth=2;strokeColor=#000000;entryX=0;entryY=0.5;entryDx=0;entryDy=0;exitX=1;exitY=0.5;exitDx=0;exitDy=0;">
+      <mxGeometry relative="1" as="geometry" />
+    </mxCell>
+    
+    <!-- Admin Registration -->
+    <mxCell id="admin-reg" parent="1" style="rounded=0;whiteSpace=wrap;html=1;strokeWidth=2;fillColor=#FFFFFF;strokeColor=#000000;" value="Admin Registration" vertex="1">
+      <mxGeometry height="50" width="140" x="534" y="250" as="geometry" />
+    </mxCell>
+    
+    <!-- Arrow Select Role to Admin Reg -->
+    <mxCell id="arrow-admin-reg" edge="1" parent="1" source="select-role" target="admin-reg" style="endArrow=classic;html=1;rounded=0;strokeWidth=2;strokeColor=#000000;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;">
+      <mxGeometry relative="1" as="geometry" />
+    </mxCell>
+    
+    <!-- Registration Loop Back -->
+    <mxCell id="arrow-reg-back" edge="1" parent="1" source="donor-reg" target="has-account" style="endArrow=classic;html=1;rounded=0;strokeWidth=2;strokeColor=#000000;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=1;entryY=0.5;entryDx=0;entryDy=0;">
+      <mxGeometry relative="1" as="geometry">
+        <Array as="points">
+          <mxPoint x="840" y="170" />
+          <mxPoint x="840" y="150" />
+        </Array>
+      </mxGeometry>
+    </mxCell>
+    
+    <mxCell id="arrow-admin-back" edge="1" parent="1" source="admin-reg" target="has-account" style="endArrow=classic;html=1;rounded=0;strokeWidth=2;strokeColor=#000000;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=1;entryY=0.5;entryDx=0;entryDy=0;">
+      <mxGeometry relative="1" as="geometry">
+        <Array as="points">
+          <mxPoint x="840" y="275" />
+          <mxPoint x="840" y="150" />
+        </Array>
+      </mxGeometry>
+    </mxCell>
+    
+    <!-- Enter credentials -->
+    <mxCell id="enter-cred" parent="1" style="shape=parallelogram;perimeter=parallelogramPerimeter;whiteSpace=wrap;html=1;strokeWidth=2;fillColor=#FFFFFF;strokeColor=#000000;" value="Enter credentials" vertex="1">
+      <mxGeometry height="60" width="160" x="334" y="220" as="geometry" />
+    </mxCell>
+    
+    <!-- Arrow yes to Enter Credentials -->
+    <mxCell id="arrow-yes-cred" edge="1" parent="1" source="has-account" target="enter-cred" style="endArrow=classic;html=1;rounded=0;strokeWidth=2;strokeColor=#000000;">
+      <mxGeometry relative="1" as="geometry" />
+    </mxCell>
+    <mxCell id="label-yes" parent="1" style="text;html=1;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;" value="yes" vertex="1">
+      <mxGeometry height="20" width="30" x="420" y="190" as="geometry" />
+    </mxCell>
+    
+    <!-- Valid? -->
+    <mxCell id="valid" parent="1" style="rhombus;whiteSpace=wrap;html=1;strokeWidth=2;fillColor=#FFFFFF;strokeColor=#000000;" value="Valid?" vertex="1">
+      <mxGeometry height="80" width="100" x="364" y="310" as="geometry" />
+    </mxCell>
+    
+    <!-- Arrow Enter Cred to Valid -->
+    <mxCell id="arrow-cred-valid" edge="1" parent="1" source="enter-cred" target="valid" style="endArrow=classic;html=1;rounded=0;strokeWidth=2;strokeColor=#000000;">
+      <mxGeometry relative="1" as="geometry" />
+    </mxCell>
+    
+    <!-- Loop back no -->
+    <mxCell id="arrow-invalid" edge="1" parent="1" source="valid" target="enter-cred" style="endArrow=classic;html=1;rounded=0;strokeWidth=2;strokeColor=#000000;exitX=0;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;">
+      <mxGeometry relative="1" as="geometry">
+        <Array as="points">
+          <mxPoint x="300" y="350" />
+          <mxPoint x="300" y="250" />
+        </Array>
+      </mxGeometry>
+    </mxCell>
+    <mxCell id="label-invalid" parent="1" style="text;html=1;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;" value="no" vertex="1">
+      <mxGeometry height="20" width="30" x="270" y="290" as="geometry" />
+    </mxCell>
+    
+    <!-- Role Split Line -->
+    <mxCell id="role-split" parent="1" style="text;html=1;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=14;fontStyle=1" value="Admin                                                                  Donor" vertex="1">
+      <mxGeometry height="20" width="600" x="100" y="420" as="geometry" />
+    </mxCell>
+    
+    <!-- Admin Dashboard -->
+    <mxCell id="admin-dash" parent="1" style="shape=parallelogram;perimeter=parallelogramPerimeter;whiteSpace=wrap;html=1;strokeWidth=2;fillColor=#FFFFFF;strokeColor=#000000;" value="Admin Dashboard" vertex="1">
+      <mxGeometry height="60" width="160" x="80" y="460" as="geometry" />
+    </mxCell>
+    
+    <!-- Donor Dashboard -->
+    <mxCell id="donor-dash" parent="1" style="shape=parallelogram;perimeter=parallelogramPerimeter;whiteSpace=wrap;html=1;strokeWidth=2;fillColor=#FFFFFF;strokeColor=#000000;" value="Donor Dashboard" vertex="1">
+      <mxGeometry height="60" width="160" x="580" y="460" as="geometry" />
+    </mxCell>
+    
+    <!-- Arrow Valid to Dashboards -->
+    <mxCell id="arrow-valid-admin" edge="1" parent="1" source="valid" target="admin-dash" style="endArrow=classic;html=1;rounded=0;strokeWidth=2;strokeColor=#000000;exitX=0;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;">
+      <mxGeometry relative="1" as="geometry">
+        <Array as="points">
+          <mxPoint x="160" y="390" />
+        </Array>
+      </mxGeometry>
+    </mxCell>
+    <mxCell id="label-admin" parent="1" style="text;html=1;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;" value="Admin" vertex="1">
+      <mxGeometry height="20" width="50" x="220" y="400" as="geometry" />
+    </mxCell>
+    
+    <mxCell id="arrow-valid-donor" edge="1" parent="1" source="valid" target="donor-dash" style="endArrow=classic;html=1;rounded=0;strokeWidth=2;strokeColor=#000000;exitX=1;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;">
+      <mxGeometry relative="1" as="geometry">
+        <Array as="points">
+          <mxPoint x="660" y="390" />
+        </Array>
+      </mxGeometry>
+    </mxCell>
+    <mxCell id="label-donor" parent="1" style="text;html=1;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;" value="Donor" vertex="1">
+      <mxGeometry height="20" width="50" x="550" y="400" as="geometry" />
+    </mxCell>
+    
+    <!-- Admin Functions -->
+    
+    <!-- Send Notifications? -->
+    <mxCell id="send-notif" parent="1" style="rhombus;whiteSpace=wrap;html=1;strokeWidth=2;fillColor=#FFFFFF;strokeColor=#000000;" value="Send&#xa;notifications?" vertex="1">
+      <mxGeometry height="80" width="120" x="100" y="560" as="geometry" />
+    </mxCell>
+    
+    <mxCell id="arrow-dash-notif" edge="1" parent="1" source="admin-dash" target="send-notif" style="endArrow=classic;html=1;rounded=0;strokeWidth=2;strokeColor=#000000;">
+      <mxGeometry relative="1" as="geometry" />
+    </mxCell>
+    
+    <!-- Send eligibility notification -->
+    <mxCell id="send-elig" parent="1" style="rounded=0;whiteSpace=wrap;html=1;strokeWidth=2;fillColor=#FFFFFF;strokeColor=#000000;" value="send eligibility,&#xa;matching blood&#xa;request" vertex="1">
+      <mxGeometry height="60" width="140" x="270" y="570" as="geometry" />
+    </mxCell>
+    
+    <mxCell id="arrow-notif-yes" edge="1" parent="1" source="send-notif" target="send-elig" style="endArrow=classic;html=1;rounded=0;strokeWidth=2;strokeColor=#000000;">
+      <mxGeometry relative="1" as="geometry" />
+    </mxCell>
+    <mxCell id="label-notif-yes" parent="1" style="text;html=1;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;" value="yes" vertex="1">
+      <mxGeometry height="20" width="30" x="230" y="580" as="geometry" />
+    </mxCell>
+    
+    <!-- Manage blood request? -->
+    <mxCell id="manage-blood" parent="1" style="rhombus;whiteSpace=wrap;html=1;strokeWidth=2;fillColor=#FFFFFF;strokeColor=#000000;" value="manage blood&#xa;request?" vertex="1">
+      <mxGeometry height="80" width="120" x="100" y="680" as="geometry" />
+    </mxCell>
+    
+    <mxCell id="arrow-notif-no" edge="1" parent="1" source="send-notif" target="manage-blood" style="endArrow=classic;html=1;rounded=0;strokeWidth=2;strokeColor=#000000;">
+      <mxGeometry relative="1" as="geometry" />
+    </mxCell>
+    <mxCell id="label-notif-no" parent="1" style="text;html=1;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;" value="no" vertex="1">
+      <mxGeometry height="20" width="30" x="130" y="650" as="geometry" />
+    </mxCell>
+    
+    <!-- View approve and assign donor -->
+    <mxCell id="view-approve" parent="1" style="rounded=0;whiteSpace=wrap;html=1;strokeWidth=2;fillColor=#FFFFFF;strokeColor=#000000;" value="view approve and&#xa;assign donor to&#xa;request" vertex="1">
+      <mxGeometry height="60" width="140" x="270" y="690" as="geometry" />
+    </mxCell>
+    
+    <mxCell id="arrow-blood-yes" edge="1" parent="1" source="manage-blood" target="view-approve" style="endArrow=classic;html=1;rounded=0;strokeWidth=2;strokeColor=#000000;">
+      <mxGeometry relative="1" as="geometry" />
+    </mxCell>
+    <mxCell id="label-blood-yes" parent="1" style="text;html=1;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;" value="yes" vertex="1">
+      <mxGeometry height="20" width="30" x="230" y="700" as="geometry" />
+    </mxCell>
+    
+    <!-- Manage Inventory? -->
+    <mxCell id="manage-inv" parent="1" style="rhombus;whiteSpace=wrap;html=1;strokeWidth=2;fillColor=#FFFFFF;strokeColor=#000000;" value="manage&#xa;inventory?" vertex="1">
+      <mxGeometry height="80" width="120" x="100" y="800" as="geometry" />
+    </mxCell>
+    
+    <mxCell id="arrow-blood-no" edge="1" parent="1" source="manage-blood" target="manage-inv" style="endArrow=classic;html=1;rounded=0;strokeWidth=2;strokeColor=#000000;">
+      <mxGeometry relative="1" as="geometry" />
+    </mxCell>
+    <mxCell id="label-blood-no" parent="1" style="text;html=1;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;" value="no" vertex="1">
+      <mxGeometry height="20" width="30" x="130" y="770" as="geometry" />
+    </mxCell>
+    
+    <!-- Track blood stock -->
+    <mxCell id="track-stock" parent="1" style="rounded=0;whiteSpace=wrap;html=1;strokeWidth=2;fillColor=#FFFFFF;strokeColor=#000000;" value="track blood stock&#xa;and update&#xa;inventory" vertex="1">
+      <mxGeometry height="60" width="140" x="270" y="810" as="geometry" />
+    </mxCell>
+    
+    <mxCell id="arrow-inv-yes" edge="1" parent="1" source="manage-inv" target="track-stock" style="endArrow=classic;html=1;rounded=0;strokeWidth=2;strokeColor=#000000;">
+      <mxGeometry relative="1" as="geometry" />
+    </mxCell>
+    <mxCell id="label-inv-yes" parent="1" style="text;html=1;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;" value="yes" vertex="1">
+      <mxGeometry height="20" width="30" x="230" y="820" as="geometry" />
+    </mxCell>
+    
+    <!-- Donor Functions -->
+    
+    <!-- Search donation? -->
+    <mxCell id="search-don" parent="1" style="rhombus;whiteSpace=wrap;html=1;strokeWidth=2;fillColor=#FFFFFF;strokeColor=#000000;" value="search&#xa;donation?" vertex="1">
+      <mxGeometry height="80" width="120" x="600" y="560" as="geometry" />
+    </mxCell>
+    
+    <mxCell id="arrow-donor-search" edge="1" parent="1" source="donor-dash" target="search-don" style="endArrow=classic;html=1;rounded=0;strokeWidth=2;strokeColor=#000000;">
+      <mxGeometry relative="1" as="geometry" />
+    </mxCell>
+    
+    <!-- Search for donation request -->
+    <mxCell id="search-req" parent="1" style="rounded=0;whiteSpace=wrap;html=1;strokeWidth=2;fillColor=#FFFFFF;strokeColor=#000000;" value="search for donation&#xa;request" vertex="1">
+      <mxGeometry height="50" width="140" x="430" y="575" as="geometry" />
+    </mxCell>
+    
+    <mxCell id="arrow-search-yes" edge="1" parent="1" source="search-don" target="search-req" style="endArrow=classic;html=1;rounded=0;strokeWidth=2;strokeColor=#000000;">
+      <mxGeometry relative="1" as="geometry" />
+    </mxCell>
+    <mxCell id="label-search-yes" parent="1" style="text;html=1;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;" value="yes" vertex="1">
+      <mxGeometry height="20" width="30" x="570" y="580" as="geometry" />
+    </mxCell>
+    
+    <!-- View history? -->
+    <mxCell id="view-hist" parent="1" style="rhombus;whiteSpace=wrap;html=1;strokeWidth=2;fillColor=#FFFFFF;strokeColor=#000000;" value="view&#xa;history?" vertex="1">
+      <mxGeometry height="80" width="120" x="600" y="680" as="geometry" />
+    </mxCell>
+    
+    <mxCell id="arrow-search-no" edge="1" parent="1" source="search-don" target="view-hist" style="endArrow=classic;html=1;rounded=0;strokeWidth=2;strokeColor=#000000;">
+      <mxGeometry relative="1" as="geometry" />
+    </mxCell>
+    <mxCell id="label-search-no" parent="1" style="text;html=1;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;" value="no" vertex="1">
+      <mxGeometry height="20" width="30" x="630" y="650" as="geometry" />
+    </mxCell>
+    
+    <!-- See personal donation history -->
+    <mxCell id="see-history" parent="1" style="shape=parallelogram;perimeter=parallelogramPerimeter;whiteSpace=wrap;html=1;strokeWidth=2;fillColor=#FFFFFF;strokeColor=#000000;" value="see personal&#xa;donation history" vertex="1">
+      <mxGeometry height="60" width="140" x="430" y="690" as="geometry" />
+    </mxCell>
+    
+    <mxCell id="arrow-hist-yes" edge="1" parent="1" source="view-hist" target="see-history" style="endArrow=classic;html=1;rounded=0;strokeWidth=2;strokeColor=#000000;">
+      <mxGeometry relative="1" as="geometry" />
+    </mxCell>
+    <mxCell id="label-hist-yes" parent="1" style="text;html=1;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;" value="yes" vertex="1">
+      <mxGeometry height="20" width="30" x="570" y="700" as="geometry" />
+    </mxCell>
+    
+    <!-- Check eligibility? -->
+    <mxCell id="check-elig" parent="1" style="rhombus;whiteSpace=wrap;html=1;strokeWidth=2;fillColor=#FFFFFF;strokeColor=#000000;" value="check&#xa;eligibility?" vertex="1">
+      <mxGeometry height="80" width="120" x="600" y="800" as="geometry" />
+    </mxCell>
+    
+    <mxCell id="arrow-hist-no" edge="1" parent="1" source="view-hist" target="check-elig" style="endArrow=classic;html=1;rounded=0;strokeWidth=2;strokeColor=#000000;">
+      <mxGeometry relative="1" as="geometry" />
+    </mxCell>
+    <mxCell id="label-hist-no" parent="1" style="text;html=1;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;" value="no" vertex="1">
+      <mxGeometry height="20" width="30" x="630" y="770" as="geometry" />
+    </mxCell>
+    
+    <!-- View eligibility status -->
+    <mxCell id="view-elig" parent="1" style="rounded=0;whiteSpace=wrap;html=1;strokeWidth=2;fillColor=#FFFFFF;strokeColor=#000000;" value="view eligibility&#xa;status and health&#xa;metrics" vertex="1">
+      <mxGeometry height="60" width="140" x="430" y="810" as="geometry" />
+    </mxCell>
+    
+    <mxCell id="arrow-elig-yes" edge="1" parent="1" source="check-elig" target="view-elig" style="endArrow=classic;html=1;rounded=0;strokeWidth=2;strokeColor=#000000;">
+      <mxGeometry relative="1" as="geometry" />
+    </mxCell>
+    <mxCell id="label-elig-yes" parent="1" style="text;html=1;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;" value="yes" vertex="1">
+      <mxGeometry height="20" width="30" x="570" y="820" as="geometry" />
+    </mxCell>
+    
+    <!-- Update Profile? -->
+    <mxCell id="update-prof" parent="1" style="rhombus;whiteSpace=wrap;html=1;strokeWidth=2;fillColor=#FFFFFF;strokeColor=#000000;" value="update&#xa;profile?" vertex="1">
+      <mxGeometry height="80" width="120" x="600" y="920" as="geometry" />
+    </mxCell>
+    
+    <mxCell id="arrow-elig-no" edge="1" parent="1" source="check-elig" target="update-prof" style="endArrow=classic;html=1;rounded=0;strokeWidth=2;strokeColor=#000000;">
+      <mxGeometry relative="1" as="geometry" />
+    </mxCell>
+    <mxCell id="label-elig-no" parent="1" style="text;html=1;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;" value="no" vertex="1">
+      <mxGeometry height="20" width="30" x="630" y="890" as="geometry" />
+    </mxCell>
+    
+    <!-- Edit profile information -->
+    <mxCell id="edit-prof" parent="1" style="rounded=0;whiteSpace=wrap;html=1;strokeWidth=2;fillColor=#FFFFFF;strokeColor=#000000;" value="edit profile&#xa;information" vertex="1">
+      <mxGeometry height="50" width="140" x="430" y="935" as="geometry" />
+    </mxCell>
+    
+    <mxCell id="arrow-prof-yes" edge="1" parent="1" source="update-prof" target="edit-prof" style="endArrow=classic;html=1;rounded=0;strokeWidth=2;strokeColor=#000000;">
+      <mxGeometry relative="1" as="geometry" />
+    </mxCell>
+    <mxCell id="label-prof-yes" parent="1" style="text;html=1;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;" value="yes" vertex="1">
+      <mxGeometry height="20" width="30" x="570" y="940" as="geometry" />
+    </mxCell>
+    
+    <!-- Merge paths -->
+    <mxCell id="merge-point" parent="1" style="ellipse;whiteSpace=wrap;html=1;strokeWidth=2;fillColor=#000000;strokeColor=#000000;" value="" vertex="1">
+      <mxGeometry height="20" width="20" x="404" y="1030" as="geometry" />
+    </mxCell>
+    
+    <!-- Arrows to merge -->
+    <mxCell id="arrow-send-merge" edge="1" parent="1" source="send-elig" target="merge-point" style="endArrow=classic;html=1;rounded=0;strokeWidth=2;strokeColor=#000000;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0;entryY=0;entryDx=0;entryDy=0;">
+      <mxGeometry relative="1" as="geometry">
+        <Array as="points">
+          <mxPoint x="340" y="1010" />
+        </Array>
+      </mxGeometry>
+    </mxCell>
+    
+    <mxCell id="arrow-approve-merge" edge="1" parent="1" source="view-approve" target="merge-point" style="endArrow=classic;html=1;rounded=0;strokeWidth=2;strokeColor=#000000;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;">
+      <mxGeometry relative="1" as="geometry">
+        <Array as="points">
+          <mxPoint x="340" y="1040" />
+        </Array>
+      </mxGeometry>
+    </mxCell>
+    
+    <mxCell id="arrow-stock-merge" edge="1" parent="1" source="track-stock" target="merge-point" style="endArrow=classic;html=1;rounded=0;strokeWidth=2;strokeColor=#000000;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0;entryY=1;entryDx=0;entryDy=0;">
+      <mxGeometry relative="1" as="geometry">
+        <Array as="points">
+          <mxPoint x="340" y="1060" />
+        </Array>
+      </mxGeometry>
+    </mxCell>
+    
+    <mxCell id="arrow-inv-merge" edge="1" parent="1" source="manage-inv" target="merge-point" style="endArrow=classic;html=1;rounded=0;strokeWidth=2;strokeColor=#000000;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=1;entryDx=0;entryDy=0;">
+      <mxGeometry relative="1" as="geometry">
+        <Array as="points">
+          <mxPoint x="160" y="1080" />
+          <mxPoint x="414" y="1080" />
+        </Array>
+      </mxGeometry>
+    </mxCell>
+    <mxCell id="label-inv-no" parent="1" style="text;html=1;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;" value="no" vertex="1">
+      <mxGeometry height="20" width="30" x="130" y="890" as="geometry" />
+    </mxCell>
+    
+    <mxCell id="arrow-search-merge" edge="1" parent="1" source="search-req" target="merge-point" style="endArrow=classic;html=1;rounded=0;strokeWidth=2;strokeColor=#000000;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=1;entryY=0;entryDx=0;entryDy=0;">
+      <mxGeometry relative="1" as="geometry">
+        <Array as="points">
+          <mxPoint x="500" y="1010" />
+        </Array>
+      </mxGeometry>
+    </mxCell>
+    
+    <mxCell id="arrow-history-merge" edge="1" parent="1" source="see-history" target="merge-point" style="endArrow=classic;html=1;rounded=0;strokeWidth=2;strokeColor=#000000;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=1;entryY=0.5;entryDx=0;entryDy=0;">
+      <mxGeometry relative="1" as="geometry">
+        <Array as="points">
+          <mxPoint x="500" y="1040" />
+        </Array>
+      </mxGeometry>
+    </mxCell>
+    
+    <mxCell id="arrow-view-merge" edge="1" parent="1" source="view-elig" target="merge-point" style="endArrow=classic;html=1;rounded=0;strokeWidth=2;strokeColor=#000000;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=1;entryY=1;entryDx=0;entryDy=0;">
+      <mxGeometry relative="1" as="geometry">
+        <Array as="points">
+          <mxPoint x="500" y="1060" />
+        </Array>
+      </mxGeometry>
+    </mxCell>
+    
+    <mxCell id="arrow-edit-merge" edge="1" parent="1" source="edit-prof" target="merge-point" style="endArrow=classic;html=1;rounded=0;strokeWidth=2;strokeColor=#000000;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=1;entryDx=0;entryDy=0;">
+      <mxGeometry relative="1" as="geometry">
+        <Array as="points">
+          <mxPoint x="500" y="1080" />
+          <mxPoint x="414" y="1080" />
+        </Array>
+      </mxGeometry>
+    </mxCell>
+    
+    <mxCell id="arrow-prof-merge" edge="1" parent="1" source="update-prof" target="merge-point" style="endArrow=classic;html=1;rounded=0;strokeWidth=2;strokeColor=#000000;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=1;entryDx=0;entryDy=0;">
+      <mxGeometry relative="1" as="geometry">
+        <Array as="points">
+          <mxPoint x="660" y="1090" />
+          <mxPoint x="414" y="1090" />
+        </Array>
+      </mxGeometry>
+    </mxCell>
+    <mxCell id="label-prof-no" parent="1" style="text;html=1;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;" value="no" vertex="1">
+      <mxGeometry height="20" width="30" x="630" y="1010" as="geometry" />
+    </mxCell>
+    
+    <!-- End -->
+    <mxCell id="end" parent="1" style="ellipse;whiteSpace=wrap;html=1;strokeWidth=2;fillColor=#FFFFFF;strokeColor=#000000;" value="End" vertex="1">
+      <mxGeometry height="60" width="120" x="354" y="1110" as="geometry" />
+    </mxCell>
+    
+    <mxCell id="arrow-merge-end" edge="1" parent="1" source="merge-point" target="end" style="endArrow=classic;html=1;rounded=0;strokeWidth=2;strokeColor=#000000;">
+      <mxGeometry relative="1" as="geometry" />
+    </mxCell>
+    
+  </root>
+</mxGraphModel>

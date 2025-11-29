@@ -1,0 +1,163 @@
+<mxGraphModel dx="1445" dy="773" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1654" pageHeight="1169" math="0" shadow="0">
+  <root>
+    <mxCell id="0" />
+    <mxCell id="1" parent="0" />
+    
+    <!-- User Entity -->
+    <mxCell id="user-entity" parent="1" style="rounded=0;whiteSpace=wrap;html=1;strokeWidth=2;fillColor=#FFFFFF;strokeColor=#000000;" value="" vertex="1">
+      <mxGeometry height="200" width="200" x="100" y="200" as="geometry" />
+    </mxCell>
+    <mxCell id="user-title" parent="1" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#000000;strokeColor=#000000;fontColor=#FFFFFF;fontStyle=1;fontSize=12;" value="User" vertex="1">
+      <mxGeometry height="30" width="200" x="100" y="200" as="geometry" />
+    </mxCell>
+    <mxCell id="user-attrs" parent="1" style="text;align=left;verticalAlign=top;spacingLeft=10;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;fontSize=11;fontColor=#000000;" value="pk  id: int&#xa;     username: varchar&#xa;     email: varchar&#xa;     password: varchar&#xa;     first_name: varchar&#xa;     last_name: varchar&#xa;     is_staff: boolean&#xa;     is_active: boolean&#xa;     date_joined: datetime" vertex="1">
+      <mxGeometry height="170" width="200" x="100" y="230" as="geometry" />
+    </mxCell>
+    
+    <!-- Donor Entity -->
+    <mxCell id="donor-entity" parent="1" style="rounded=0;whiteSpace=wrap;html=1;strokeWidth=2;fillColor=#FFFFFF;strokeColor=#000000;" value="" vertex="1">
+      <mxGeometry height="280" width="220" x="390" y="150" as="geometry" />
+    </mxCell>
+    <mxCell id="donor-title" parent="1" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#000000;strokeColor=#000000;fontColor=#FFFFFF;fontStyle=1;fontSize=12;" value="Donor" vertex="1">
+      <mxGeometry height="30" width="220" x="390" y="150" as="geometry" />
+    </mxCell>
+    <mxCell id="donor-attrs" parent="1" style="text;align=left;verticalAlign=top;spacingLeft=10;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;fontSize=11;fontColor=#000000;" value="pk  id: int&#xa;fk  user_id: int&#xa;     blood_group: varchar&#xa;     date_of_birth: date&#xa;     gender: varchar&#xa;     phone_number: varchar&#xa;     address: text&#xa;     weight: decimal&#xa;     height: decimal&#xa;     is_eligible: boolean&#xa;     last_donation_date: date&#xa;     emergency_contact: varchar&#xa;     created_at: datetime" vertex="1">
+      <mxGeometry height="250" width="220" x="390" y="180" as="geometry" />
+    </mxCell>
+    
+    <!-- AdminProfile Entity -->
+    <mxCell id="admin-entity" parent="1" style="rounded=0;whiteSpace=wrap;html=1;strokeWidth=2;fillColor=#FFFFFF;strokeColor=#000000;" value="" vertex="1">
+      <mxGeometry height="180" width="200" x="100" y="470" as="geometry" />
+    </mxCell>
+    <mxCell id="admin-title" parent="1" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#000000;strokeColor=#000000;fontColor=#FFFFFF;fontStyle=1;fontSize=12;" value="AdminProfile" vertex="1">
+      <mxGeometry height="30" width="200" x="100" y="470" as="geometry" />
+    </mxCell>
+    <mxCell id="admin-attrs" parent="1" style="text;align=left;verticalAlign=top;spacingLeft=10;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;fontSize=11;fontColor=#000000;" value="pk  id: int&#xa;fk  user_id: int&#xa;     name: varchar&#xa;     contact_no: varchar&#xa;     email: varchar&#xa;     department: varchar&#xa;     created_at: datetime" vertex="1">
+      <mxGeometry height="150" width="200" x="100" y="500" as="geometry" />
+    </mxCell>
+    
+    <!-- DonationRequest Entity -->
+    <mxCell id="request-entity" parent="1" style="rounded=0;whiteSpace=wrap;html=1;strokeWidth=2;fillColor=#FFFFFF;strokeColor=#000000;" value="" vertex="1">
+      <mxGeometry height="180" width="200" x="690" y="150" as="geometry" />
+    </mxCell>
+    <mxCell id="request-title" parent="1" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#000000;strokeColor=#000000;fontColor=#FFFFFF;fontStyle=1;fontSize=12;" value="DonationRequest" vertex="1">
+      <mxGeometry height="30" width="200" x="690" y="150" as="geometry" />
+    </mxCell>
+    <mxCell id="request-attrs" parent="1" style="text;align=left;verticalAlign=top;spacingLeft=10;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;fontSize=11;fontColor=#000000;" value="pk  id: int&#xa;fk  donor_id: int&#xa;     requested_date: date&#xa;     preferred_time: time&#xa;     status: varchar&#xa;     notes: text&#xa;     created_at: datetime" vertex="1">
+      <mxGeometry height="150" width="200" x="690" y="180" as="geometry" />
+    </mxCell>
+    
+    <!-- DonationHistory Entity -->
+    <mxCell id="history-entity" parent="1" style="rounded=0;whiteSpace=wrap;html=1;strokeWidth=2;fillColor=#FFFFFF;strokeColor=#000000;" value="" vertex="1">
+      <mxGeometry height="180" width="200" x="690" y="380" as="geometry" />
+    </mxCell>
+    <mxCell id="history-title" parent="1" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#000000;strokeColor=#000000;fontColor=#FFFFFF;fontStyle=1;fontSize=12;" value="DonationHistory" vertex="1">
+      <mxGeometry height="30" width="200" x="690" y="380" as="geometry" />
+    </mxCell>
+    <mxCell id="history-attrs" parent="1" style="text;align=left;verticalAlign=top;spacingLeft=10;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;fontSize=11;fontColor=#000000;" value="pk  id: int&#xa;fk  donor_id: int&#xa;     donation_date: date&#xa;     donation_center: varchar&#xa;     units_donated: decimal&#xa;     blood_pressure: varchar&#xa;     hemoglobin_level: decimal" vertex="1">
+      <mxGeometry height="150" width="200" x="690" y="410" as="geometry" />
+    </mxCell>
+    
+    <!-- HealthMetrics Entity -->
+    <mxCell id="health-entity" parent="1" style="rounded=0;whiteSpace=wrap;html=1;strokeWidth=2;fillColor=#FFFFFF;strokeColor=#000000;" value="" vertex="1">
+      <mxGeometry height="160" width="200" x="400" y="490" as="geometry" />
+    </mxCell>
+    <mxCell id="health-title" parent="1" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#000000;strokeColor=#000000;fontColor=#FFFFFF;fontStyle=1;fontSize=12;" value="HealthMetrics" vertex="1">
+      <mxGeometry height="30" width="200" x="400" y="490" as="geometry" />
+    </mxCell>
+    <mxCell id="health-attrs" parent="1" style="text;align=left;verticalAlign=top;spacingLeft=10;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;fontSize=11;fontColor=#000000;" value="pk  id: int&#xa;fk  donor_id: int&#xa;     weight: decimal&#xa;     blood_pressure: varchar&#xa;     heart_rate: int&#xa;     recorded_at: datetime" vertex="1">
+      <mxGeometry height="130" width="200" x="400" y="520" as="geometry" />
+    </mxCell>
+    
+    <!-- EmergencyRequest Entity -->
+    <mxCell id="emergency-entity" parent="1" style="rounded=0;whiteSpace=wrap;html=1;strokeWidth=2;fillColor=#FFFFFF;strokeColor=#000000;" value="" vertex="1">
+      <mxGeometry height="200" width="220" x="980" y="150" as="geometry" />
+    </mxCell>
+    <mxCell id="emergency-title" parent="1" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#000000;strokeColor=#000000;fontColor=#FFFFFF;fontStyle=1;fontSize=12;" value="EmergencyRequest" vertex="1">
+      <mxGeometry height="30" width="220" x="980" y="150" as="geometry" />
+    </mxCell>
+    <mxCell id="emergency-attrs" parent="1" style="text;align=left;verticalAlign=top;spacingLeft=10;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;fontSize=11;fontColor=#000000;" value="pk  id: int&#xa;     blood_group_needed: varchar&#xa;     units_needed: int&#xa;     hospital_name: varchar&#xa;     contact_person: varchar&#xa;     urgency_level: varchar&#xa;     status: varchar&#xa;     created_at: datetime" vertex="1">
+      <mxGeometry height="170" width="220" x="980" y="180" as="geometry" />
+    </mxCell>
+    
+    <!-- BloodInventory Entity -->
+    <mxCell id="inventory-entity" parent="1" style="rounded=0;whateSpace=wrap;html=1;strokeWidth=2;fillColor=#FFFFFF;strokeColor=#000000;" value="" vertex="1">
+      <mxGeometry height="140" width="200" x="990" y="410" as="geometry" />
+    </mxCell>
+    <mxCell id="inventory-title" parent="1" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#000000;strokeColor=#000000;fontColor=#FFFFFF;fontStyle=1;fontSize=12;" value="BloodInventory" vertex="1">
+      <mxGeometry height="30" width="200" x="990" y="410" as="geometry" />
+    </mxCell>
+    <mxCell id="inventory-attrs" parent="1" style="text;align=left;verticalAlign=top;spacingLeft=10;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;fontSize=11;fontColor=#000000;" value="pk  id: int&#xa;     blood_group: varchar&#xa;     units_available: int&#xa;fk  updated_by_id: int&#xa;     last_updated: datetime" vertex="1">
+      <mxGeometry height="110" width="200" x="990" y="440" as="geometry" />
+    </mxCell>
+    
+    <!-- DonationCenter Entity -->
+    <mxCell id="center-entity" parent="1" style="rounded=0;whiteSpace=wrap;html=1;strokeWidth=2;fillColor=#FFFFFF;strokeColor=#000000;" value="" vertex="1">
+      <mxGeometry height="160" width="200" x="690" y="610" as="geometry" />
+    </mxCell>
+    <mxCell id="center-title" parent="1" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#000000;strokeColor=#000000;fontColor=#FFFFFF;fontStyle=1;fontSize=12;" value="DonationCenter" vertex="1">
+      <mxGeometry height="30" width="200" x="690" y="610" as="geometry" />
+    </mxCell>
+    <mxCell id="center-attrs" parent="1" style="text;align=left;verticalAlign=top;spacingLeft=10;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;fontSize=11;fontColor=#000000;" value="pk  id: int&#xa;     name: varchar&#xa;     address: text&#xa;     city: varchar&#xa;     phone_number: varchar&#xa;     is_active: boolean" vertex="1">
+      <mxGeometry height="130" width="200" x="690" y="640" as="geometry" />
+    </mxCell>
+    
+    <!-- Relationships -->
+    
+    <!-- User to Donor (1:1) -->
+    <mxCell id="rel1" edge="1" parent="1" source="user-entity" target="donor-entity" style="endArrow=ERone;startArrow=ERone;html=1;rounded=0;strokeWidth=2;strokeColor=#000000;exitX=1;exitY=0.3;exitDx=0;exitDy=0;entryX=0;entryY=0.3;entryDx=0;entryDy=0;">
+      <mxGeometry relative="1" as="geometry" />
+    </mxCell>
+    <mxCell id="rel1-label" parent="1" style="text;html=1;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=11;fontStyle=2;fontColor=#000000;" value="has profile" vertex="1">
+      <mxGeometry height="20" width="70" x="315" y="230" as="geometry" />
+    </mxCell>
+    
+    <!-- User to AdminProfile (1:1) -->
+    <mxCell id="rel2" edge="1" parent="1" source="user-entity" target="admin-entity" style="endArrow=ERone;startArrow=ERone;html=1;rounded=0;strokeWidth=2;strokeColor=#000000;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;">
+      <mxGeometry relative="1" as="geometry" />
+    </mxCell>
+    <mxCell id="rel2-label" parent="1" style="text;html=1;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=11;fontStyle=2;fontColor=#000000;" value="has admin" vertex="1">
+      <mxGeometry height="20" width="70" x="130" y="425" as="geometry" />
+    </mxCell>
+    
+    <!-- Donor to DonationRequest (1:M) -->
+    <mxCell id="rel3" edge="1" parent="1" source="donor-entity" target="request-entity" style="endArrow=ERmany;startArrow=ERone;html=1;rounded=0;strokeWidth=2;strokeColor=#000000;exitX=1;exitY=0.2;exitDx=0;exitDy=0;entryX=0;entryY=0.3;entryDx=0;entryDy=0;">
+      <mxGeometry relative="1" as="geometry" />
+    </mxCell>
+    <mxCell id="rel3-label" parent="1" style="text;html=1;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=11;fontStyle=2;fontColor=#000000;" value="makes" vertex="1">
+      <mxGeometry height="20" width="50" x="635" y="185" as="geometry" />
+    </mxCell>
+    
+    <!-- Donor to DonationHistory (1:M) -->
+    <mxCell id="rel4" edge="1" parent="1" source="donor-entity" target="history-entity" style="endArrow=ERmany;startArrow=ERone;html=1;rounded=0;strokeWidth=2;strokeColor=#000000;exitX=1;exitY=0.8;exitDx=0;exitDy=0;entryX=0;entryY=0.3;entryDx=0;entryDy=0;">
+      <mxGeometry relative="1" as="geometry" />
+    </mxCell>
+    <mxCell id="rel4-label" parent="1" style="text;html=1;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=11;fontStyle=2;fontColor=#000000;" value="has history" vertex="1">
+      <mxGeometry height="20" width="70" x="625" y="395" as="geometry" />
+    </mxCell>
+    
+    <!-- Donor to HealthMetrics (1:M) -->
+    <mxCell id="rel5" edge="1" parent="1" source="donor-entity" target="health-entity" style="endArrow=ERmany;startArrow=ERone;html=1;rounded=0;strokeWidth=2;strokeColor=#000000;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;">
+      <mxGeometry relative="1" as="geometry" />
+    </mxCell>
+    <mxCell id="rel5-label" parent="1" style="text;html=1;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=11;fontStyle=2;fontColor=#000000;" value="has metrics" vertex="1">
+      <mxGeometry height="20" width="70" x="520" y="450" as="geometry" />
+    </mxCell>
+    
+    <!-- AdminProfile to BloodInventory (1:M) -->
+    <mxCell id="rel6" edge="1" parent="1" source="admin-entity" target="inventory-entity" style="endArrow=ERmany;startArrow=ERone;html=1;rounded=1;strokeWidth=2;strokeColor=#000000;exitX=1;exitY=0.75;exitDx=0;exitDy=0;entryX=0;entryY=0.75;entryDx=0;entryDy=0;edgeStyle=orthogonalEdgeStyle;">
+      <mxGeometry relative="1" as="geometry">
+        <Array as="points">
+          <mxPoint x="330" y="605" />
+          <mxPoint x="330" y="800" />
+          <mxPoint x="930" y="800" />
+          <mxPoint x="930" y="515" />
+        </Array>
+      </mxGeometry>
+    </mxCell>
+    <mxCell id="rel6-label" parent="1" style="text;html=1;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=11;fontStyle=2;fontColor=#000000;" value="updates" vertex="1">
+      <mxGeometry height="20" width="60" x="360" y="780" as="geometry" />
+    </mxCell>
+    
+  </root>
+</mxGraphModel>

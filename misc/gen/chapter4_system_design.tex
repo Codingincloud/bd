@@ -1,0 +1,662 @@
+\chapter{SYSTEM DESIGN}
+
+\section{Introduction}
+
+System design translates requirements into a blueprint for implementation. This chapter presents the architectural design, database design, process models, and interface design for the Blood Donor Information Management System (BDIMS).
+
+\section{System Architecture}
+
+\subsection{Architectural Pattern: Model-View-Template (MVT)}
+
+BDIMS follows Django's MVT architecture, a variation of the Model-View-Controller (MVC) pattern:
+
+\begin{itemize}
+    \item \textbf{Model:} Represents data structure and business logic (Django models)
+    \item \textbf{View:} Contains application logic and handles requests (Django views)
+    \item \textbf{Template:} Defines presentation layer (HTML templates with Django template language)
+\end{itemize}
+
+\subsection{System Architecture Diagram}
+
+The system follows a three-tier architecture:
+
+\textbf{Presentation Tier (Client-Side):}
+\begin{itemize}
+    \item HTML5 templates with responsive CSS
+    \item JavaScript for client-side interactivity
+    \item Leaflet.js for interactive maps
+    \item Chart.js for data visualization
+    \item Font Awesome for icons
+\end{itemize}
+
+\textbf{Application Tier (Server-Side):}
+\begin{itemize}
+    \item Django web framework (Python 3.12)
+    \item Business logic in views and models
+    \item Custom middleware for request processing
+    \item URL routing and request handling
+    \item Template rendering engine
+    \item Authentication and authorization
+\end{itemize}
+
+\textbf{Data Tier:}
+\begin{itemize}
+    \item PostgreSQL relational database
+    \item Django ORM for database abstraction
+    \item Database migrations for schema management
+    \item Indexed queries for performance
+\end{itemize}
+
+\subsection{Component Diagram}
+
+\textbf{Major System Components:}
+
+\begin{enumerate}
+    \item \textbf{Authentication Module}
+    \begin{itemize}
+        \item User registration and login
+        \item Password management
+        \item Session management
+        \item Role-based access control
+    \end{itemize}
+
+    \item \textbf{Donor Management Module}
+    \begin{itemize}
+        \item Profile creation and updates
+        \item Location tracking with GPS
+        \item Profile picture upload
+        \item Eligibility status tracking
+    \end{itemize}
+
+    \item \textbf{Health Metrics Module}
+    \begin{itemize}
+        \item Hemoglobin tracking
+        \item Blood pressure recording
+        \item Weight monitoring
+        \item Health history management
+    \end{itemize}
+
+    \item \textbf{Donation Management Module}
+    \begin{itemize}
+        \item Donation history recording
+        \item Donation request scheduling
+        \item Request approval workflow
+        \item Eligibility verification
+    \end{itemize}
+
+    \item \textbf{Inventory Management Module}
+    \begin{itemize}
+        \item Blood stock tracking (8 types)
+        \item Low stock alerts
+        \item Reserved units management
+        \item Inventory updates and logging
+    \end{itemize}
+
+    \item \textbf{Emergency Response Module}
+    \begin{itemize}
+        \item Emergency request creation
+        \item Donor matching by blood type
+        \item Location-based filtering
+        \item Notification broadcasting
+    \end{itemize}
+
+    \item \textbf{Hospital Management Module}
+    \begin{itemize}
+        \item Hospital information storage
+        \item Location and contact details
+        \item Hospital-inventory association
+    \end{itemize}
+
+    \item \textbf{Reporting Module}
+    \begin{itemize}
+        \item Dashboard with statistics
+        \item Donation reports
+        \item Inventory reports
+        \item Chart visualization
+    \end{itemize}
+
+    \item \textbf{Utilities Module}
+    \begin{itemize}
+        \item Geocoding services
+        \item Notification services
+        \item Validation functions
+        \item Constants and configurations
+    \end{itemize}
+\end{enumerate}
+
+\section{Database Design}
+
+\subsection{Entity Relationship (ER) Diagram}
+
+The BDIMS database consists of seven core entities with well-defined relationships:
+
+\textbf{Core Entities:}
+\begin{enumerate}
+    \item \textbf{User} (Django built-in)
+    \begin{itemize}
+        \item username, email, password, first\_name, last\_name
+        \item is\_staff, is\_active, is\_superuser
+        \item date\_joined, last\_login
+    \end{itemize}
+
+    \item \textbf{Donor}
+    \begin{itemize}
+        \item Primary Key: id
+        \item Foreign Key: user\_id (One-to-One with User)
+        \item Attributes: blood\_group, date\_of\_birth, gender, phone\_number
+        \item Location: address, city, state, postal\_code, country, latitude, longitude
+        \item Health: weight, height, medical\_conditions, last\_donation\_date
+        \item Emergency: emergency\_contact\_name, emergency\_contact\_phone
+        \item Preferences: is\_eligible, allow\_emergency\_contact
+        \item Timestamps: created\_at, updated\_at
+    \end{itemize}
+
+    \item \textbf{HealthMetrics}
+    \begin{itemize}
+        \item Primary Key: id
+        \item Foreign Key: donor\_id (Many-to-One with Donor)
+        \item Attributes: hemoglobin\_level, blood\_pressure\_systolic, blood\_pressure\_diastolic
+        \item Additional: weight, temperature, pulse\_rate, notes
+        \item Timestamp: recorded\_at
+    \end{itemize}
+
+    \item \textbf{DonationHistory}
+    \begin{itemize}
+        \item Primary Key: id
+        \item Foreign Keys: donor\_id (Many-to-One with Donor), hospital\_id (Many-to-One with Hospital)
+        \item Attributes: donation\_date, donation\_center\_name, units\_donated
+        \item Health Data: blood\_pressure, hemoglobin\_level, pre\_donation\_weight, temperature, pulse\_rate
+        \item Notes: notes
+        \item Timestamp: created\_at
+    \end{itemize}
+
+    \item \textbf{DonationRequest}
+    \begin{itemize}
+        \item Primary Key: id
+        \item Foreign Keys: donor\_id (Many-to-One with Donor), hospital\_id (Many-to-One with Hospital)
+        \item Attributes: requested\_date, preferred\_time, status, notes
+        \item Admin Fields: approved\_by, approved\_at, rejection\_reason, admin\_notes
+        \item Timestamp: created\_at, updated\_at, completed\_at
+    \end{itemize}
+
+    \item \textbf{Hospital}
+    \begin{itemize}
+        \item Primary Key: id
+        \item Attributes: name, address, city, state, postal\_code, country
+        \item Contact: phone\_number, email, website
+        \item Location: latitude, longitude
+        \item Features: has\_blood\_bank, operating\_hours, services\_offered
+        \item Timestamps: created\_at, updated\_at
+    \end{itemize}
+
+    \item \textbf{BloodInventory}
+    \begin{itemize}
+        \item Primary Key: id
+        \item Foreign Keys: hospital\_id (Many-to-One with Hospital), updated\_by (Many-to-One with User)
+        \item Attributes: blood\_group, units\_available, units\_reserved
+        \item Metadata: notes, last\_updated
+        \item Unique Constraint: (hospital\_id, blood\_group)
+    \end{itemize}
+
+    \item \textbf{EmergencyRequest}
+    \begin{itemize}
+        \item Primary Key: id
+        \item Foreign Keys: hospital\_id (Many-to-One with Hospital), created\_by (Many-to-One with User)
+        \item Attributes: blood\_group, units\_needed, urgency\_level, patient\_details
+        \item Location: specific\_location, contact\_number
+        \item Status: status, is\_active
+        \item Timestamps: created\_at, updated\_at, fulfilled\_at
+    \end{itemize}
+\end{enumerate}
+
+\textbf{Entity Relationships:}
+\begin{itemize}
+    \item User (1) --- (1) Donor: One-to-One relationship
+    \item Donor (1) --- (N) HealthMetrics: One-to-Many relationship
+    \item Donor (1) --- (N) DonationHistory: One-to-Many relationship
+    \item Donor (1) --- (N) DonationRequest: One-to-Many relationship
+    \item Hospital (1) --- (N) DonationHistory: One-to-Many relationship
+    \item Hospital (1) --- (N) DonationRequest: One-to-Many relationship
+    \item Hospital (1) --- (N) BloodInventory: One-to-Many relationship
+    \item Hospital (1) --- (N) EmergencyRequest: One-to-Many relationship
+    \item User (1) --- (N) BloodInventory: One-to-Many relationship (updated\_by)
+    \item User (1) --- (N) EmergencyRequest: One-to-Many relationship (created\_by)
+\end{itemize}
+
+\subsection{Database Schema}
+
+\subsubsection{Donor Table}
+
+\begin{longtable}{|p{3cm}|p{3cm}|p{6cm}|}
+\caption{Donor Table Schema} \\
+\hline
+\textbf{Column} & \textbf{Data Type} & \textbf{Constraints} \\
+\hline
+\endfirsthead
+\textbf{Column} & \textbf{Data Type} & \textbf{Constraints} \\
+\hline
+\endhead
+id & INT & PRIMARY KEY, AUTO INCREMENT \\
+\hline
+user\_id & INT & FOREIGN KEY (User.id), UNIQUE, NOT NULL \\
+\hline
+blood\_group & VARCHAR(3) & NOT NULL, CHECK IN (A+, A-, B+, B-, O+, O-, AB+, AB-) \\
+\hline
+date\_of\_birth & DATE & NOT NULL \\
+\hline
+gender & VARCHAR(1) & NOT NULL, CHECK IN (M, F, O) \\
+\hline
+phone\_number & VARCHAR(15) & NOT NULL \\
+\hline
+address & TEXT & NOT NULL \\
+\hline
+city & VARCHAR(100) & NULL \\
+\hline
+state & VARCHAR(100) & NULL \\
+\hline
+postal\_code & VARCHAR(20) & NULL \\
+\hline
+country & VARCHAR(100) & DEFAULT 'Nepal' \\
+\hline
+latitude & DECIMAL(10,8) & NULL \\
+\hline
+longitude & DECIMAL(11,8) & NULL \\
+\hline
+weight & DECIMAL(5,2) & NOT NULL, CHECK >= 30 AND <= 200 \\
+\hline
+height & DECIMAL(5,2) & NULL \\
+\hline
+medical\_conditions & TEXT & NULL \\
+\hline
+last\_donation\_date & DATE & NULL \\
+\hline
+is\_eligible & BOOLEAN & DEFAULT TRUE \\
+\hline
+emergency\_contact\_name & VARCHAR(100) & NULL \\
+\hline
+emergency\_contact\_phone & VARCHAR(15) & NULL \\
+\hline
+allow\_emergency\_contact & BOOLEAN & DEFAULT TRUE \\
+\hline
+created\_at & TIMESTAMP & DEFAULT NOW() \\
+\hline
+updated\_at & TIMESTAMP & DEFAULT NOW() \\
+\hline
+\end{longtable}
+
+\textbf{Indexes:}
+\begin{itemize}
+    \item idx\_donor\_blood\_group ON blood\_group
+    \item idx\_donor\_eligible ON is\_eligible
+    \item idx\_donor\_location ON (city, state)
+    \item idx\_donor\_coords ON (latitude, longitude)
+    \item idx\_donor\_created ON created\_at DESC
+    \item idx\_donor\_emergency ON (allow\_emergency\_contact, blood\_group)
+\end{itemize}
+
+\subsubsection{Key Design Decisions}
+
+\begin{enumerate}
+    \item \textbf{One-to-One User-Donor Relationship:} Leverages Django's built-in User model for authentication while extending with donor-specific fields in a separate table. This maintains separation of concerns and allows reuse of Django's authentication system.
+
+    \item \textbf{Decimal Fields for Coordinates:} Using DECIMAL(10,8) for latitude and DECIMAL(11,8) for longitude provides precision up to ~1.1 mm, suitable for healthcare location tracking.
+
+    \item \textbf{Indexed Queries:} Strategic indexes on frequently queried fields (blood\_group, is\_eligible, location) improve query performance for donor search and emergency matching.
+
+    \item \textbf{Flexible Location Storage:} Storing both structured address components (city, state, postal\_code) and geographic coordinates supports both text-based search and distance calculations.
+
+    \item \textbf{Audit Timestamps:} created\_at and updated\_at fields enable tracking of data changes for accountability and debugging.
+
+    \item \textbf{Blood Type Constraints:} CHECK constraints ensure data integrity by restricting blood\_group to valid ABO types.
+\end{enumerate}
+
+\section{Data Flow Diagrams (DFD)}
+
+\subsection{Context Diagram (Level 0)}
+
+\textbf{External Entities:}
+\begin{itemize}
+    \item Donor: Registers, updates profile, views history, responds to emergencies
+    \item Administrator: Manages system, approves requests, updates inventory, creates emergencies
+    \item System: BDIMS central processing
+\end{itemize}
+
+\textbf{Data Flows:}
+\begin{itemize}
+    \item Donor → System: Registration info, health metrics, donation requests, location updates
+    \item System → Donor: Eligibility status, donation history, emergency alerts, notifications
+    \item Administrator → System: Approval decisions, inventory updates, emergency requests
+    \item System → Administrator: Donor lists, reports, statistics, alerts
+\end{itemize}
+
+\subsection{Level 1 DFD}
+
+\textbf{Major Processes:}
+\begin{enumerate}
+    \item \textbf{1.0 Authentication Management}
+    \begin{itemize}
+        \item Input: Login credentials, registration data
+        \item Output: Authentication token, user session
+        \item Data Store: User database
+    \end{itemize}
+
+    \item \textbf{2.0 Donor Management}
+    \begin{itemize}
+        \item Input: Profile information, location data
+        \item Output: Updated donor profile, eligibility status
+        \item Data Store: Donor database, HealthMetrics database
+    \end{itemize}
+
+    \item \textbf{3.0 Donation Processing}
+    \begin{itemize}
+        \item Input: Donation requests, health metrics
+        \item Output: Approval status, donation records
+        \item Data Store: DonationRequest database, DonationHistory database
+    \end{itemize}
+
+    \item \textbf{4.0 Inventory Management}
+    \begin{itemize}
+        \item Input: Stock updates, donation completions
+        \item Output: Inventory levels, low stock alerts
+        \item Data Store: BloodInventory database
+    \end{itemize}
+
+    \item \textbf{5.0 Emergency Response}
+    \begin{itemize}
+        \item Input: Emergency requests, donor availability
+        \item Output: Matched donors, notifications
+        \item Data Store: EmergencyRequest database, Donor database
+    \end{itemize}
+
+    \item \textbf{6.0 Reporting \& Analytics}
+    \begin{itemize}
+        \item Input: Query parameters, date ranges
+        \item Output: Reports, charts, statistics
+        \item Data Store: All databases
+    \end{itemize}
+\end{enumerate}
+
+\section{Use Case Diagram}
+
+\subsection{Actors}
+
+\begin{enumerate}
+    \item \textbf{Donor} (Primary Actor)
+    \begin{itemize}
+        \item Register account
+        \item Login/Logout
+        \item Update profile
+        \item Add health metrics
+        \item Schedule donation
+        \item View donation history
+        \item Check eligibility
+        \item View emergency requests
+        \item Check inventory
+    \end{itemize}
+
+    \item \textbf{Administrator} (Primary Actor)
+    \begin{itemize}
+        \item Login/Logout
+        \item View all donors
+        \item Approve/reject donation requests
+        \item Add donation records
+        \item Manage inventory
+        \item Create emergency requests
+        \item Manage hospitals
+        \item Generate reports
+        \item View analytics dashboard
+    \end{itemize}
+
+    \item \textbf{System} (Supporting Actor)
+    \begin{itemize}
+        \item Calculate eligibility
+        \item Send notifications
+        \item Match blood types
+        \item Update inventory automatically
+        \item Generate alerts
+    \end{itemize}
+\end{enumerate}
+
+\subsection{Key Use Cases}
+
+\subsubsection{UC-1: Donor Registration}
+
+\textbf{Actor:} Donor
+
+\textbf{Precondition:} User has valid email and phone number
+
+\textbf{Main Flow:}
+\begin{enumerate}
+    \item Donor navigates to registration page
+    \item System displays registration form
+    \item Donor enters personal information (name, email, password, blood group, DOB, gender, phone, address)
+    \item Donor enters health information (weight, medical conditions)
+    \item Donor submits form
+    \item System validates data
+    \item System creates user account and donor profile
+    \item System redirects to donor dashboard
+\end{enumerate}
+
+\textbf{Postcondition:} New donor account is created and accessible
+
+\subsubsection{UC-2: Schedule Donation}
+
+\textbf{Actor:} Donor
+
+\textbf{Precondition:} Donor is logged in and eligible
+
+\textbf{Main Flow:}
+\begin{enumerate}
+    \item Donor navigates to schedule donation page
+    \item System displays eligibility status
+    \item Donor selects hospital, date, and time
+    \item Donor enters optional notes
+    \item Donor submits request
+    \item System validates eligibility (56-day rule, health metrics)
+    \item System creates donation request with pending status
+    \item System displays confirmation message
+\end{enumerate}
+
+\textbf{Alternate Flow:} If donor is ineligible, system displays reason and next eligible date
+
+\textbf{Postcondition:} Donation request is saved with pending status
+
+\subsubsection{UC-3: Emergency Blood Request}
+
+\textbf{Actor:} Administrator
+
+\textbf{Precondition:} Administrator is logged in
+
+\textbf{Main Flow:}
+\begin{enumerate}
+    \item Administrator navigates to emergency request page
+    \item System displays emergency request form
+    \item Administrator enters blood type, units needed, urgency, patient details
+    \item Administrator submits request
+    \item System matches eligible donors by blood type and location
+    \item System creates emergency request record
+    \item System displays matching donors on dashboard
+    \item System sends notifications to matched donors (future feature)
+\end{enumerate}
+
+\textbf{Postcondition:} Emergency request is created and visible to matching donors
+
+\section{Interface Design}
+
+\subsection{Design Principles}
+
+\begin{itemize}
+    \item \textbf{Consistency:} Uniform color scheme, typography, and layout across all pages
+    \item \textbf{Simplicity:} Clean, uncluttered interface with clear call-to-action buttons
+    \item \textbf{Responsiveness:} Adaptive layout for desktop, tablet, and mobile devices
+    \item \textbf{Accessibility:} High contrast, readable fonts, keyboard navigation support
+    \item \textbf{Feedback:} Clear success/error messages, loading indicators
+    \item \textbf{Visual Hierarchy:} Important information prominently displayed
+\end{itemize}
+
+\subsection{Color Scheme}
+
+\begin{itemize}
+    \item \textbf{Primary:} Red (\#E74C3C) - Associated with blood, urgency, healthcare
+    \item \textbf{Secondary:} Dark Blue (\#2C3E50) - Trust, professionalism, stability
+    \item \textbf{Success:} Green (\#27AE60) - Positive actions, eligibility, completion
+    \item \textbf{Warning:} Orange (\#F39C12) - Caution, pending status, low stock
+    \item \textbf{Danger:} Dark Red (\#C0392B) - Critical alerts, errors, ineligibility
+    \item \textbf{Background:} Light Gray (\#ECF0F1) - Neutral, easy on eyes
+    \item \textbf{Text:} Dark Gray (\#2C3E50) - High readability
+\end{itemize}
+
+\subsection{Typography}
+
+\begin{itemize}
+    \item \textbf{Primary Font:} Inter, system-ui, sans-serif
+    \item \textbf{Headings:} Bold, 24-48px
+    \item \textbf{Body Text:} Regular, 16px, 1.6 line-height
+    \item \textbf{Small Text:} 14px for labels and metadata
+\end{itemize}
+
+\subsection{Key Interface Screens}
+
+\subsubsection{Home Page}
+
+\begin{itemize}
+    \item Hero section with call-to-action buttons (Register as Donor, Check Inventory)
+    \item Features overview with icons
+    \item Statistics display (total donors, recent donations)
+    \item About section explaining blood donation importance
+    \item Footer with contact information
+\end{itemize}
+
+\subsubsection{Donor Dashboard}
+
+\begin{itemize}
+    \item Welcome message with donor name and blood type
+    \item Eligibility status card (prominent display)
+    \item Quick statistics (total donations, last donation, next eligible date)
+    \item Recent health metrics chart
+    \item Upcoming donations section
+    \item Emergency requests alerts (if any matching blood type)
+    \item Quick action buttons (Schedule Donation, Add Health Metrics, Update Profile)
+\end{itemize}
+
+\subsubsection{Admin Dashboard}
+
+\begin{itemize}
+    \item System overview cards (total donors, pending requests, emergency alerts)
+    \item Blood inventory chart showing all 8 blood types
+    \item Recent activity timeline
+    \item Low stock warnings
+    \item Donor distribution by blood type (pie chart)
+    \item Quick action buttons (Approve Requests, Update Inventory, Create Emergency)
+\end{itemize}
+
+\subsubsection{Donation Scheduling Form}
+
+\begin{itemize}
+    \item Hospital selection dropdown
+    \item Date picker (calendar interface)
+    \item Time selection
+    \item Notes textarea
+    \item Eligibility check display (real-time)
+    \item Submit button (disabled if ineligible)
+    \item Clear form validation errors
+\end{itemize}
+
+\subsubsection{Interactive Map Interface}
+
+\begin{itemize}
+    \item Full-screen Leaflet.js map
+    \item Search bar for location lookup
+    \item GPS auto-detect button
+    \item Clickable map to set coordinates
+    \item Marker showing current/selected location
+    \item Address display panel
+    \item Save location button
+    \item Zoom controls
+\end{itemize}
+
+\subsection{Navigation Structure}
+
+\textbf{Donor Navigation:}
+\begin{itemize}
+    \item Dashboard
+    \item Schedule Donation
+    \item Donation History
+    \item Health Metrics
+    \item Update Profile
+    \item Check Inventory
+    \item Logout
+\end{itemize}
+
+\textbf{Admin Navigation:}
+\begin{itemize}
+    \item Dashboard
+    \item Manage Donors
+    \item Donation Requests
+    \item Inventory Management
+    \item Emergency Requests
+    \item Hospitals
+    \item Reports
+    \item Logout
+\end{itemize}
+
+\section{Security Design}
+
+\subsection{Authentication Mechanism}
+
+\begin{itemize}
+    \item Session-based authentication using Django's built-in system
+    \item Password hashing with PBKDF2\_SHA256 algorithm
+    \item Password complexity requirements (min 8 characters, mix of letters/numbers)
+    \item Secure password reset via email token
+    \item Session timeout after inactivity (30 minutes)
+    \item Login attempt monitoring (future enhancement)
+\end{itemize}
+
+\subsection{Authorization Levels}
+
+\begin{table}[h]
+\centering
+\caption{Role-Based Access Control Matrix}
+\begin{tabular}{|p{4cm}|p{2cm}|p{2cm}|}
+\hline
+\textbf{Function} & \textbf{Donor} & \textbf{Admin} \\
+\hline
+View own profile & Yes & Yes \\
+\hline
+Edit own profile & Yes & Yes \\
+\hline
+View all donors & No & Yes \\
+\hline
+Schedule donation & Yes & No \\
+\hline
+Approve requests & No & Yes \\
+\hline
+Add donation record & No & Yes \\
+\hline
+Manage inventory & No & Yes \\
+\hline
+Create emergency & No & Yes \\
+\hline
+View inventory & Yes & Yes \\
+\hline
+Add health metrics & Yes & No \\
+\hline
+\end{tabular}
+\end{table}
+
+\subsection{Data Protection}
+
+\begin{itemize}
+    \item CSRF tokens on all forms
+    \item SQL injection prevention through ORM parameterized queries
+    \item XSS protection through template auto-escaping
+    \item HTTPS enforcement in production
+    \item Secure session cookies (HttpOnly, Secure flags)
+    \item Input validation and sanitization
+    \item File upload restrictions (type, size)
+\end{itemize}
+
+\section{Summary}
+
+This chapter presented the comprehensive system design for BDIMS, including the MVT architectural pattern, detailed database schema with seven core entities and their relationships, data flow diagrams showing system processes, use case diagrams defining actor interactions, and interface design principles ensuring usability and accessibility. The design emphasizes security, scalability, and user-friendliness while addressing all functional and non-functional requirements identified in the previous chapter. This design serves as the blueprint for the implementation phase described in Chapter 5.

@@ -1,0 +1,224 @@
+<mxGraphModel dx="1042" dy="534" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="827" pageHeight="1169" math="0" shadow="0">
+  <root>
+    <mxCell id="0" />
+    <mxCell id="1" parent="0" />
+    
+    <!-- System Boundary -->
+    <mxCell id="system-boundary" parent="1" style="swimlane;whiteSpace=wrap;html=1;container=0;" value="Blood Donor Information Management System" vertex="1">
+      <mxGeometry height="900" width="550" x="140" y="80" as="geometry" />
+    </mxCell>
+    
+    <!-- Login Use Case -->
+    <mxCell id="uc-login" parent="system-boundary" style="ellipse;whiteSpace=wrap;html=1;container=0;" value="Login" vertex="1">
+      <mxGeometry height="60" width="130" x="210" y="40" as="geometry" />
+    </mxCell>
+    
+    <!-- Validate Use Case -->
+    <mxCell id="uc-validate" parent="system-boundary" style="ellipse;whiteSpace=wrap;html=1;container=0;" value="Validate Credentials" vertex="1">
+      <mxGeometry height="50" width="120" x="380" y="45" as="geometry" />
+    </mxCell>
+    
+    <!-- Include relationship Login to Validate -->
+    <mxCell id="rel-login-validate" edge="1" parent="system-boundary" source="uc-login" target="uc-validate" style="endArrow=open;endSize=12;dashed=1;html=1;rounded=0;" value="&lt;&lt;include&gt;&gt;">
+      <mxGeometry relative="1" width="160" as="geometry" />
+    </mxCell>
+    
+    <!-- Register Use Case -->
+    <mxCell id="uc-register" parent="system-boundary" style="ellipse;whiteSpace=wrap;html=1;container=0;" value="Register Account" vertex="1">
+      <mxGeometry height="60" width="130" x="50" y="40" as="geometry" />
+    </mxCell>
+    
+    <!-- View Profile Use Case -->
+    <mxCell id="uc-profile" parent="system-boundary" style="ellipse;whiteSpace=wrap;html=1;container=0;" value="View/Edit Profile" vertex="1">
+      <mxGeometry height="60" width="130" x="380" y="120" as="geometry" />
+    </mxCell>
+    
+    <!-- View Donation History -->
+    <mxCell id="uc-history" parent="system-boundary" style="ellipse;whiteSpace=wrap;html=1;container=0;" value="View Donation History" vertex="1">
+      <mxGeometry height="60" width="140" x="370" y="200" as="geometry" />
+    </mxCell>
+    
+    <!-- Check Eligibility -->
+    <mxCell id="uc-eligibility" parent="system-boundary" style="ellipse;whiteSpace=wrap;html=1;container=0;" value="Check Eligibility" vertex="1">
+      <mxGeometry height="60" width="130" x="380" y="280" as="geometry" />
+    </mxCell>
+    
+    <!-- Health Metrics -->
+    <mxCell id="uc-health" parent="system-boundary" style="ellipse;whiteSpace=wrap;html=1;container=0;" value="Update Health Metrics" vertex="1">
+      <mxGeometry height="60" width="130" x="370" y="360" as="geometry" />
+    </mxCell>
+    
+    <!-- Schedule Donation -->
+    <mxCell id="uc-schedule" parent="system-boundary" style="ellipse;whiteSpace=wrap;html=1;container=0;" value="Schedule Donation" vertex="1">
+      <mxGeometry height="60" width="130" x="380" y="440" as="geometry" />
+    </mxCell>
+    
+    <!-- Search Blood Center -->
+    <mxCell id="uc-search-center" parent="system-boundary" style="ellipse;whiteSpace=wrap;html=1;container=0;" value="Search Blood Center" vertex="1">
+      <mxGeometry height="60" width="130" x="380" y="520" as="geometry" />
+    </mxCell>
+    
+    <!-- Manage Donors -->
+    <mxCell id="uc-manage-donors" parent="system-boundary" style="ellipse;whiteSpace=wrap;html=1;container=0;" value="Manage Donors" vertex="1">
+      <mxGeometry height="60" width="130" x="50" y="150" as="geometry" />
+    </mxCell>
+    
+    <!-- View Medical Report -->
+    <mxCell id="uc-medical" parent="system-boundary" style="ellipse;whiteSpace=wrap;html=1;container=0;" value="View Medical Report" vertex="1">
+      <mxGeometry height="60" width="130" x="210" y="180" as="geometry" />
+    </mxCell>
+    
+    <!-- Include relationship Manage to Medical -->
+    <mxCell id="rel-manage-medical" edge="1" parent="system-boundary" source="uc-manage-donors" target="uc-medical" style="endArrow=open;endSize=12;dashed=1;html=1;rounded=0;" value="&lt;&lt;include&gt;&gt;">
+      <mxGeometry relative="1" width="160" as="geometry" />
+    </mxCell>
+    
+    <!-- Manage Blood Requests -->
+    <mxCell id="uc-requests" parent="system-boundary" style="ellipse;whiteSpace=wrap;html=1;container=0;" value="Manage Blood Requests" vertex="1">
+      <mxGeometry height="60" width="140" x="40" y="250" as="geometry" />
+    </mxCell>
+    
+    <!-- Search Donor -->
+    <mxCell id="uc-search-donor" parent="system-boundary" style="ellipse;whiteSpace=wrap;html=1;container=0;" value="Search Donor" vertex="1">
+      <mxGeometry height="60" width="130" x="210" y="280" as="geometry" />
+    </mxCell>
+    
+    <!-- Include relationship Requests to Search -->
+    <mxCell id="rel-request-search" edge="1" parent="system-boundary" source="uc-requests" target="uc-search-donor" style="endArrow=open;endSize=12;dashed=1;html=1;rounded=0;" value="&lt;&lt;include&gt;&gt;">
+      <mxGeometry relative="1" width="160" as="geometry" />
+    </mxCell>
+    
+    <!-- Manage Blood Inventory -->
+    <mxCell id="uc-inventory" parent="system-boundary" style="ellipse;whiteSpace=wrap;html=1;container=0;" value="Manage Blood Inventory" vertex="1">
+      <mxGeometry height="60" width="140" x="50" y="360" as="geometry" />
+    </mxCell>
+    
+    <!-- Track Blood Stock -->
+    <mxCell id="uc-stock" parent="system-boundary" style="ellipse;whiteSpace=wrap;html=1;container=0;" value="Track Blood Stock" vertex="1">
+      <mxGeometry height="60" width="130" x="50" y="460" as="geometry" />
+    </mxCell>
+    
+    <!-- Handle Emergency Requests -->
+    <mxCell id="uc-emergency" parent="system-boundary" style="ellipse;whiteSpace=wrap;html=1;container=0;" value="Handle Emergency Requests" vertex="1">
+      <mxGeometry height="60" width="150" x="40" y="560" as="geometry" />
+    </mxCell>
+    
+    <!-- Send Notifications -->
+    <mxCell id="uc-notify" parent="system-boundary" style="ellipse;whiteSpace=wrap;html=1;container=0;" value="Send Notifications" vertex="1">
+      <mxGeometry height="60" width="130" x="50" y="660" as="geometry" />
+    </mxCell>
+    
+    <!-- Notification System -->
+    <mxCell id="uc-notify-system" parent="system-boundary" style="ellipse;whiteSpace=wrap;html=1;container=0;" value="Notification System" vertex="1">
+      <mxGeometry height="60" width="130" x="220" y="680" as="geometry" />
+    </mxCell>
+    
+    <!-- Include relationship Notify -->
+    <mxCell id="rel-notify" edge="1" parent="system-boundary" source="uc-notify-system" target="uc-notify" style="endArrow=open;endSize=12;dashed=1;html=1;rounded=0;" value="&lt;&lt;include&gt;&gt;">
+      <mxGeometry relative="1" width="160" as="geometry" />
+    </mxCell>
+    
+    <!-- Manage Donation Centers -->
+    <mxCell id="uc-centers" parent="system-boundary" style="ellipse;whiteSpace=wrap;html=1;container=0;" value="Manage Donation Centers" vertex="1">
+      <mxGeometry height="60" width="150" x="40" y="770" as="geometry" />
+    </mxCell>
+    
+    <!-- Logout -->
+    <mxCell id="uc-logout" parent="system-boundary" style="ellipse;whiteSpace=wrap;html=1;container=0;" value="Logout" vertex="1">
+      <mxGeometry height="60" width="130" x="210" y="380" as="geometry" />
+    </mxCell>
+    
+    <!-- Admin Actor -->
+    <mxCell id="actor-admin" parent="1" style="shape=umlActor;verticalLabelPosition=bottom;verticalAlign=top;html=1;container=0;" value="Admin" vertex="1">
+      <mxGeometry height="80" width="40" x="40" y="450" as="geometry" />
+    </mxCell>
+    
+    <!-- Donor Actor -->
+    <mxCell id="actor-donor" parent="1" style="shape=umlActor;verticalLabelPosition=bottom;verticalAlign=top;html=1;container=0;" value="Donor" vertex="1">
+      <mxGeometry height="80" width="40" x="750" y="450" as="geometry" />
+    </mxCell>
+    
+    <!-- Admin Connections -->
+    <mxCell id="conn-admin-register" edge="1" parent="1" source="actor-admin" target="uc-register" style="endArrow=none;html=1;rounded=0;">
+      <mxGeometry relative="1" as="geometry" />
+    </mxCell>
+    
+    <mxCell id="conn-admin-login" edge="1" parent="1" source="actor-admin" target="uc-login" style="endArrow=none;html=1;rounded=0;">
+      <mxGeometry relative="1" as="geometry" />
+    </mxCell>
+    
+    <mxCell id="conn-admin-manage" edge="1" parent="1" source="actor-admin" target="uc-manage-donors" style="endArrow=none;html=1;rounded=0;">
+      <mxGeometry relative="1" as="geometry" />
+    </mxCell>
+    
+    <mxCell id="conn-admin-requests" edge="1" parent="1" source="actor-admin" target="uc-requests" style="endArrow=none;html=1;rounded=0;">
+      <mxGeometry relative="1" as="geometry" />
+    </mxCell>
+    
+    <mxCell id="conn-admin-inventory" edge="1" parent="1" source="actor-admin" target="uc-inventory" style="endArrow=none;html=1;rounded=0;">
+      <mxGeometry relative="1" as="geometry" />
+    </mxCell>
+    
+    <mxCell id="conn-admin-stock" edge="1" parent="1" source="actor-admin" target="uc-stock" style="endArrow=none;html=1;rounded=0;">
+      <mxGeometry relative="1" as="geometry" />
+    </mxCell>
+    
+    <mxCell id="conn-admin-emergency" edge="1" parent="1" source="actor-admin" target="uc-emergency" style="endArrow=none;html=1;rounded=0;">
+      <mxGeometry relative="1" as="geometry" />
+    </mxCell>
+    
+    <mxCell id="conn-admin-notify" edge="1" parent="1" source="actor-admin" target="uc-notify" style="endArrow=none;html=1;rounded=0;">
+      <mxGeometry relative="1" as="geometry" />
+    </mxCell>
+    
+    <mxCell id="conn-admin-centers" edge="1" parent="1" source="actor-admin" target="uc-centers" style="endArrow=none;html=1;rounded=0;">
+      <mxGeometry relative="1" as="geometry" />
+    </mxCell>
+    
+    <mxCell id="conn-admin-logout" edge="1" parent="1" source="actor-admin" target="uc-logout" style="endArrow=none;html=1;rounded=0;">
+      <mxGeometry relative="1" as="geometry" />
+    </mxCell>
+    
+    <!-- Donor Connections -->
+    <mxCell id="conn-donor-register" edge="1" parent="1" source="actor-donor" target="uc-register" style="endArrow=none;html=1;rounded=0;">
+      <mxGeometry relative="1" as="geometry" />
+    </mxCell>
+    
+    <mxCell id="conn-donor-login" edge="1" parent="1" source="actor-donor" target="uc-login" style="endArrow=none;html=1;rounded=0;">
+      <mxGeometry relative="1" as="geometry" />
+    </mxCell>
+    
+    <mxCell id="conn-donor-profile" edge="1" parent="1" source="actor-donor" target="uc-profile" style="endArrow=none;html=1;rounded=0;">
+      <mxGeometry relative="1" as="geometry" />
+    </mxCell>
+    
+    <mxCell id="conn-donor-history" edge="1" parent="1" source="actor-donor" target="uc-history" style="endArrow=none;html=1;rounded=0;">
+      <mxGeometry relative="1" as="geometry" />
+    </mxCell>
+    
+    <mxCell id="conn-donor-eligibility" edge="1" parent="1" source="actor-donor" target="uc-eligibility" style="endArrow=none;html=1;rounded=0;">
+      <mxGeometry relative="1" as="geometry" />
+    </mxCell>
+    
+    <mxCell id="conn-donor-health" edge="1" parent="1" source="actor-donor" target="uc-health" style="endArrow=none;html=1;rounded=0;">
+      <mxGeometry relative="1" as="geometry" />
+    </mxCell>
+    
+    <mxCell id="conn-donor-schedule" edge="1" parent="1" source="actor-donor" target="uc-schedule" style="endArrow=none;html=1;rounded=0;">
+      <mxGeometry relative="1" as="geometry" />
+    </mxCell>
+    
+    <mxCell id="conn-donor-search" edge="1" parent="1" source="actor-donor" target="uc-search-center" style="endArrow=none;html=1;rounded=0;">
+      <mxGeometry relative="1" as="geometry" />
+    </mxCell>
+    
+    <mxCell id="conn-donor-notify-sys" edge="1" parent="1" source="actor-donor" target="uc-notify-system" style="endArrow=none;html=1;rounded=0;">
+      <mxGeometry relative="1" as="geometry" />
+    </mxCell>
+    
+    <mxCell id="conn-donor-logout" edge="1" parent="1" source="actor-donor" target="uc-logout" style="endArrow=none;html=1;rounded=0;">
+      <mxGeometry relative="1" as="geometry" />
+    </mxCell>
+    
+  </root>
+</mxGraphModel>

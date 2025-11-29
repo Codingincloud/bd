@@ -1,0 +1,538 @@
+\documentclass[12pt,a4paper]{report}
+\usepackage[utf8]{inputenc}
+\usepackage[top=1in,bottom=1in,left=1.5in,right=1in,headheight=14.5pt]{geometry}
+% \usepackage{cite}
+\usepackage[
+    backend=biber,
+    style=numeric-comp, % Gives [1,2,3] style
+    citestyle=numeric-comp,
+    sorting=none,
+    maxcitenames=2  % Number of author names in citation
+]{biblatex}
+\addbibresource{ref (1).bib}
+% --- Fonts and Spacing ---
+\usepackage{times}          % Times New Roman font
+\usepackage{setspace}       % For line spacing
+% \setstretch{1.5}            % 1.5 line spacing if needed
+
+
+% --- Hyperlinks ---
+\usepackage[hidelinks]{hyperref}  % No colored boxes for links
+
+% --- Lists ---
+\usepackage{enumitem}
+
+% --- Tables ---
+\usepackage{array}
+\usepackage{booktabs}
+\usepackage{colortbl}
+\usepackage{multirow}
+\usepackage{hhline}
+
+% --- Graphics and Floats ---
+\usepackage{graphicx}
+\usepackage{float}
+
+% --- Math and Symbols ---
+\usepackage{amssymb}
+
+% --- Colors ---
+\usepackage{xcolor}
+
+% --- Headers and Footers ---
+\usepackage{fancyhdr}
+\pagestyle{fancy}
+\fancyhf{} % clear all header and footer fields
+\fancyfoot[C]{\thepage} % page number in center of footer
+\renewcommand{\headrulewidth}{0pt} % no header line
+\renewcommand{\footrulewidth}{0pt} % no footer line
+\setlength{\headheight}{14.5pt} % avoid warning
+
+\setcounter{secnumdepth}{3}
+\setcounter{tocdepth}{2}
+
+% Chapter formatting
+\usepackage{titlesec}
+\titleformat{\chapter}[display]{\Large\bfseries}{\chaptertitlename\ \thechapter}{1ex}{}
+\titlespacing*{\chapter}{0ex}{-2ex}{4ex}
+
+% Page style: center bottom number on all pages
+\fancypagestyle{plain}{
+  \fancyhf{}
+  \fancyfoot[C]{\thepage}
+  \renewcommand{\headrulewidth}{0pt}
+  \renewcommand{\footrulewidth}{0pt}
+}
+
+% Hyphenation
+\hyphenation{Post-greSQL Django Health-Metrics Emer-gency-Request Blood-Inventory Sys-tem-Noti-fi-ca-tion}
+
+\begin{document}
+\sloppy
+\tolerance=2000
+\emergencystretch=3em
+\hbadness=10000
+
+% --- Title Page ---
+\include{title}
+\thispagestyle{empty} % no page number on title
+
+% --- Roman numbering for front matter ---
+\cleardoublepage
+\pagenumbering{roman}
+\setcounter{page}{1}
+
+% --- Acknowledgement ---
+\chapter*{ACKNOWLEDGEMENT}
+\addcontentsline{toc}{chapter}{ACKNOWLEDGEMENT}
+
+We are pleased to present the mid-defense report of our project titled "Blood Donor Information Management System", undertaken as a part of the curriculum of Bachelor of Computer Engineering at Khwopa Engineering College.
+\\\\
+We would like to express our sincere gratitude to all those who have supported us throughout the progress of this project. We are especially thankful to our respected Head of Department, Er. Bikash Chawal, and Deputy Head of Department, Er. Avijit Karn, for their continuous guidance, encouragement, and valuable feedback during the development process.
+\\\\
+Our heartfelt thanks go to Purbanchal University and Khwopa Engineering College, Bhaktapur, for providing us with this opportunity to work on a real-world oriented project that helps enhance our technical, analytical, and project management skills.
+\\\\
+We also appreciate the cooperation and support of our supervisors, teachers, friends, and seniors who have offered constructive suggestions and moral support, which have been crucial to the progress of our work so far. Special thanks to Er. Anish Baral for providing valuable guidance and continuous support throughout the project development.
+\\\\
+We extend our gratitude to the administration and staff of Khwopa Engineering College for providing the necessary resources and infrastructure required for the successful completion of this project.
+
+\vspace{1cm}
+\noindent
+\textbf{With Regards,}\\[0.5cm]
+\begin{tabular}{ll}
+    Bishal Shrestha & (790310)\\
+    Chirayu Shrestha & (790311)\\
+    Pappu Yadav & (790324)\\
+    Prashant Ghimire & (790328)
+\end{tabular}
+
+\pagebreak
+
+% --- Abstract ---
+\chapter*{ABSTRACT}
+\addcontentsline{toc}{chapter}{ABSTRACT}
+
+Our project Blood Donor Information Management System is a comprehensive web-based application designed to centralize and manage detailed blood donor information for healthcare institutions. The system focuses on organizing comprehensive donor profiles, tracking health metrics, managing donation histories, and providing advanced search capabilities for donor information. Built on a centralized PostgreSQL database, it ensures secure storage and efficient retrieval of donor data with role-based authentication for administrators and donors.
+\\\\
+This information management platform enables administrators to access detailed donor databases, track comprehensive health metrics, monitor eligibility status with automated calculations, manage donor profiles with medical information, and generate analytical reports. Donors can maintain detailed personal and medical profiles, track their health metrics over time, view complete donation histories, and update their information. The Django-based system provides efficient donor information organization and management capabilities for modern healthcare institutions.
+
+\vspace{1em}
+\noindent\textbf{Keywords:} \textit{Blood Donor Information Management, Django Framework, PostgreSQL, Emergency Requests, Donor Eligibility, Healthcare Analytics}
+
+\pagebreak
+
+% --- Table of Contents ---
+\tableofcontents
+\pagebreak
+
+% --- List of Figures ---
+\listoffigures
+\pagebreak
+
+% --- Start Main Content ---
+\cleardoublepage
+\pagenumbering{arabic}
+\setcounter{page}{1}
+
+\chapter{INTRODUCTION}
+
+\section{Background}
+Healthcare institutions struggle with managing comprehensive donor information including medical records, health metrics, donation history, and eligibility tracking. Our Blood Donor Information Management System provides a centralized platform built with Django framework and PostgreSQL database to efficiently organize, store, and manage all donor-related information.In recent years, healthcare institutions have faced significant challenges in efficiently managing donor-related information such as medical history, health metrics, donation records, and eligibility tracking. Traditional paper-based systems and semi-digital solutions are often inefficient, error-prone, and difficult to scale, especially during emergencies when real-time data access is critical.\\\\
+The Blood Donor Information Management System (BDIMS) has been developed as a response to these challenges. It is a centralized, web-based application built using the Django framework and PostgreSQL database. The system aims to streamline and digitize the entire donor information lifecycle—from registration and health tracking to donation history and emergency response coordination.\\\\
+This platform empowers administrators with the tools to manage donor databases, monitor blood inventory, assess donor eligibility automatically, and respond quickly to urgent blood requests. Simultaneously, donors are provided with a user-friendly interface to maintain their profiles, update health details, track donation history, and find donation opportunities.\\\\
+By modernizing donor data handling, the system significantly improves data accuracy, coordination efficiency, and overall reliability of blood donation services—contributing to better healthcare outcomes and faster emergency response.\\\\
+The system focuses on comprehensive donor information management with detailed profile tracking, health metrics monitoring, automated eligibility calculations, and advanced search capabilities. Administrators can access complete donor databases, track health metrics, manage blood inventory, and generate detailed reports. Donors maintain detailed profiles with medical information, view comprehensive donation history, and receive personalized health tracking.
+\\\\
+\pagebreak
+\section{Problem Statement}
+Healthcare institutions face significant challenges in managing comprehensive donor information including scattered medical records, manual health metrics tracking, inefficient donor search systems, and lack of centralized donor databases. Traditional paper-based systems cannot handle complex donor information requirements such as detailed health metrics, blood compatibility tracking, emergency contact management, and automated eligibility calculations. This creates inefficiencies in donor information retrieval, health monitoring, and emergency response coordination.
+\\\\
+\section{Objectives}
+           The main objective of the project is to develop a user-friendly and efficient blood donor information management system that replaces traditional paper-based processes and enhances real-time coordination.
+
+\section{Features and Functionalities}
+Admin:
+\begin{itemize}
+    \item Secure login and Dashboard Access
+\item Donor Management
+\item Donation History Tracking
+\item Eligibility Monitoring Handling
+\item Blood Request Handling
+\item Report and Analytics
+\end{itemize}
+Donor 
+\begin{itemize}
+    \item Secure Login and Profile Management
+\item Donor Registration and Information Update
+\item View Personal Donation History
+\item Search Donation Opportunities
+\item Eligibility Checker
+\end{itemize}
+\pagebreak
+
+\section{Significance And Scope}
+This system significantly improves healthcare information management by providing centralized donor data access, comprehensive health metrics tracking, and efficient donor information retrieval. It enhances data accuracy, streamlines donor information workflows, and enables evidence-based decision-making for healthcare administrators.
+\\\\
+The scope encompasses complete donor information lifecycle including detailed profile management, comprehensive health metrics tracking, advanced search capabilities, automated eligibility monitoring, donation history management, and detailed analytics reporting. The system serves as a centralized information hub for healthcare institutions managing donor databases.
+
+\pagebreak
+
+\chapter{LITERATURE REVIEW}
+
+Blood Donor Information Management Systems (BDIMS) are critical for enhancing the efficiency and reliability of blood donation services. Globally, the transition from manual to digital systems has improved donor tracking, eligibility verification, and blood request coordination (Kumar \& Gupta, 2020). In Nepal, while many hospitals and Red Cross branches still rely on semi-digital or paper-based systems, there has been notable progress in adopting digital platforms, particularly in urban areas.
+\\\\
+A study by Sharma et al. (2019) showed that digital donor registries reduce administrative workload by over 30\% and improve response time during emergency blood shortages. In Nepal, organizations like Nepal Red Cross Society (NRCS) have begun piloting donor information systems in collaboration with local ICT firms. For instance, the NRCS Blood Transfusion Service in Kathmandu introduced a digital donor card system in 2021, which enabled quicker access to donor history and eligibility data.
+\\\\
+According to the Ministry of Health and Population (MoHP), around 300,000 units of blood are collected annually in Nepal, yet demand often exceeds supply due to poor coordination and lack of real-time data access, especially in remote areas. In 2022, the Hamro LifeBank project launched a mobile and web platform that connects hospitals, donors, and blood banks in real-time, helping reduce request response times from hours to minutes in the Kathmandu Valley. The platform also integrates GPS to show nearby donors and blood drives—an approach proven effective in donor mobilization during peak need.
+\\\\
+Usability-focused systems featuring role-based dashboards, automated SMS alerts, and one-click eligibility checks have been reported to increase donor retention rates by 20–25\% (Ali et al., 2022). Nepal’s use of QR-based donor ID cards and mobile notifications, though still in limited deployment, is aligned with this global trend and shows promise for improving traceability and engagement.
+\\\\
+However, Nepal continues to face challenges in system scalability, especially in rural regions. Limited internet access, low digital literacy, and lack of staff training hinder broader adoption. Research by Yadav \& Mehta (2020) recommends focusing on offline-first mobile apps and decentralized data storage solutions for improving nationwide coverage.
+\\\\
+In conclusion, literature and local data both indicate that Blood Donor Information Management Systems are vital for enhancing Nepal’s blood donation services. Projects like Hamro LifeBank and NRCS digital initiatives highlight the transformative potential of these systems, though further investment in infrastructure, training, and scalability is needed for long-term sustainability and national reach.
+
+\newpage
+
+\chapter{PROJECT MANAGEMENT}
+
+\section{Team Members}
+The project is carried out by the contribution of the following four team members.
+\begin{itemize}
+    \item Bishal Shrestha [790310]
+    \item Chirayu Shrestha [790311]
+    \item Pappu Yadav [790324]
+    \item Prashant Ghimire [790328]
+\end{itemize}
+\section{Work Breakdown Planning}
+The table shows the comprehensive work breakdown planning for the Blood Donor Information Management System development project.\\
+This work breakdown structure organizes the project into manageable phases including system analysis, database design, user interface development, testing, and deployment. Each phase contains specific tasks with defined timelines and deliverables to ensure systematic project completion.
+
+\thispagestyle{plain}
+\begin{table}[H]
+	\centering
+	\renewcommand{\arraystretch}{1.5}
+	\resizebox{\textwidth}{!}{%
+		\begin{tabular}{|c|c|c|c|c|c|c|c|}
+			\hline
+			\textbf{S.N.} & \textbf{Task Description}  & \textbf{Week 1-2} & \textbf{Week 3-4} & \textbf{Week 5-6} & \textbf{Week 7-8} & \textbf{Week 9-10} & \textbf{Week 11-12} \\
+			\hline
+			1 & Problem Identification  & \cellcolor{taskcolor} & \cellcolor{lightgray} & \cellcolor{lightgray} & \cellcolor{lightgray} & \cellcolor{lightgray} & \cellcolor{lightgray} \\
+			\hline
+			2 & Analysis & \cellcolor{taskcolor} & \cellcolor{taskcolor} & \cellcolor{lightgray} & \cellcolor{lightgray} & \cellcolor{lightgray} & \cellcolor{lightgray} \\
+			\hline
+			3 & Design  & \cellcolor{lightgray} & \cellcolor{taskcolor} & \cellcolor{taskcolor} & \cellcolor{lightgray} & \cellcolor{lightgray} & \cellcolor{lightgray} \\
+			\hline
+			4 & Coding  & \cellcolor{lightgray} & \cellcolor{lightgray} & \cellcolor{taskcolor} & \cellcolor{taskcolor} & \cellcolor{taskcolor} & \cellcolor{lightgray} \\
+			\hline
+			5 & Implementing and Testing  & \cellcolor{lightgray} & \cellcolor{lightgray} & \cellcolor{lightgray} & \cellcolor{lightgray} & \cellcolor{taskcolor} & \cellcolor{taskcolor} \\
+			\hline
+			6 & Documentation  & \cellcolor{lightgray} & \cellcolor{lightgray} & \cellcolor{lightgray} & \cellcolor{lightgray} & \cellcolor{taskcolor} & \cellcolor{taskcolor} \\
+			\hline
+		\end{tabular}%
+	}
+	\caption{Project Timeline and Work Breakdown Structure}
+	\label{tab:gantt}
+\end{table}
+\newpage
+
+\section{Feasibility Study}
+The feasibility study analyzes and evaluates the overall success potential and viability of the Blood Donor Information Management System project across multiple critical dimensions. This comprehensive assessment is based on extensive research, technical analysis, and investigation of project requirements and implementation scenarios.\cite{nrcs2023}
+
+\begin{itemize}
+    \item \textbf{Economic Feasibility:} The project demonstrates excellent economic viability as it utilizes open-source technologies including Django framework, PostgreSQL database, and standard web technologies. Development costs are minimal, requiring only basic hardware and internet connectivity. No licensing fees or expensive software purchases are required, making it highly cost-effective for healthcare institutions.
+
+    \item \textbf{Operational Feasibility:} The web-based application is designed to run efficiently on standard hardware configurations with minimal system requirements. The responsive design ensures compatibility across desktop computers, tablets, and mobile devices. The intuitive user interface requires minimal training for healthcare professionals and donors.
+
+    \item \textbf{Technical Feasibility:} The system is built using proven, stable technologies (Django, PostgreSQL, HTML/CSS/JavaScript) with extensive community support. Healthcare professionals with basic computer literacy can easily operate the system. Comprehensive documentation, user manuals, and built-in help features ensure smooth operation and troubleshooting.
+
+    \item \textbf{Schedule Feasibility:} The project timeline spans approximately 4 months for complete development, testing, and deployment. The modular development approach allows for incremental delivery and testing, ensuring the project remains on schedule and meets all specified requirements within the allocated timeframe.
+\end{itemize}
+
+\chapter{METHODOLOGY}
+
+ 
+\section{Algorithm}
+\begin{enumerate}
+    \item \textbf{Start:} Initialize the Blood Donor Information Management System and establish database connection.
+
+    \item \textbf{Display Home Page:} Show welcome message and present login/registration options to the user.
+
+    \item \textbf{Ask User for Action:} Prompt user to choose between Login or Register with role selection (Donor/Admin).
+    \item \textbf{If user chooses Login:}
+    \begin{enumerate}
+        \item Enter credentials and select role (Donor/Admin).
+        \item Verify credentials.
+        \item If credentials are valid and role matches profile, log in and go to step 6.
+        \item If credentials are invalid, display error message and goto step 3.
+    \end{enumerate}
+
+    \item \textbf{If user chooses Register:}
+    \begin{enumerate}
+        \item enter personal information (name, email, phone, address, date of birth).
+        \item For Donor: Collect medical information (blood group, weight, height, medical conditions).
+        \item Validate all input data and check eligibility requirements.
+        \item Create new user account and profile in database.
+        \item After confirmation redirect to appropriate dashboard.
+    \end{enumerate}
+
+    \item \textbf{Display Dashboard:} Based on user role, show either Donor Dashboard or Admin Dashboard.
+    \item \textbf{For Donor Dashboard - Display Main Menu:}
+    \begin{enumerate}
+        \item View Profile and Donation History
+        \item Check Donation Eligibility Status
+        \item Update Health Metrics
+        \item View Emergency Blood Requests
+        \item Update Personal Information
+        \item View Blood Compatibility Information
+        \item Logout\\\\
+    \end{enumerate}
+
+    \item \textbf{For Admin Dashboard - Display Main Menu:}
+    \begin{enumerate}
+        \item View System Analytics and Statistics
+        \item Manage Donor Records
+        \item Manage Blood Inventory
+        \item Handle Emergency Requests
+        \item Manage Blood Centers
+        \item Track Donors
+        \item Logout
+    \end{enumerate}
+
+    \item \textbf{Allow User to Select Option:}
+    \item \textbf{Perform Selected Action:}
+    \begin{enumerate}
+        \item If "View Profile" - Display donor information and donation history.
+        \item If "Check Eligibility" - Calculate and show donation eligibility based on 56-day rule.
+        \item If "Update Health Metrics" - Allow entry of weight, blood pressure, heart rate, and other recent medical reports.
+        \item If "View Emergency Requests" - Show active emergency requests matching blood type.
+        \item If "Manage Donors" (Admin) - Display donor search and management interface.
+        \item If"Emergency request"(Admin) - Create a new emergency request and manage it.
+        \item If "Manage Inventory" (Admin) - Show blood inventory levels and update options.
+        \item If "Blood center" (Admin) - Add the blood center for blood donation
+    \end{enumerate}
+
+    \item \textbf{Update Database.} 
+
+    \item \textbf{Repeat Steps 9-11.} 
+    \item \textbf{Exit.}
+\end{enumerate}
+
+\section{Flowchart}
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=1\textwidth,height=1.5\textwidth, keepaspectratio]{img/flowchrtblooddon.png}
+    \caption{Flowchart}
+    \label{fig:Flowchart}
+\end{figure}
+The flowchart represents the complete workflow of the Blood Donor Information Management System, illustrating the step-by-step process from user registration to blood donation completion and inventory management. The flowchart shows the logical flow of operations including user authentication, donor registration, eligibility verification, donation scheduling, emergency request handling, and administrative functions.
+
+
+\pagebreak
+\section{Use Case Diagram}
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=\textwidth, keepaspectratio]{img/usecase.png}
+    \caption{Use Case Diagram}
+    \label{fig:Use Case Diagram}
+\end{figure}
+
+The Use Case Diagram illustrates the dynamic behavior and workflow of the Blood Donor Information Management System. It shows the sequence of activities, decision points, and parallel processes involved in donor registration, blood donation workflow, handling of emergency requests, and administrative operations. The diagram captures the system's business logic and user interactions across different modules.
+\pagebreak
+\section{ER Diagram}
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=1.4\textwidth, keepaspectratio,angle=90]{img/er.png}
+    \caption{ER Diagram}
+    \label{fig:ER Diagram}
+\end{figure}
+This ER diagram shows the relation between different entities in database
+
+\pagebreak
+\section{TOOLS AND PLATFORMS}
+
+\subsection{Backend Technologies}
+\begin{itemize}
+    \item Django 
+    \item PostgreSQL
+    \item Python
+\end{itemize}
+
+\subsection{Front end Technologies}
+\begin{itemize}
+    \item HTML5
+    \item CSS3
+    \item JavaScript
+    \item Bootstrap
+\end{itemize}
+
+\subsection{Other Tools}
+\begin{itemize}
+    \item Visual Studio Code
+    \item Git
+  
+\end{itemize}
+
+\subsection{Platform}
+\begin{itemize}
+    \item \textbf{Development:} Windows
+    \item \textbf{Database:} PostgreSQL Server
+\end{itemize}
+\chapter{PROJECT WORK STATUS}
+
+\section{Work Done:}
+We have completed the following major components:
+
+\begin{itemize}
+    \item[1)] User authentication system including role-based login, session validation, and password security.
+    \item[2)] Donor management module with profile, compatibility of blood groups, eligibility calculation and location-based filtering.
+    \item[3)] Admin dashboard for tracking, inventory monitoring, and emergency request management.
+    \item[4)] Implementation of the PostgreSQL database with fully normalized models and data constraints.
+    \item[5)] Core functionalities such as donation history tracking, health metrics monitoring, emergency request system, and multichannel notifications.
+\end{itemize}
+
+%================= Figures ================
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.8\textwidth, keepaspectratio]{img/homepage.png}
+    \caption{System Home Page Interface}
+    \label{fig:system_home}
+\end{figure}
+
+\noindent
+This figure displays the homepage of the system, providing navigation links and access points for users i.e. donors and admins. It serves as the entry point to the platform.From here we can goto Login Page.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.8\textwidth, keepaspectratio]{img/login.png}
+    \caption{User Login Page}
+    \label{fig:user_login}
+\end{figure}
+
+\noindent
+This interface allows users to securely log in using their credentials.Users can enter their username,password along with their roles to get redirected to their respective dashboards.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.8\textwidth, keepaspectratio]{img/donor_page.png}
+    \caption{Donor Dashboard}
+    \label{fig:donor_dashboard}
+\end{figure}
+
+\noindent
+After logging in, donors are directed to this dashboard where they can view their donation history, update their profile, see their compatibility, see blood centers and available blood stock, and they can also schedule donations.
+\\\\
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.8\textwidth, keepaspectratio]{img/donation_center.png}
+    \caption{Donation Center Dashboard}
+    \label{fig:donation_center}
+\end{figure}
+
+\noindent
+This panel provides available blood donation centers,their phone number and their locations, and their available services.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.8\textwidth, keepaspectratio]{img/admin_dashboard.png}
+    \caption{Admin Dashboard}
+    \label{fig:admin_dashboard}
+\end{figure}
+
+\noindent
+This interface gives admin full access to manage donors, oversee the overall operations, monitor system logs, and ensure data integrity across modules.
+\\\\
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.8\textwidth, keepaspectratio]{img/Blood_inventory.png}
+    \caption{Blood Inventory Management Module}
+    \label{fig:blood_inventory}
+\end{figure}
+
+\noindent
+This module allows admins to track current blood stock levels, manage inventory updates, and ensure balanced availability across various blood groups.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.8\textwidth, keepaspectratio]{img/Compatability_check.png}
+    \caption{Blood Compatibility Check Feature}
+    \label{fig:compatibility_check}
+\end{figure}
+
+\noindent
+This feature enables quick verification of blood group compatibility between donor and recipient, assisting in safe and efficient transfusion matching.Donor can see which blood group they can donate to and recieve blood from.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.8\textwidth, keepaspectratio]{img/manage_blood_bank.png}
+    \caption{Blood Bank Management Panel}
+    \label{fig:manage_blood_bank}
+\end{figure}
+
+\noindent
+This panel allows the admin the control to add blood centers,delete exisiting blood centers.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[height=0.8\textheight, keepaspectratio]{img/update_location.png}
+    \caption{Location Update Interface}
+    \label{fig:update_location}
+\end{figure}
+
+\noindent
+This interface lets donors  to update geographical information about their current locations to ensure accurate data for searches and logistics.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.8\textwidth, keepaspectratio]{img/report.png}
+    \caption{Medical Reports and Health Tracking}
+    \label{fig:medical_reports}
+\end{figure}
+
+\noindent
+This section displays donor health records and medical history, enabling them to view their current or past Health metrics.
+%============== Work Remaining ==============
+
+\section{Work Remaining:}
+The remaining tasks include the following:
+
+\begin{itemize}
+    \item[1)] Home page design and layout finalization.
+    \item[2)] Donor tracking system debugging.
+    \item[3)] Completion of the emergency blood request module.
+    \item[4)] UI/UX refinement and enhanced error handling.
+    \item[5)] Final testing and optimization of implemented features.
+\end{itemize}
+\pagebreak
+% \renewcommand{\bibname}{References}
+% \addcontentsline{toc}{chapter}{6 \;\;REFERENCES}
+% \begin{thebibliography}{9}
+
+% \bibitem{1} 
+% Wikipedia, ``Blood donation,'' \textit{Wikipedia}. [Online]. Available: \url{https://en.wikipedia.org/wiki/Blood_donation}. Accessed: Jul. 15--25, 2025.
+
+% \bibitem{2} 
+% World Health Organization, ``Blood safety and availability: Key facts,'' \textit{WHO}, 2020. [Online]. Available: \url{https://www.who.int/news-room/fact-sheets/detail/blood-safety-and-availability}. Accessed: Jul. 15--25, 2025.
+
+% \bibitem{3} 
+% Django Software Foundation, ``Django project,'' \textit{GitHub}, 2024. [Online]. Available: \url{https://github.com/django/django}. Accessed: Jul. 15--25, 2025.
+
+% \bibitem{4} 
+% Django Software Foundation, ``Django documentation,'' 2024. [Online]. Available: \url{https://docs.djangoproject.com/}. Accessed: Jul. 15--25, 2025.
+
+% \bibitem{5} 
+% PostgreSQL Global Development Group, ``PostgreSQL documentation,'' 2024. [Online]. Available: \url{https://www.postgresql.org/docs/}. Accessed: Jul. 15--25, 2025.
+
+% \bibitem{6} 
+% A. Kumar and S. Gupta, ``Digital transformation in blood donor management: A comprehensive study,'' \textit{Journal of Healthcare Information Systems}, vol. 15, no. 3, pp. 45--62, 2020.
+
+% \bibitem{7} 
+% R. Sharma, M. Patel, and K. Singh, ``Blood donor management systems in developing countries: Challenges and opportunities,'' \textit{International Journal of Medical Informatics}, vol. 128, pp. 89--97, 2019.
+
+% \bibitem{8} 
+% Nepal Red Cross Society, \textit{Blood donation services in Nepal: Annual report}. Kathmandu: NRCS Publications, 2023.
+
+% \end{thebibliography}
+
+% \bibliography{ref}
+\printbibliography
+\end{document}
