@@ -1,0 +1,96 @@
+{% extends "admin_panel/base_superadmin.html" %}
+{% load static %}
+
+{% block title %}Verify Users - BDIMS Superadmin{% endblock %}
+
+{% block content %}
+<div class="container" style="max-width: 1200px; margin: 2rem auto; padding: 0 1rem;">
+    <div class="page-header" style="margin-bottom: 2rem;">
+        <h1 style="color: #1f2937; font-size: 2rem; font-weight: 700; display: flex; align-items: center; gap: 0.75rem;">
+            <i class="fas fa-user-check" style="color: #2563eb;"></i>
+            User Verification
+        </h1>
+        <p style="color: #6b7280; margin-top: 0.5rem;">Approve or reject pending hospital admin registrations</p>
+    </div>
+
+    {% if pending_users %}
+    <div class="table-container" style="background: white; border-radius: 12px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); overflow: hidden;">
+        <table style="width: 100%; border-collapse: collapse;">
+            <thead style="background: #f3f4f6;">
+                <tr>
+                    <th style="padding: 1rem; text-align: left; font-weight: 600; color: #374151;">Username</th>
+                    <th style="padding: 1rem; text-align: left; font-weight: 600; color: #374151;">Full Name</th>
+                    <th style="padding: 1rem; text-align: left; font-weight: 600; color: #374151;">Hospital</th>
+                    <th style="padding: 1rem; text-align: left; font-weight: 600; color: #374151;">Email</th>
+                    <th style="padding: 1rem; text-align: left; font-weight: 600; color: #374151;">Registered</th>
+                    <th style="padding: 1rem; text-align: center; font-weight: 600; color: #374151;">Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for user in pending_users %}
+                <tr style="border-top: 1px solid #e5e7eb;">
+                    <td style="padding: 1rem;">
+                        <strong>{{ user.username }}</strong>
+                    </td>
+                    <td style="padding: 1rem;">
+                        {{ user.get_full_name|default:"N/A" }}
+                    </td>
+                    <td style="padding: 1rem;">
+                        {% if user.hospital %}
+                            {{ user.hospital.name }}
+                            <br><small style="color: #6b7280;">{{ user.hospital.city }}</small>
+                        {% else %}
+                            <span style="color: #ef4444;">No hospital</span>
+                        {% endif %}
+                    </td>
+                    <td style="padding: 1rem;">
+                        {{ user.email }}
+                    </td>
+                    <td style="padding: 1rem;">
+                        {{ user.date_joined|date:"M d, Y" }}
+                        <br><small style="color: #6b7280;">{{ user.date_joined|timesince }} ago</small>
+                    </td>
+                    <td style="padding: 1rem; text-align: center;">
+                        <form method="post" style="display: inline-flex; gap: 0.5rem;">
+                            {% csrf_token %}
+                            <input type="hidden" name="user_id" value="{{ user.id }}">
+                            <button type="submit" name="action" value="approve" 
+                                    style="padding: 0.5rem 1rem; background: #10b981; color: white; border: none; border-radius: 6px; cursor: pointer; font-weight: 600;"
+                                    onclick="return confirm('Approve {{ user.username }}?')">
+                                <i class="fas fa-check"></i> Approve
+                            </button>
+                            <button type="submit" name="action" value="reject" 
+                                    style="padding: 0.5rem 1rem; background: #ef4444; color: white; border: none; border-radius: 6px; cursor: pointer; font-weight: 600;"
+                                    onclick="return confirm('Reject and delete {{ user.username }}? This cannot be undone.')">
+                                <i class="fas fa-times"></i> Reject
+                            </button>
+                        </form>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    
+    <div style="margin-top: 1.5rem; padding: 1rem; background: #fef3c7; border-radius: 8px; border-left: 4px solid #f59e0b;">
+        <p style="color: #92400e; margin: 0;">
+            <strong>⚠️ Note:</strong> Approving a user will activate their account and allow them to access the admin panel.
+            Rejecting will permanently delete their account and hospital data.
+        </p>
+    </div>
+    
+    {% else %}
+    <div style="text-align: center; padding: 4rem 2rem; background: white; border-radius: 12px; box-shadow: 0 1px 3px rgba(0,0,0,0.1);">
+        <i class="fas fa-check-circle" style="font-size: 4rem; color: #10b981; margin-bottom: 1rem;"></i>
+        <h2 style="color: #1f2937; margin-bottom: 0.5rem;">All Clear!</h2>
+        <p style="color: #6b7280;">No pending users to verify at this time.</p>
+    </div>
+    {% endif %}
+
+    <div style="margin-top: 2rem;">
+        <a href="{% url 'admin_panel:dashboard' %}" style="display: inline-flex; align-items: center; gap: 0.5rem; color: #2563eb; text-decoration: none; font-weight: 600;">
+            <i class="fas fa-arrow-left"></i> Back to Dashboard
+        </a>
+    </div>
+</div>
+{% endblock %}

@@ -242,63 +242,13 @@
                 <!-- Admin Fields (Hidden by default) -->
                 <div id="admin-fields" style="display: none;">
                     <div class="form-group">
-                        <label for="admin_name" class="form-label">Full Name</label>
-                        <input type="text" id="admin_name" name="admin_name" class="form-input" placeholder="Your full name" value="{{ form_data.admin_name|default:'' }}">
+                        <label for="admin_name" class="form-label form-label-required">Full Name</label>
+                        <input type="text" id="admin_name" name="admin_name" class="form-input" placeholder="Your full name" value="{{ form_data.admin_name|default:'' }}" required>
                     </div>
 
                     <div class="form-group">
-                        <label for="admin_contact_no" class="form-label">Contact Number</label>
-                        <input type="tel" id="admin_contact_no" name="admin_contact_no" class="form-input" placeholder="Your phone number" value="{{ form_data.admin_contact_no|default:'' }}">
-                    </div>
-
-                    <div class="form-group">
-                        <label for="admin_address" class="form-label">Street Address</label>
-                        <input type="text" id="admin_address" name="admin_address" class="form-input" placeholder="Your street address" value="{{ form_data.admin_address|default:'' }}">
-                    </div>
-
-                    <div class="form-row">
-                        <div class="form-group">
-                            <label for="admin_city" class="form-label">City</label>
-                            <select id="admin_city" name="admin_city" class="form-select">
-                                <option value="" {% if not form_data.admin_city %}selected{% endif %}>Select City</option>
-                                <option value="Kathmandu" {% if form_data.admin_city == 'Kathmandu' %}selected{% endif %}>Kathmandu</option>
-                                <option value="Pokhara" {% if form_data.admin_city == 'Pokhara' %}selected{% endif %}>Pokhara</option>
-                                <option value="Lalitpur" {% if form_data.admin_city == 'Lalitpur' %}selected{% endif %}>Lalitpur</option>
-                                <option value="Bhaktapur" {% if form_data.admin_city == 'Bhaktapur' %}selected{% endif %}>Bhaktapur</option>
-                                <option value="Biratnagar" {% if form_data.admin_city == 'Biratnagar' %}selected{% endif %}>Biratnagar</option>
-                                <option value="Birgunj" {% if form_data.admin_city == 'Birgunj' %}selected{% endif %}>Birgunj</option>
-                                <option value="Dharan" {% if form_data.admin_city == 'Dharan' %}selected{% endif %}>Dharan</option>
-                                <option value="Hetauda" {% if form_data.admin_city == 'Hetauda' %}selected{% endif %}>Hetauda</option>
-                                <option value="Janakpur" {% if form_data.admin_city == 'Janakpur' %}selected{% endif %}>Janakpur</option>
-                                <option value="Butwal" {% if form_data.admin_city == 'Butwal' %}selected{% endif %}>Butwal</option>
-                                <option value="Chitwan" {% if form_data.admin_city == 'Chitwan' %}selected{% endif %}>Chitwan</option>
-                                <option value="Bharatpur" {% if form_data.admin_city == 'Bharatpur' %}selected{% endif %}>Bharatpur</option>
-                                <option value="Nepalgunj" {% if form_data.admin_city == 'Nepalgunj' %}selected{% endif %}>Nepalgunj</option>
-                                <option value="Dhangadhi" {% if form_data.admin_city == 'Dhangadhi' %}selected{% endif %}>Dhangadhi</option>
-                                <option value="Other" {% if form_data.admin_city == 'Other' %}selected{% endif %}>Other</option>
-                            </select>
-                        </div>
-                        <div class="form-group">
-                            <label for="admin_state" class="form-label">State/Province</label>
-                            <input type="text" id="admin_state" name="admin_state" class="form-input" placeholder="State or Province" value="{{ form_data.admin_state|default:'' }}">
-                        </div>
-                    </div>
-
-                    <div class="form-row">
-                        <div class="form-group">
-                            <label for="admin_postal_code" class="form-label">Postal Code</label>
-                            <input type="text" id="admin_postal_code" name="admin_postal_code" class="form-input" placeholder="ZIP/Postal Code" value="{{ form_data.admin_postal_code|default:'' }}">
-                        </div>
-                        <div class="form-group">
-                            <label for="admin_country" class="form-label">Country</label>
-                            <select id="admin_country" name="admin_country" class="form-select">
-                                <option value="Nepal" {% if form_data.admin_country == 'Nepal' or not form_data.admin_country %}selected{% endif %}>Nepal</option>
-                                <option value="India" {% if form_data.admin_country == 'India' %}selected{% endif %}>India</option>
-                                <option value="China" {% if form_data.admin_country == 'China' %}selected{% endif %}>China</option>
-                                <option value="Bangladesh" {% if form_data.admin_country == 'Bangladesh' %}selected{% endif %}>Bangladesh</option>
-                                <option value="Other">Other</option>
-                            </select>
-                        </div>
+                        <label for="admin_contact_no" class="form-label form-label-required">Contact Number</label>
+                        <input type="tel" id="admin_contact_no" name="admin_contact_no" class="form-input" placeholder="Your phone number" value="{{ form_data.admin_contact_no|default:'' }}" required>
                     </div>
 
                     <!-- Hospital Information Section -->
@@ -307,70 +257,40 @@
                             <i class="fas fa-hospital"></i> Hospital/Blood Bank Information
                         </h3>
                         <p style="color: var(--color-gray-600); font-size: var(--text-sm); margin-bottom: var(--space-4);">
-                            As a hospital staff member, you'll manage ONE hospital/blood bank. Please provide your hospital's details.
+                            Provide the hospital/blood bank details where you work.
                         </p>
 
                         <div class="form-group">
-                            <label for="hospital_name" class="form-label">Hospital/Blood Bank Name *</label>
+                            <label for="hospital_name" class="form-label form-label-required">Hospital/Blood Bank Name</label>
                             <input type="text" id="hospital_name" name="hospital_name" class="form-input" placeholder="e.g., City General Hospital" value="{{ form_data.hospital_name|default:'' }}" required>
                         </div>
 
                         <div class="form-group">
-                            <label for="hospital_phone" class="form-label">Hospital Contact Number *</label>
+                            <label for="hospital_phone" class="form-label form-label-required">Hospital Contact Number</label>
                             <input type="tel" id="hospital_phone" name="hospital_phone" class="form-input" placeholder="Hospital phone number" value="{{ form_data.hospital_phone|default:'' }}" required>
                         </div>
 
                         <div class="form-group">
-                            <label for="hospital_email" class="form-label">Hospital Email (Optional)</label>
-                            <input type="email" id="hospital_email" name="hospital_email" class="form-input" placeholder="hospital@example.com" value="{{ form_data.hospital_email|default:'' }}">
-                        </div>
-
-                        <div class="form-group">
-                            <label for="hospital_address" class="form-label">Hospital Address *</label>
+                            <label for="hospital_address" class="form-label form-label-required">Hospital Address</label>
                             <input type="text" id="hospital_address" name="hospital_address" class="form-input" placeholder="Hospital street address" value="{{ form_data.hospital_address|default:'' }}" required>
                         </div>
 
-                        <div class="form-row">
-                            <div class="form-group">
-                                <label for="hospital_city" class="form-label">Hospital City *</label>
-                                <select id="hospital_city" name="hospital_city" class="form-select" required>
-                                    <option value="" {% if not form_data.hospital_city %}selected{% endif %}>Select City</option>
-                                    <option value="Kathmandu" {% if form_data.hospital_city == 'Kathmandu' %}selected{% endif %}>Kathmandu</option>
-                                    <option value="Pokhara" {% if form_data.hospital_city == 'Pokhara' %}selected{% endif %}>Pokhara</option>
-                                    <option value="Lalitpur" {% if form_data.hospital_city == 'Lalitpur' %}selected{% endif %}>Lalitpur</option>
-                                    <option value="Bhaktapur" {% if form_data.hospital_city == 'Bhaktapur' %}selected{% endif %}>Bhaktapur</option>
-                                    <option value="Biratnagar" {% if form_data.hospital_city == 'Biratnagar' %}selected{% endif %}>Biratnagar</option>
-                                    <option value="Birgunj" {% if form_data.hospital_city == 'Birgunj' %}selected{% endif %}>Birgunj</option>
-                                    <option value="Other" {% if form_data.hospital_city == 'Other' %}selected{% endif %}>Other</option>
-                                </select>
-                            </div>
-                            <div class="form-group">
-                                <label for="hospital_state" class="form-label">State/Province</label>
-                                <input type="text" id="hospital_state" name="hospital_state" class="form-input" placeholder="State or Province" value="{{ form_data.hospital_state|default:'Nepal' }}">
-                            </div>
-                        </div>
-
                         <div class="form-group">
-                            <label for="hospital_type" class="form-label">Hospital Type</label>
-                            <select id="hospital_type" name="hospital_type" class="form-select">
-                                <option value="government" {% if form_data.hospital_type == 'government' or not form_data.hospital_type %}selected{% endif %}>Government Hospital</option>
-                                <option value="private" {% if form_data.hospital_type == 'private' %}selected{% endif %}>Private Hospital</option>
-                                <option value="blood_bank" {% if form_data.hospital_type == 'blood_bank' %}selected{% endif %}>Blood Bank</option>
-                                <option value="clinic" {% if form_data.hospital_type == 'clinic' %}selected{% endif %}>Clinic</option>
-                                <option value="medical_college" {% if form_data.hospital_type == 'medical_college' %}selected{% endif %}>Medical College</option>
+                            <label for="hospital_city" class="form-label form-label-required">Hospital City</label>
+                            <select id="hospital_city" name="hospital_city" class="form-select" required>
+                                <option value="" {% if not form_data.hospital_city %}selected{% endif %}>Select City</option>
+                                <option value="Kathmandu" {% if form_data.hospital_city == 'Kathmandu' %}selected{% endif %}>Kathmandu</option>
+                                <option value="Pokhara" {% if form_data.hospital_city == 'Pokhara' %}selected{% endif %}>Pokhara</option>
+                                <option value="Lalitpur" {% if form_data.hospital_city == 'Lalitpur' %}selected{% endif %}>Lalitpur</option>
+                                <option value="Bhaktapur" {% if form_data.hospital_city == 'Bhaktapur' %}selected{% endif %}>Bhaktapur</option>
+                                <option value="Biratnagar" {% if form_data.hospital_city == 'Biratnagar' %}selected{% endif %}>Biratnagar</option>
+                                <option value="Birgunj" {% if form_data.hospital_city == 'Birgunj' %}selected{% endif %}>Birgunj</option>
+                                <option value="Dharan" {% if form_data.hospital_city == 'Dharan' %}selected{% endif %}>Dharan</option>
+                                <option value="Butwal" {% if form_data.hospital_city == 'Butwal' %}selected{% endif %}>Butwal</option>
+                                <option value="Chitwan" {% if form_data.hospital_city == 'Chitwan' %}selected{% endif %}>Chitwan</option>
+                                <option value="Other" {% if form_data.hospital_city == 'Other' %}selected{% endif %}>Other</option>
                             </select>
                         </div>
-                    </div>
-
-                    <div class="form-group">
-                        <label for="admin_photo" class="form-label">Profile Photo (Optional)</label>
-                        <div style="display: flex; align-items: center; gap: var(--space-3);">
-                            <label for="admin_photo" class="btn btn-secondary" style="margin: 0; cursor: pointer;">
-                                <i class="fas fa-cloud-upload-alt"></i> Choose Photo
-                            </label>
-                            <span id="adminFileName" style="color: var(--color-gray-600); font-size: var(--text-sm);">No file chosen</span>
-                        </div>
-                        <input type="file" id="admin_photo" name="admin_photo" accept="image/*" style="display: none;" onchange="updateAdminFileName(this)">
                     </div>
                 </div>
 

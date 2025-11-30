@@ -1,11 +1,18 @@
 from django.urls import path
 from . import views
+from . import superadmin_views
 
 app_name = 'admin_panel'
 
 urlpatterns = [
     path('', views.dashboard, name='dashboard'),
     path('dashboard/', views.dashboard, name='dashboard'),
+    
+    # Superadmin-only URLs
+    path('superadmin/', superadmin_views.superadmin_dashboard, name='superadmin_dashboard'),
+    path('verify-users/', superadmin_views.verify_users, name='verify_users'),
+    path('view-all-staff/', superadmin_views.view_all_staff, name='view_all_staff'),
+    
     path('donors/location-search/', views.location_search, name='location_search'),
 
     path('api/geocode/', views.geocode_address, name='geocode_address'),

@@ -21,6 +21,10 @@ def dashboard(request):
         messages.error(request, 'You must be an admin to access this page.')
         return redirect('donor:donor_dashboard')
     
+    # Redirect superadmin to dedicated dashboard
+    if request.user.is_superuser:
+        return redirect('admin_panel:superadmin_dashboard')
+    
     # Count total donors in database
     total_donors = Donor.objects.count()
     
@@ -127,9 +131,20 @@ def dashboard(request):
     # Get admin notifications
     admin_notifications = NotificationService.get_system_notifications('admins', user=request.user)[:5]
 
+    # Calculate active donors (donated in last 90 days)
+    ninety_days_ago = today - timedelta(days=90)
+    active_donors = Donor.objects.filter(last_donation_date__gte=ninety_days_ago).count()
+
+    # Add pending users count for superadmin
+    pending_users_count = 0
+    if request.user.is_superuser:
+        from django.contrib.auth.models import User
+        pending_users_count = User.objects.filter(is_staff=True, is_active=False).count()
+
     # Create context dictionary with all data for template
     context = {
         'total_donors': total_donors,
+        'active_donors': active_donors,
         'total_donations': total_donations,
         'pending_requests': pending_requests,
         'active_emergencies': active_emergencies,
@@ -144,6 +159,7 @@ def dashboard(request):
         'urgent_emergencies': urgent_emergencies,
         'blood_group_stats': blood_group_stats,
         'admin_notifications': admin_notifications,
+        'pending_users_count': pending_users_count,
     }
     
     # Render template with context data

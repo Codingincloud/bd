@@ -57,7 +57,7 @@ class Command(BaseCommand):
                         first_name=data['first_name'],
                         last_name=data['last_name'],
                         is_staff=True,
-                        is_superuser=True,
+                        is_superuser=False,  # Hospital admins are NOT superusers
                     )
 
                     # Create hospital

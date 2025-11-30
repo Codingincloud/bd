@@ -157,11 +157,6 @@ def validate_registration_data(data):
             elif not re.match(r'^\+?[\d\s\-\(\)]{10,15}$', admin_contact):
                 errors.append('Please enter a valid contact number.')
 
-            # Admin address validation
-            admin_address = data.get('admin_address', '').strip()
-            if not admin_address:
-                errors.append('Address is required for admin accounts.')
-
             # Hospital validation
             hospital_name = data.get('hospital_name', '').strip()
             if not hospital_name:
@@ -214,13 +209,16 @@ def register_view(request):
             with transaction.atomic():
                 # Create user account
                 try:
+                    # Admins require superadmin approval, donors are active immediately
+                    is_active = (role == 'donor')
+                    
                     user = User.objects.create_user(
                         username=username,
                         password=password,
                         email=email,
-                        is_active=True
+                        is_active=is_active
                     )
-                    logger.info(f"User {username} created successfully")
+                    logger.info(f"User {username} created successfully (active={is_active})")
                 except IntegrityError as e:
                     logger.error(f"IntegrityError creating user {username}: {e}")
                     error_msg = 'Username or email already exists. Please choose different credentials.'
@@ -235,9 +233,9 @@ def register_view(request):
                     })
 
                 if role == 'admin':
-                    # Set admin permissions
+                    # Set admin permissions - Hospital staff are NOT superusers
                     user.is_staff = True
-                    user.is_superuser = True
+                    user.is_superuser = False
                     user.save()
 
                     # Get admin-specific data
@@ -382,17 +380,42 @@ def register_view(request):
 
                 # Send welcome email (non-blocking)
                 try:
-                    subject = 'Welcome to Blood Donation System'
-                    message = f"""
+                    if role == 'admin':
+                        subject = 'Account Pending Approval - Blood Donation System'
+                        message = f"""
+Dear {user.first_name or username},
+
+Thank you for registering as a Hospital Administrator with the Blood Donation Management System!
+
+Your account has been created and is currently pending approval by the system administrator.
+
+Registration Details:
+- Username: {username}
+- Hospital: {hospital_name if role == 'admin' else 'N/A'}
+- Email: {email}
+
+You will receive a notification once your account has been approved. After approval, you can login at:
+http://localhost:8000/accounts/login/
+
+Please contact the system administrator if you have any questions about your registration.
+
+Thank you for your patience.
+
+Best regards,
+Blood Donation System Team
+                        """
+                    else:
+                        subject = 'Welcome to Blood Donation System'
+                        message = f"""
 Dear {user.first_name or username},
 
 Welcome to the Blood Donation Management System!
 
-Your {role} account has been successfully created.
+Your donor account has been successfully created and is now active.
 
 Login Details:
 - Username: {username}
-- Role: {role.title()}
+- Role: Donor
 
 You can access the system at: http://localhost:8000/accounts/login/
 
@@ -400,7 +423,7 @@ Thank you for joining our mission to save lives through blood donation.
 
 Best regards,
 Blood Donation System Team
-                    """
+                        """
 
                     send_mail(
                         subject,
@@ -413,15 +436,21 @@ Blood Donation System Team
                 except Exception as e:
                     logger.warning(f"Failed to send welcome email to {email}: {e}")
 
-                # Log the user in
-                login(request, user)
-
-                # Redirect based on role
+                # Handle post-registration based on role
                 if role == 'admin':
-                    logger.info(f"Admin {username} registered and logged in successfully")
-                    return redirect('admin_panel:dashboard')
+                    # Admins need approval - don't auto-login
+                    logger.info(f"Admin {username} registered successfully - pending approval")
+                    messages.success(
+                        request, 
+                        '✅ Registration successful! Your account is pending approval by the system administrator. '
+                        'You will be notified once your account has been approved and you can login.'
+                    )
+                    return redirect('accounts:login')
                 else:
+                    # Donors are auto-approved - login immediately
+                    login(request, user)
                     logger.info(f"Donor {username} registered and logged in successfully")
+                    messages.success(request, '✅ Welcome! Your donor account has been created successfully.')
                     return redirect('donor:donor_dashboard')
 
         except DatabaseError as e:
@@ -466,7 +495,7 @@ def login_view(request):
                     'username': username
                 })
 
-            if role not in ['admin', 'donor']:
+            if role not in ['admin', 'donor', 'superadmin']:
                 logger.warning(f"Login failed - invalid role {role} for {username}")
                 return render(request, 'accounts/login.html', {
                     'error': 'Please select a valid role.',
@@ -495,7 +524,22 @@ def login_view(request):
                     })
 
                 # Role-based authentication and profile verification
-                if role == 'admin':
+                if role == 'superadmin':
+                    # Superadmin login - must be both staff and superuser
+                    if user.is_staff and user.is_superuser:
+                        login(request, user)
+                        request.session.set_expiry(86400)  # 24 hours
+                        logger.info(f"Superadmin {username} logged in successfully")
+                        return redirect('admin_panel:dashboard')
+                    else:
+                        logger.warning(f"Login failed - user {username} is not superadmin but selected superadmin role")
+                        return render(request, 'accounts/login.html', {
+                            'error': 'You do not have superadmin privileges. Access denied.',
+                            'username': username,
+                            'role': role
+                        })
+                
+                elif role == 'admin':
                     if user.is_staff:
                         # Verify admin profile exists
                         try:

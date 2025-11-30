@@ -1,0 +1,384 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Superadmin Dashboard | BDIMS{% endblock %}</title>
+    
+    <!-- External CSS -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    
+    <!-- Custom CSS -->
+    {% load static %}
+    <link rel="stylesheet" href="{% static 'css/main.css' %}">
+    <link rel="stylesheet" href="{% static 'css/components.css' %}">
+    
+    <style>
+        /* Superadmin Purple Theme */
+        :root {
+            --superadmin-primary-50: #faf5ff;
+            --superadmin-primary-100: #f3e8ff;
+            --superadmin-primary-200: #e9d5ff;
+            --superadmin-primary-300: #d8b4fe;
+            --superadmin-primary-400: #c084fc;
+            --superadmin-primary-500: #a855f7;
+            --superadmin-primary-600: #7c3aed;
+            --superadmin-primary-700: #6d28d9;
+            --superadmin-primary-800: #5b21b6;
+            --superadmin-primary-900: #4c1d95;
+        }
+        
+        /* Override primary colors for superadmin */
+        body {
+            --color-primary-50: var(--superadmin-primary-50);
+            --color-primary-100: var(--superadmin-primary-100);
+            --color-primary-200: var(--superadmin-primary-200);
+            --color-primary-300: var(--superadmin-primary-300);
+            --color-primary-400: var(--superadmin-primary-400);
+            --color-primary-500: var(--superadmin-primary-500);
+            --color-primary-600: var(--superadmin-primary-600);
+            --color-primary-700: var(--superadmin-primary-700);
+            --color-primary-800: var(--superadmin-primary-800);
+            --color-primary-900: var(--superadmin-primary-900);
+            background-color: #f3f4f6;
+            font-family: 'Inter', sans-serif;
+        }
+        
+        .header {
+            background: linear-gradient(135deg, #7c3aed 0%, #6d28d9 100%);
+            box-shadow: 0 4px 12px rgba(124, 58, 237, 0.15);
+            padding: 1rem 0;
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+        }
+        
+        .header-content {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 0 1.5rem;
+        }
+        
+        .header-logo {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            color: white;
+            text-decoration: none;
+            font-size: 1.5rem;
+            font-weight: 700;
+        }
+        
+        .header-logo i {
+            font-size: 2rem;
+        }
+        
+        .nav-menu {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .nav-link {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.75rem 1.25rem;
+            color: rgba(255, 255, 255, 0.9);
+            text-decoration: none;
+            border-radius: 8px;
+            transition: all 0.2s;
+            font-weight: 500;
+        }
+        
+        .nav-link:hover {
+            background: rgba(255, 255, 255, 0.15);
+            color: white;
+        }
+        
+        .nav-link.active {
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+        }
+        
+        .nav-user {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+        
+        .user-dropdown {
+            position: relative;
+        }
+        
+        .user-dropdown-toggle {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            background: rgba(255, 255, 255, 0.15);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            padding: 0.5rem 1rem;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s;
+            color: white;
+        }
+        
+        .user-dropdown-toggle:hover {
+            background: rgba(255, 255, 255, 0.25);
+        }
+        
+        .nav-user-info {
+            text-align: right;
+        }
+        
+        .nav-user-name {
+            font-weight: 600;
+            font-size: 0.875rem;
+        }
+        
+        .nav-user-role {
+            font-size: 0.75rem;
+            opacity: 0.9;
+        }
+        
+        .nav-avatar {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.3);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 0.875rem;
+        }
+        
+        .user-dropdown-menu {
+            position: absolute;
+            top: calc(100% + 0.5rem);
+            right: 0;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+            min-width: 220px;
+            padding: 0.5rem;
+            display: none;
+            z-index: 1001;
+        }
+        
+        .user-dropdown-menu.show {
+            display: block;
+            animation: slideDown 0.2s ease-out;
+        }
+        
+        @keyframes slideDown {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        .dropdown-item {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 0.75rem 1rem;
+            color: #374151;
+            text-decoration: none;
+            border-radius: 8px;
+            transition: all 0.15s;
+            font-size: 0.875rem;
+            font-weight: 500;
+            width: 100%;
+            text-align: left;
+            background: none;
+            border: none;
+            cursor: pointer;
+        }
+        
+        .dropdown-item:hover {
+            background: #f3f4f6;
+            color: #7c3aed;
+        }
+        
+        .dropdown-item i {
+            width: 20px;
+        }
+        
+        .dropdown-divider {
+            height: 1px;
+            background: #e5e7eb;
+            margin: 0.5rem 0;
+        }
+        
+        .logout-btn {
+            color: #dc2626;
+        }
+        
+        .logout-btn:hover {
+            background: #fee2e2;
+            color: #dc2626;
+        }
+        
+        .dashboard-content {
+            min-height: calc(100vh - 80px);
+            padding: 2rem 0;
+        }
+        
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 0 1.5rem;
+        }
+        
+        /* Mobile responsive */
+        @media (max-width: 768px) {
+            .header-content {
+                flex-wrap: wrap;
+            }
+            
+            .nav-menu {
+                display: none;
+                width: 100%;
+                flex-direction: column;
+                margin-top: 1rem;
+            }
+            
+            .nav-menu.show {
+                display: flex;
+            }
+            
+            .nav-toggle {
+                display: block;
+                background: none;
+                border: none;
+                color: white;
+                font-size: 1.5rem;
+                cursor: pointer;
+            }
+        }
+        
+        @media (min-width: 769px) {
+            .nav-toggle {
+                display: none;
+            }
+        }
+    </style>
+    
+    {% block extra_css %}{% endblock %}
+</head>
+<body>
+    <!-- Header -->
+    <header class="header">
+        <div class="header-content">
+            <a href="{% url 'admin_panel:superadmin_dashboard' %}" class="header-logo">
+                <i class="fas fa-shield-alt"></i>
+                <span>Superadmin</span>
+            </a>
+            
+            <button class="nav-toggle" id="navToggle" aria-label="Toggle navigation">
+                <i class="fas fa-bars"></i>
+            </button>
+            
+            <nav class="nav-menu" id="navMenu">
+                <a href="{% url 'admin_panel:superadmin_dashboard' %}" class="nav-link {% if request.resolver_match.url_name == 'superadmin_dashboard' %}active{% endif %}">
+                    <i class="fas fa-tachometer-alt"></i>
+                    <span>Dashboard</span>
+                </a>
+                <a href="{% url 'admin_panel:verify_users' %}" class="nav-link {% if request.resolver_match.url_name == 'verify_users' %}active{% endif %}">
+                    <i class="fas fa-user-check"></i>
+                    <span>Verify Users</span>
+                </a>
+                <a href="{% url 'admin_panel:view_all_staff' %}" class="nav-link {% if request.resolver_match.url_name == 'view_all_staff' %}active{% endif %}">
+                    <i class="fas fa-users-cog"></i>
+                    <span>View Staff</span>
+                </a>
+                <a href="/admin/" target="_blank" class="nav-link">
+                    <i class="fas fa-cog"></i>
+                    <span>Django Admin</span>
+                </a>
+            </nav>
+            
+            <div class="nav-user">
+                <div class="user-dropdown">
+                    <button class="user-dropdown-toggle" id="userDropdownToggle" aria-expanded="false">
+                        <div class="nav-user-info">
+                            <div class="nav-user-name">{{ user.username }}</div>
+                            <div class="nav-user-role">🛡️ Superadmin</div>
+                        </div>
+                        <div class="nav-avatar">
+                            {{ user.username.0|upper }}
+                        </div>
+                        <i class="fas fa-chevron-down" style="font-size: 0.75rem;"></i>
+                    </button>
+                    
+                    <div class="user-dropdown-menu" id="userDropdownMenu">
+                        <div class="dropdown-item" style="color: #6b7280; cursor: default;">
+                            <i class="fas fa-envelope"></i>
+                            <span>{{ user.email }}</span>
+                        </div>
+                        <div class="dropdown-divider"></div>
+                        <form action="{% url 'accounts:logout' %}" method="POST" style="margin: 0;">
+                            {% csrf_token %}
+                            <button type="submit" class="dropdown-item logout-btn">
+                                <i class="fas fa-sign-out-alt"></i>
+                                <span>Logout</span>
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="dashboard-content">
+        {% block content %}{% endblock %}
+    </main>
+
+    <!-- JavaScript -->
+    <script>
+        // User dropdown toggle
+        const userDropdownToggle = document.getElementById('userDropdownToggle');
+        const userDropdownMenu = document.getElementById('userDropdownMenu');
+        
+        if (userDropdownToggle && userDropdownMenu) {
+            userDropdownToggle.addEventListener('click', function(e) {
+                e.stopPropagation();
+                userDropdownMenu.classList.toggle('show');
+                const isExpanded = userDropdownMenu.classList.contains('show');
+                userDropdownToggle.setAttribute('aria-expanded', isExpanded);
+            });
+            
+            // Close dropdown when clicking outside
+            document.addEventListener('click', function(e) {
+                if (!userDropdownToggle.contains(e.target) && !userDropdownMenu.contains(e.target)) {
+                    userDropdownMenu.classList.remove('show');
+                    userDropdownToggle.setAttribute('aria-expanded', 'false');
+                }
+            });
+        }
+        
+        // Mobile nav toggle
+        const navToggle = document.getElementById('navToggle');
+        const navMenu = document.getElementById('navMenu');
+        
+        if (navToggle && navMenu) {
+            navToggle.addEventListener('click', function() {
+                navMenu.classList.toggle('show');
+            });
+        }
+    </script>
+    
+    {% block extra_js %}{% endblock %}
+</body>
+</html>

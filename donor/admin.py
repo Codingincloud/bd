@@ -4,6 +4,12 @@ from django.db.models import Q
 from django.utils.html import format_html
 from .models import Donor, DonationRequest, DonationHistory, EmergencyRequest, HealthMetrics, Hospital, BloodInventory
 
+# ============================================================
+# SECURITY: Hide sensitive donor data from Django admin
+# Superadmin should NOT see individual donor information
+# Only Hospital and BloodInventory models are kept visible
+# ============================================================
+
 @admin.register(Hospital)
 class HospitalAdmin(admin.ModelAdmin):
     list_display = ['name', 'hospital_type', 'city', 'state', 'phone_number', 'has_blood_bank', 'accepts_donations', 'is_active']
@@ -53,7 +59,12 @@ class BloodInventoryAdmin(admin.ModelAdmin):
     )
     readonly_fields = ['last_updated']
 
-@admin.register(Donor)
+# Do NOT register sensitive models - keep them hidden from superadmin
+# @admin.register(Donor)
+# @admin.register(DonationRequest)
+# @admin.register(DonationHistory)
+# @admin.register(EmergencyRequest)
+# @admin.register(HealthMetrics)
 class DonorAdmin(admin.ModelAdmin):
     list_display = ['name', 'blood_group', 'age', 'phone_number', 'city', 'is_eligible', 'last_donation_date']
     list_filter = ['blood_group', 'gender', 'is_eligible', 'city', 'country', 'created_at']

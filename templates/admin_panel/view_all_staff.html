@@ -1,0 +1,97 @@
+{% extends "admin_panel/base_superadmin.html" %}
+{% load static %}
+
+{% block title %}All Hospital Staff - BDIMS Superadmin{% endblock %}
+
+{% block content %}
+<div class="container" style="max-width: 1400px; margin: 2rem auto; padding: 0 1rem;">
+    <div class="page-header" style="margin-bottom: 2rem;">
+        <h1 style="color: #1f2937; font-size: 2rem; font-weight: 700; display: flex; align-items: center; gap: 0.75rem;">
+            <i class="fas fa-users" style="color: #2563eb;"></i>
+            All Hospital Staff
+        </h1>
+        <p style="color: #6b7280; margin-top: 0.5rem;">View all hospital administrators in the system (Read-only)</p>
+    </div>
+
+    <div style="margin-bottom: 1.5rem; padding: 1rem; background: #dbeafe; border-radius: 8px; border-left: 4px solid #2563eb;">
+        <p style="color: #1e40af; margin: 0;">
+            <strong>ℹ️ Total Staff:</strong> {{ all_staff.count }} hospital administrator{{ all_staff.count|pluralize }}
+        </p>
+    </div>
+
+    <div class="table-container" style="background: white; border-radius: 12px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); overflow-x: auto;">
+        <table style="width: 100%; border-collapse: collapse; min-width: 800px;">
+            <thead style="background: #f3f4f6;">
+                <tr>
+                    <th style="padding: 1rem; text-align: left; font-weight: 600; color: #374151;">Username</th>
+                    <th style="padding: 1rem; text-align: left; font-weight: 600; color: #374151;">Full Name</th>
+                    <th style="padding: 1rem; text-align: left; font-weight: 600; color: #374151;">Hospital</th>
+                    <th style="padding: 1rem; text-align: left; font-weight: 600; color: #374151;">City</th>
+                    <th style="padding: 1rem; text-align: left; font-weight: 600; color: #374151;">Email</th>
+                    <th style="padding: 1rem; text-align: center; font-weight: 600; color: #374151;">Status</th>
+                    <th style="padding: 1rem; text-align: center; font-weight: 600; color: #374151;">Joined</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for staff in all_staff %}
+                <tr style="border-top: 1px solid #e5e7eb;">
+                    <td style="padding: 1rem;">
+                        <strong>{{ staff.username }}</strong>
+                    </td>
+                    <td style="padding: 1rem;">
+                        {{ staff.get_full_name|default:"N/A" }}
+                    </td>
+                    <td style="padding: 1rem;">
+                        {% if staff.hospital %}
+                            <strong>{{ staff.hospital.name }}</strong>
+                            <br><small style="color: #6b7280;">{{ staff.hospital.hospital_type|title }}</small>
+                        {% else %}
+                            <span style="color: #ef4444;">No hospital</span>
+                        {% endif %}
+                    </td>
+                    <td style="padding: 1rem;">
+                        {% if staff.hospital %}
+                            {{ staff.hospital.city }}
+                        {% else %}
+                            N/A
+                        {% endif %}
+                    </td>
+                    <td style="padding: 1rem;">
+                        <a href="mailto:{{ staff.email }}" style="color: #2563eb; text-decoration: none;">
+                            {{ staff.email }}
+                        </a>
+                    </td>
+                    <td style="padding: 1rem; text-align: center;">
+                        {% if staff.is_active %}
+                            <span style="display: inline-block; padding: 0.25rem 0.75rem; background: #d1fae5; color: #065f46; border-radius: 9999px; font-size: 0.875rem; font-weight: 600;">
+                                <i class="fas fa-check-circle"></i> Active
+                            </span>
+                        {% else %}
+                            <span style="display: inline-block; padding: 0.25rem 0.75rem; background: #fee2e2; color: #991b1b; border-radius: 9999px; font-size: 0.875rem; font-weight: 600;">
+                                <i class="fas fa-times-circle"></i> Inactive
+                            </span>
+                        {% endif %}
+                    </td>
+                    <td style="padding: 1rem; text-align: center;">
+                        {{ staff.date_joined|date:"M d, Y" }}
+                        <br><small style="color: #6b7280;">{{ staff.date_joined|timesince }} ago</small>
+                    </td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="7" style="padding: 2rem; text-align: center; color: #6b7280;">
+                        No hospital staff found.
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    <div style="margin-top: 2rem;">
+        <a href="{% url 'admin_panel:dashboard' %}" style="display: inline-flex; align-items: center; gap: 0.5rem; color: #2563eb; text-decoration: none; font-weight: 600;">
+            <i class="fas fa-arrow-left"></i> Back to Dashboard
+        </a>
+    </div>
+</div>
+{% endblock %}

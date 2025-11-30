@@ -1,0 +1,151 @@
+{% extends "admin_panel/base_superadmin.html" %}
+{% load static %}
+
+{% block title %}Superadmin Dashboard - BDIMS{% endblock %}
+
+{% block content %}
+<div style="max-width: 1200px; margin: 2rem auto; padding: 0 1rem;">
+    
+    <!-- Welcome Section -->
+    <div style="background: linear-gradient(135deg, #7c3aed 0%, #6d28d9 100%); color: white; padding: 3rem; border-radius: 16px; margin-bottom: 3rem; box-shadow: 0 10px 30px rgba(124, 58, 237, 0.3);">
+        <div style="display: flex; align-items: center; gap: 1rem; margin-bottom: 1rem;">
+            <i class="fas fa-shield-alt" style="font-size: 3rem; color: white;"></i>
+            <div>
+                <h1 style="font-size: 2.5rem; font-weight: 700; margin: 0; color: white;">Superadmin Control Panel</h1>
+                <p style="font-size: 1.1rem; margin: 0.5rem 0 0 0; opacity: 0.95; color: white;">Welcome, {{ user.username }}! System administration and oversight.</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- System Overview Stats -->
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 1.5rem; margin-bottom: 3rem;">
+        <div style="background: white; padding: 2rem; border-radius: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); border-left: 4px solid #3b82f6;">
+            <div style="color: #6b7280; font-size: 0.875rem; font-weight: 600; margin-bottom: 0.5rem;">TOTAL HOSPITALS</div>
+            <div style="font-size: 2.5rem; font-weight: 700; color: #1f2937;">{{ total_hospitals }}</div>
+        </div>
+        
+        <div style="background: white; padding: 2rem; border-radius: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); border-left: 4px solid #10b981;">
+            <div style="color: #6b7280; font-size: 0.875rem; font-weight: 600; margin-bottom: 0.5rem;">ACTIVE STAFF</div>
+            <div style="font-size: 2.5rem; font-weight: 700; color: #1f2937;">{{ active_staff }}</div>
+        </div>
+        
+        <div style="background: white; padding: 2rem; border-radius: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); border-left: 4px solid #f59e0b;">
+            <div style="color: #6b7280; font-size: 0.875rem; font-weight: 600; margin-bottom: 0.5rem;">PENDING APPROVALS</div>
+            <div style="font-size: 2.5rem; font-weight: 700; color: #1f2937;">{{ pending_users }}</div>
+        </div>
+        
+        <div style="background: white; padding: 2rem; border-radius: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); border-left: 4px solid #ef4444;">
+            <div style="color: #6b7280; font-size: 0.875rem; font-weight: 600; margin-bottom: 0.5rem;">TOTAL DONORS</div>
+            <div style="font-size: 2.5rem; font-weight: 700; color: #1f2937;">{{ total_donors }}</div>
+        </div>
+    </div>
+
+    <!-- Core Superadmin Functions -->
+    <div style="margin-bottom: 2rem;">
+        <h2 style="font-size: 1.5rem; font-weight: 700; color: #1f2937; margin-bottom: 1.5rem; display: flex; align-items: center; gap: 0.5rem;">
+            <i class="fas fa-cog" style="color: #7c3aed;"></i> Superadmin Functions
+        </h2>
+    </div>
+
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 2rem; margin-bottom: 3rem;">
+        
+        <!-- Django Admin -->
+        <a href="/admin/" target="_blank" style="text-decoration: none; color: inherit; display: block;">
+            <div style="background: linear-gradient(135deg, #7c3aed, #6d28d9); color: white; padding: 2.5rem; border-radius: 16px; box-shadow: 0 4px 12px rgba(124, 58, 237, 0.3); transition: all 0.3s ease; cursor: pointer; height: 100%;">
+                <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 1rem;">
+                    <i class="fas fa-shield-alt" style="font-size: 3rem; color: white;"></i>
+                    <i class="fas fa-external-link-alt" style="font-size: 1.2rem; opacity: 0.8; color: white;"></i>
+                </div>
+                <h3 style="font-size: 1.5rem; font-weight: 700; margin-bottom: 0.75rem; color: white;">Django Admin Panel</h3>
+                <p style="opacity: 0.95; line-height: 1.6; margin-bottom: 1rem; color: white;">Access Django's built-in administration interface for system-level management.</p>
+                <div style="display: inline-block; padding: 0.5rem 1rem; background: rgba(255,255,255,0.2); border-radius: 8px; font-size: 0.875rem; font-weight: 600; color: white;">
+                    <i class="fas fa-exclamation-triangle"></i> Use with caution
+                </div>
+            </div>
+        </a>
+
+        <!-- Verify Users -->
+        <a href="{% url 'admin_panel:verify_users' %}" style="text-decoration: none; color: inherit; display: block;">
+            <div style="background: linear-gradient(135deg, #059669, #047857); color: white; padding: 2.5rem; border-radius: 16px; box-shadow: 0 4px 12px rgba(5, 150, 105, 0.3); transition: all 0.3s ease; cursor: pointer; height: 100%; position: relative;">
+                {% if pending_users > 0 %}
+                <div style="position: absolute; top: 1.5rem; right: 1.5rem; background: #ef4444; color: white; border-radius: 50%; width: 40px; height: 40px; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 1.1rem; box-shadow: 0 2px 8px rgba(239, 68, 68, 0.4);">
+                    {{ pending_users }}
+                </div>
+                {% endif %}
+                <div style="margin-bottom: 1rem;">
+                    <i class="fas fa-user-check" style="font-size: 3rem; color: white;"></i>
+                </div>
+                <h3 style="font-size: 1.5rem; font-weight: 700; margin-bottom: 0.75rem; color: white;">Verify Users</h3>
+                <p style="opacity: 0.95; line-height: 1.6; margin-bottom: 1rem; color: white;">Review and approve pending hospital administrator registration requests.</p>
+                <div style="display: inline-block; padding: 0.5rem 1rem; background: rgba(255,255,255,0.2); border-radius: 8px; font-size: 0.875rem; font-weight: 600; color: white;">
+                    {% if pending_users > 0 %}
+                        <i class="fas fa-clock"></i> {{ pending_users }} pending
+                    {% else %}
+                        <i class="fas fa-check-circle"></i> All clear
+                    {% endif %}
+                </div>
+            </div>
+        </a>
+
+        <!-- View All Staff -->
+        <a href="{% url 'admin_panel:view_all_staff' %}" style="text-decoration: none; color: inherit; display: block;">
+            <div style="background: linear-gradient(135deg, #0891b2, #0e7490); color: white; padding: 2.5rem; border-radius: 16px; box-shadow: 0 4px 12px rgba(8, 145, 178, 0.3); transition: all 0.3s ease; cursor: pointer; height: 100%;">
+                <div style="margin-bottom: 1rem;">
+                    <i class="fas fa-users-cog" style="font-size: 3rem; color: white;"></i>
+                </div>
+                <h3 style="font-size: 1.5rem; font-weight: 700; margin-bottom: 0.75rem; color: white;">View All Staff</h3>
+                <p style="opacity: 0.95; line-height: 1.6; margin-bottom: 1rem; color: white;">View comprehensive list of all hospital administrators in the system.</p>
+                <div style="display: inline-block; padding: 0.5rem 1rem; background: rgba(255,255,255,0.2); border-radius: 8px; font-size: 0.875rem; font-weight: 600; color: white;">
+                    <i class="fas fa-list"></i> Read-only view
+                </div>
+            </div>
+        </a>
+    </div>
+
+    <!-- Security Notice -->
+    <div style="background: #fef3c7; border-left: 4px solid #f59e0b; padding: 1.5rem; border-radius: 8px; margin-bottom: 2rem;">
+        <div style="display: flex; align-items: start; gap: 1rem;">
+            <i class="fas fa-exclamation-triangle" style="color: #f59e0b; font-size: 1.5rem; margin-top: 0.25rem;"></i>
+            <div>
+                <h4 style="color: #92400e; font-weight: 700; margin-bottom: 0.5rem;">Security Notice</h4>
+                <p style="color: #78350f; line-height: 1.6; margin: 0;">
+                    You are logged in as a <strong>Superadmin</strong>. This account has elevated privileges. 
+                    Please use these functions responsibly and only for system administration purposes.
+                    Sensitive donor data is protected and not visible in Django admin.
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Quick Info -->
+    <div style="background: white; padding: 2rem; border-radius: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
+        <h3 style="font-size: 1.25rem; font-weight: 700; color: #1f2937; margin-bottom: 1.5rem;">
+            <i class="fas fa-info-circle"></i> System Information
+        </h3>
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1.5rem;">
+            <div>
+                <div style="color: #6b7280; font-size: 0.875rem; margin-bottom: 0.25rem;">Last Login</div>
+                <div style="font-weight: 600; color: #1f2937;">{{ user.last_login|date:"M d, Y H:i" }}</div>
+            </div>
+            <div>
+                <div style="color: #6b7280; font-size: 0.875rem; margin-bottom: 0.25rem;">Account Type</div>
+                <div style="font-weight: 600; color: #7c3aed;">System Superadmin</div>
+            </div>
+            <div>
+                <div style="color: #6b7280; font-size: 0.875rem; margin-bottom: 0.25rem;">Email</div>
+                <div style="font-weight: 600; color: #1f2937;">{{ user.email }}</div>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+<style>
+a[href="/admin/"]:hover div,
+a[href*="verify_users"]:hover div,
+a[href*="view_all_staff"]:hover div {
+    transform: translateY(-4px);
+    box-shadow: 0 8px 20px rgba(0,0,0,0.15);
+}
+</style>
+{% endblock %}

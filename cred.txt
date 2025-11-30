@@ -1,0 +1,153 @@
+================================================================================
+                    BDIMS - TEST USER CREDENTIALS
+================================================================================
+
+=== SYSTEM SUPERADMIN ===
+Username: superadmin
+Email:    superadmin@bdims.com
+Password: Super@123
+
+Permissions:
+  - is_staff: True
+  - is_superuser: True
+  - Access to Django Admin Panel (/admin/)
+  - Access to Custom Admin Panel (/admin-panel/)
+  - Can verify new hospital registrations
+  - Can view all hospital staff
+  - SECURITY: Django admin shows ONLY: Users, Hospitals, AdminProfiles, BloodInventory
+  - SECURITY: Sensitive donor data is NOT visible in Django admin
+
+Special Features:
+  1. Django Admin Button - Direct access to /admin/ system panel
+  2. Verify Users - Approve/reject pending hospital registrations
+  3. View All Staff - Read-only view of all hospital administrators
+
+WARNING: Use superadmin account ONLY for system administration tasks.
+
+
+================================================================================
+
+=== HOSPITAL ADMIN ACCOUNTS (3) ===
+
+--- Hospital Admin 1 ---
+Username: admin1
+Email:    admin1@hospital.com
+Password: Admin@123
+Hospital: City General Hospital (Government, Mumbai)
+
+--- Hospital Admin 2 ---
+Username: admin2
+Email:    admin2@hospital.com
+Password: Admin@123
+Hospital: Apollo Clinic (Private, Delhi)
+
+--- Hospital Admin 3 ---
+Username: admin3
+Email:    admin3@hospital.com
+Password: Admin@123
+Hospital: Rural Health Center (Rural, Pune)
+
+Permissions (All Hospital Admins):
+  - is_staff: True
+  - is_superuser: False (CANNOT access Django admin)
+  - Access to Custom Admin Panel (/admin-panel/)
+  - Can manage their own hospital's donors
+  - Can create/manage blood requests
+  - Can handle emergency requests
+  - Can view their hospital's inventory
+
+Blood Group Inventory per Hospital:
+  A+ : 10 units    A- : 5 units
+  B+ : 8 units     B- : 4 units
+  AB+: 6 units     AB-: 3 units
+  O+ : 15 units    O- : 7 units
+
+
+================================================================================
+
+=== DONOR ACCOUNTS (3) ===
+
+--- Donor 1 ---
+Username: donor1
+Email:    donor1@email.com
+Password: Donor@123
+Name:     John Donor
+Phone:    9876543210
+Blood Group: A+
+City:     Mumbai
+Date of Birth: 1995-01-15
+Last Donation: Never
+
+--- Donor 2 ---
+Username: donor2
+Email:    donor2@email.com
+Password: Donor@123
+Name:     Jane Donor
+Phone:    9876543211
+Blood Group: B+
+City:     Delhi
+Date of Birth: 1998-05-20
+Last Donation: Never
+
+--- Donor 3 ---
+Username: donor3
+Email:    donor3@email.com
+Password: Donor@123
+Name:     Sam Donor
+Phone:    9876543212
+Blood Group: O+
+City:     Pune
+Date of Birth: 1992-11-10
+Last Donation: Never
+
+Permissions (All Donors):
+  - is_staff: False
+  - is_superuser: False
+  - Access to Donor Portal (/donor/)
+  - Can view donation history
+  - Can respond to emergency requests
+  - Can update their profile
+  - Can view nearby hospitals
+
+
+================================================================================
+
+NOTES:
+------
+
+1. SECURITY MODEL:
+   - Only ONE superadmin account exists in the system
+   - Hospital staff CANNOT access Django admin (is_superuser=False)
+   - Superadmin has minimal features: Django admin, user verification, view staff
+   - Sensitive donor data is hidden from Django admin panel
+
+2. DATABASE:
+   - Fresh database created with test users
+   - All passwords follow format: Role@123 (e.g., Admin@123, Donor@123, Super@123)
+   - Emails follow pattern: username@domain.com
+
+3. LOGIN URLS:
+   - All Users (Donor/Admin/Superadmin): http://localhost:8000/accounts/login/
+   - Select role from dropdown: Donor | Hospital Admin | 🛡️ Superadmin
+   - Superadmin option has purple styling for easy identification
+
+4. TESTING WORKFLOW:
+   a) Login as hospital admin → Should see 8 standard action cards only
+   b) Login as superadmin → Should see 3 additional cards (Django Admin, Verify Users, View All Staff)
+   c) Access /admin/ as hospital admin → Should be redirected/denied
+   d) Access /admin/ as superadmin → Should see Users, Hospital, AdminProfile, BloodInventory only
+
+5. USER VERIFICATION:
+   - New hospital registrations require superadmin approval
+   - Accounts are created with is_active=False
+   - Superadmin can approve (sets is_active=True) or reject (deletes account)
+   - Pending count badge shows on "Verify Users" button
+
+6. MAINTENANCE:
+   - To reset database: python manage.py flush
+   - To create test users: python manage.py create_test_users
+   - To create new superadmin: python manage.py createsuperuser
+
+================================================================================
+Last Updated: November 30, 2025
+================================================================================
