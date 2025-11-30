@@ -419,6 +419,9 @@
                             <h3>
                                 <i class="fas fa-hospital"></i>
                                 {{ request.hospital_name }}
+                                {% if request.hospital.city %}
+                                    <span style="font-size: 0.85em; color: #666; font-weight: 400;"> • {{ request.hospital.city }}</span>
+                                {% endif %}
                             </h3>
                             <p>{{ request.contact_person }} • {{ request.contact_phone }} • ID: {{ request.id }}</p>
                         </div>
@@ -461,16 +464,47 @@
                     </div>
                     {% endif %}
                     
+                    <!-- Donor Responses Section -->
+                    {% if request.responses.all %}
+                    <div style="background: var(--color-info-50); border: 2px solid var(--color-info-600); padding: var(--space-4); border-radius: var(--radius-lg); margin-bottom: var(--space-4);">
+                        <div style="display: flex; align-items: center; gap: var(--space-2); margin-bottom: var(--space-3);">
+                            <i class="fas fa-users" style="color: var(--color-info-600);"></i>
+                            <strong style="color: var(--color-info-700);">{{ request.responses.count }} Donor{{ request.responses.count|pluralize }} Responded</strong>
+                        </div>
+                        {% for response in request.responses.all %}
+                        <div style="background: white; padding: var(--space-3); border-radius: var(--radius-md); margin-bottom: var(--space-2); border-left: 3px solid var(--color-success-600); display: flex; justify-content: space-between; align-items: center;">
+                            <div>
+                                <strong style="color: var(--color-gray-800);">{{ response.donor.full_name }}</strong>
+                                <span style="margin: 0 var(--space-2); color: var(--color-gray-400);">|</span>
+                                <span style="color: var(--color-danger-600); font-weight: 600;">{{ response.donor.blood_group }}</span>
+                                <span style="margin: 0 var(--space-2); color: var(--color-gray-400);">|</span>
+                                <a href="tel:{{ response.donor.phone_number }}" style="color: var(--color-info-600);">
+                                    <i class="fas fa-phone"></i> {{ response.donor.phone_number }}
+                                </a>
+                                <span style="margin: 0 var(--space-2); color: var(--color-gray-400);">|</span>
+                                <span style="color: var(--color-gray-500); font-size: var(--text-sm);">{{ response.created_at|date:"M d, H:i" }}</span>
+                            </div>
+                            <a href="{% url 'admin_panel:donor_detail' response.donor.id %}" class="btn btn-small" style="background: var(--color-primary-600); color: white;">
+                                <i class="fas fa-user"></i> View Details
+                            </a>
+                        </div>
+                        {% endfor %}
+                    </div>
+                    {% endif %}
+                    
                     <div class="emergency-actions">
                         <a href="tel:{{ request.contact_phone }}" class="btn btn-small btn-contact">
                             <i class="fas fa-phone"></i> Call Hospital
                         </a>
-                        <button class="btn btn-small btn-respond" onclick="respondToEmergency({{ request.id }})">
-                            <i class="fas fa-reply"></i> Respond
-                        </button>
-                        <button class="btn btn-small btn-resolve" onclick="resolveEmergency({{ request.id }})">
+                        {% if request.is_own_hospital %}
+                        <a href="{% url 'admin_panel:resolve_emergency' request.id %}" class="btn btn-small btn-resolve">
                             <i class="fas fa-check-circle"></i> Mark Resolved
-                        </button>
+                        </a>
+                        {% else %}
+                        <span class="btn btn-small" style="opacity: 0.6; cursor: default; background: var(--color-gray-400);" title="Only {{ request.hospital_name }} can resolve this">
+                            <i class="fas fa-info-circle"></i> Call to Help
+                        </span>
+                        {% endif %}
                     </div>
                 </div>
                 {% endif %}
@@ -650,52 +684,6 @@
         // Remove trailing & and navigate
         url = url.replace(/&$/, '');
         window.location.href = url;
-    }
-
-    function respondToEmergency(emergencyId) {
-        if (confirm('Are you sure you want to respond to this emergency?')) {
-            fetch(`/admin-panel/emergencies/${emergencyId}/respond/`, {
-                method: 'POST',
-                headers: {
-                    'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value,
-                    'Content-Type': 'application/json',
-                },
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (data.success) {
-                    alert(data.message);
-                    location.reload();
-                } else {
-                    alert('Error: ' + data.error);
-                }
-            })
-            .catch(error => {
-                console.error('Error:', error);
-                alert('Error responding to emergency');
-            });
-        }
-    }
-
-    function resolveEmergency(emergencyId) {
-        if (confirm('Are you sure you want to mark this emergency as resolved?')) {
-            // Create a form to submit
-            const form = document.createElement('form');
-            form.method = 'POST';
-            form.action = `/admin-panel/emergencies/${emergencyId}/resolve/`;
-            
-            // Add CSRF token
-            const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]').value;
-            const csrfInput = document.createElement('input');
-            csrfInput.type = 'hidden';
-            csrfInput.name = 'csrfmiddlewaretoken';
-            csrfInput.value = csrfToken;
-            form.appendChild(csrfInput);
-            
-            // Submit form
-            document.body.appendChild(form);
-            form.submit();
-        }
     }
 
     // Add enter key support for search

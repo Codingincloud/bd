@@ -19,7 +19,6 @@ urlpatterns = [
     path('inventory/', views.manage_inventory, name='manage_inventory'),
     path('emergencies/', views.manage_emergencies, name='manage_emergencies'),
     path('emergencies/create/', views.create_emergency_request, name='create_emergency_request'),
-    path('emergencies/<int:emergency_id>/respond/', views.respond_to_emergency_admin, name='respond_to_emergency'),
     path('emergencies/<int:emergency_id>/resolve/', views.resolve_emergency, name='resolve_emergency'),
     path('inventory/update/', views.update_inventory, name='update_inventory'),
     path('my-hospital/', views.my_hospital, name='my_hospital'),

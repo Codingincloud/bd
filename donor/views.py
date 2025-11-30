@@ -8,7 +8,7 @@ from datetime import date, timedelta
 import json
 
 # Import my models
-from .models import Donor, DonationRequest, DonationHistory, EmergencyRequest, Hospital, HealthMetrics
+from .models import Donor, DonationRequest, DonationHistory, EmergencyRequest, Hospital, HealthMetrics, EmergencyResponse
 from .forms import LocationUpdateForm, SimpleLocationForm, MedicalInfoUpdateForm, HealthMetricsForm
 from utils.notification_service import NotificationService
 
@@ -319,6 +319,9 @@ def emergency_requests(request):
         messages.error(request, 'Donor profile not found. Please contact support.')
         return redirect('accounts:login')
     
+    # Check if donor is eligible to donate
+    can_donate, eligibility_message = donor.can_donate()
+    
     # Get emergency requests where this donor can help
     # Build compatibility: which blood groups this donor can donate to
     donor_can_donate_to = {
@@ -332,7 +335,7 @@ def emergency_requests(request):
         'AB+': ['AB+'],
     }
     
-    # Get all active emergency requests
+    # Get ONLY active emergency requests that haven't expired
     all_emergencies = EmergencyRequest.objects.filter(
         status='active',
         required_by__gte=timezone.now()
@@ -362,6 +365,8 @@ def emergency_requests(request):
         'high_emergencies': high_count,
         'medium_emergencies': medium_count,
         'compatible_groups': donor.compatible_blood_groups,
+        'can_donate': can_donate,
+        'eligibility_message': eligibility_message,
     }
     return render(request, 'donor/emergency_requests.html', context)
 
@@ -1518,6 +1523,7 @@ def add_health_metrics(request):
                     weight=weight,
                     blood_pressure_systolic=systolic,
                     blood_pressure_diastolic=diastolic,
+                    hemoglobin_level=form.cleaned_data.get('hemoglobin_level'),
                     resting_heart_rate=heart_rate,
                     notes=form.cleaned_data.get('notes', '')
                 )
@@ -1571,6 +1577,7 @@ def update_health_metrics(request):
                 latest_metrics.weight = form.cleaned_data['current_weight']
                 latest_metrics.blood_pressure_systolic = form.cleaned_data['blood_pressure_systolic']
                 latest_metrics.blood_pressure_diastolic = form.cleaned_data['blood_pressure_diastolic']
+                latest_metrics.hemoglobin_level = form.cleaned_data.get('hemoglobin_level')
                 latest_metrics.resting_heart_rate = form.cleaned_data['resting_heart_rate']
                 latest_metrics.notes = form.cleaned_data['notes']
                 latest_metrics.recorded_at = timezone.now()
@@ -1582,6 +1589,7 @@ def update_health_metrics(request):
                     weight=form.cleaned_data['current_weight'],
                     blood_pressure_systolic=form.cleaned_data['blood_pressure_systolic'],
                     blood_pressure_diastolic=form.cleaned_data['blood_pressure_diastolic'],
+                    hemoglobin_level=form.cleaned_data.get('hemoglobin_level'),
                     resting_heart_rate=form.cleaned_data['resting_heart_rate'],
                     notes=form.cleaned_data['notes']
                 )
@@ -1600,6 +1608,7 @@ def update_health_metrics(request):
             initial_data['current_weight'] = latest_metrics.weight
             initial_data['blood_pressure_systolic'] = latest_metrics.blood_pressure_systolic
             initial_data['blood_pressure_diastolic'] = latest_metrics.blood_pressure_diastolic
+            initial_data['hemoglobin_level'] = latest_metrics.hemoglobin_level
             initial_data['resting_heart_rate'] = latest_metrics.resting_heart_rate
             initial_data['notes'] = latest_metrics.notes
         elif donor.weight:
@@ -1622,7 +1631,7 @@ def update_health_metrics(request):
 
 @login_required
 def respond_to_emergency(request, emergency_id):
-    """Allow donors to respond to emergency requests"""
+    """Allow donors to respond to emergency requests - with eligibility check"""
     if request.method == 'POST':
         try:
             import json
@@ -1633,6 +1642,21 @@ def respond_to_emergency(request, emergency_id):
             donor = get_object_or_404(Donor, user=request.user)
             emergency_request = get_object_or_404(EmergencyRequest, id=emergency_id)
             
+            # Check if emergency is still active
+            if emergency_request.status != 'active':
+                return JsonResponse({
+                    'success': False,
+                    'message': 'This emergency has already been resolved or expired.'
+                })
+            
+            # Check if donor is eligible to donate
+            can_donate, eligibility_message = donor.can_donate()
+            if not can_donate:
+                return JsonResponse({
+                    'success': False,
+                    'message': f'You are not eligible to donate right now. {eligibility_message}'
+                })
+            
             # Get selected hospital if provided
             selected_hospital = None
             if selected_hospital_id:
@@ -1640,6 +1664,15 @@ def respond_to_emergency(request, emergency_id):
                     selected_hospital = Hospital.objects.get(id=selected_hospital_id)
                 except Hospital.DoesNotExist:
                     pass
+            
+            # Create emergency response record
+            emergency_response = EmergencyResponse.objects.create(
+                emergency_request=emergency_request,
+                donor=donor,
+                response_message=response_text,
+                selected_hospital=emergency_request.hospital or selected_hospital,
+                status='pending'
+            )
             
             # Create a notification to admin about the response
             NotificationService.notify_emergency_response(
@@ -1651,7 +1684,7 @@ def respond_to_emergency(request, emergency_id):
             
             return JsonResponse({
                 'success': True,
-                'message': 'Response sent successfully to the hospital!'
+                'message': f'Response sent successfully! {emergency_request.hospital_name} will contact you at {donor.phone_number} to schedule the donation.'
             })
             
         except Exception as e:

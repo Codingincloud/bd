@@ -261,6 +261,19 @@
 </div>
 
 <div class="content-container">
+    <!-- Eligibility Warning -->
+    {% if not can_donate %}
+    <div class="alert alert-warning" style="background: var(--color-warning-50); border: 2px solid var(--color-warning-600); padding: var(--space-4); border-radius: var(--radius-lg); margin-bottom: var(--space-4);">
+        <div style="display: flex; align-items: center; gap: var(--space-3);">
+            <i class="fas fa-exclamation-triangle" style="color: var(--color-warning-600); font-size: var(--text-2xl);"></i>
+            <div>
+                <strong style="color: var(--color-warning-700); font-size: var(--text-base);">You Are Not Eligible to Donate Right Now</strong>
+                <p style="margin: var(--space-1) 0 0 0; color: var(--color-warning-700);">{{ eligibility_message }}</p>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+    
     <!-- Compatibility Notice -->
     <div class="compatibility-notice">
         <p><i class="fas fa-info-circle"></i> Showing emergency requests that match your blood type ({{ donor.blood_group }}) or universal compatibility</p>
@@ -349,13 +362,13 @@
                 <a href="tel:{{ request.contact_phone }}" class="btn btn-small btn-contact">
                     <i class="fas fa-phone"></i> Call Hospital
                 </a>
-                {% if donor.is_eligible %}
-                <a href="{% url 'donor:schedule_donation' %}?emergency={{ request.id }}" class="btn btn-small btn-schedule">
-                    <i class="fas fa-calendar-plus"></i> I Can Donate
-                </a>
+                {% if can_donate %}
+                <button class="btn btn-small btn-respond" onclick="respondToEmergency({{ request.id }})">
+                    <i class="fas fa-hand-holding-heart"></i> I Can Donate
+                </button>
                 {% else %}
-                <button class="btn btn-small" disabled style="opacity: 0.5; cursor: not-allowed;">
-                    <i class="fas fa-ban"></i> Not Eligible Yet
+                <button class="btn btn-small" disabled style="opacity: 0.5; cursor: not-allowed; background: var(--color-gray-400);" title="{{ eligibility_message }}">
+                    <i class="fas fa-ban"></i> Cannot Respond (Ineligible)
                 </button>
                 {% endif %}
             </div>
@@ -379,5 +392,37 @@
             location.reload();
         }
     }, 120000); // 2 minutes
+    
+    // Handle emergency response
+    function respondToEmergency(emergencyId) {
+        if (!confirm('Are you sure you want to respond to this emergency? The hospital will contact you to schedule a donation.')) {
+            return;
+        }
+        
+        fetch(`/donor/emergencies/${emergencyId}/respond/`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': '{{ csrf_token }}'
+            },
+            body: JSON.stringify({
+                response: 'I am available to donate blood.',
+                hospital_id: null
+            })
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                alert('✅ Response sent! ' + data.message);
+                location.reload();
+            } else {
+                alert('❌ Error: ' + data.message);
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert('Failed to send response. Please try again.');
+        });
+    }
 </script>
 {% endblock %}

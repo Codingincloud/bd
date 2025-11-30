@@ -271,12 +271,12 @@
                     <tbody>
                         {% for donation in recent_donations %}
                         <tr>
-                            <td>{{ donation.date }}</td>
-                            <td>{{ donation.center }}</td>
-                            <td>{{ donation.hemoglobin }} g/dL</td>
-                            <td>{{ donation.blood_pressure }} mmHg</td>
-                            <td class="donation-successful">{{ donation.status|title }}</td>
-                            <td>{{ donation.next_eligible }}</td>
+                            <td>{{ donation.donation_date }}</td>
+                            <td>{{ donation.donation_center_name }}</td>
+                            <td>{{ donation.hemoglobin_level|default:"N/A" }} {% if donation.hemoglobin_level %}g/dL{% endif %}</td>
+                            <td>{{ donation.blood_pressure|default:"N/A" }} {% if donation.blood_pressure %}mmHg{% endif %}</td>
+                            <td class="donation-successful">Completed</td>
+                            <td>{{ donation.donation_date|date:"Y-m-d" }}</td>
                         </tr>
                         {% endfor %}
                     </tbody>

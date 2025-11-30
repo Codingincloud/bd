@@ -238,6 +238,7 @@ class HealthMetrics(models.Model):
     weight = models.DecimalField(max_digits=5, decimal_places=1, null=True, blank=True)
     blood_pressure_systolic = models.IntegerField(null=True, blank=True)
     blood_pressure_diastolic = models.IntegerField(null=True, blank=True)
+    hemoglobin_level = models.DecimalField(max_digits=4, decimal_places=1, null=True, blank=True, help_text="Hemoglobin level in g/dL")
     resting_heart_rate = models.IntegerField(null=True, blank=True)
     notes = models.TextField(blank=True)
     recorded_at = models.DateTimeField(auto_now_add=True)
@@ -327,9 +328,10 @@ class EmergencyRequest(models.Model):
         ('expired', 'Expired'),
     ]
 
+    hospital = models.ForeignKey('Hospital', on_delete=models.CASCADE, related_name='emergency_requests', null=True, blank=True, help_text="Hospital requesting emergency blood")
     blood_group_needed = models.CharField(max_length=3, choices=Donor.BLOOD_GROUPS)
     units_needed = models.PositiveIntegerField()
-    hospital_name = models.CharField(max_length=200)
+    hospital_name = models.CharField(max_length=200, help_text="Hospital name (for backward compatibility)")
     contact_person = models.CharField(max_length=100)
     contact_phone = models.CharField(max_length=15)
     location = models.CharField(max_length=200)

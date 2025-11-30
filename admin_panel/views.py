@@ -4,12 +4,13 @@ from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from django.http import JsonResponse, HttpResponse
 from django.utils import timezone
+from django.db.models import Sum, Count
 from datetime import timedelta, date, datetime
 import json
 import csv
 
 # Import my app models
-from donor.models import Donor, DonationRequest, DonationHistory, EmergencyRequest
+from donor.models import Donor, DonationRequest, DonationHistory, EmergencyRequest, Hospital
 from admin_panel.models import AdminProfile
 from utils.notification_service import NotificationService
 
@@ -51,27 +52,45 @@ def dashboard(request):
     month_new_donors = Donor.objects.filter(user__date_joined__date__gte=month_start).count()
     
     # Create dictionary to store blood inventory
-    from donor.models import BloodInventory
+    from donor.models import BloodInventory, Hospital
     blood_inventory = {}
     
     # List of all blood groups
     blood_groups_list = ['A+', 'A-', 'B+', 'B-', 'AB+', 'AB-', 'O+', 'O-']
     
-    # Loop through each blood group and get inventory
+    # Get admin's hospital if they have one
+    try:
+        admin_hospital = request.user.hospital
+    except:
+        admin_hospital = None
+    
+    # Loop through each blood group and get inventory for admin's hospital
     for blood_group in blood_groups_list:
-        try:
-            # Try to find existing inventory record
-            inventory = BloodInventory.objects.get(blood_group=blood_group)
-            blood_inventory[blood_group] = int(inventory.units_available)
-        except BloodInventory.DoesNotExist:
-            # If not found, create new record
-            BloodInventory.objects.create(
-                blood_group=blood_group,
-                units_available=0,
-                units_reserved=0,
-                notes='Created from dashboard'
-            )
-            blood_inventory[blood_group] = 0
+        if admin_hospital:
+            try:
+                # Get inventory for admin's specific hospital
+                inventory = BloodInventory.objects.get(
+                    blood_group=blood_group,
+                    hospital=admin_hospital
+                )
+                blood_inventory[blood_group] = int(inventory.units_available)
+            except BloodInventory.DoesNotExist:
+                # If not found, create new record for this hospital
+                BloodInventory.objects.create(
+                    blood_group=blood_group,
+                    hospital=admin_hospital,
+                    units_available=0,
+                    units_reserved=0,
+                    updated_by=request.user,
+                    notes='Created from dashboard'
+                )
+                blood_inventory[blood_group] = 0
+        else:
+            # Sum up inventory across all hospitals for system-wide view
+            total_units = BloodInventory.objects.filter(
+                blood_group=blood_group
+            ).aggregate(total=Sum('units_available'))['total'] or 0
+            blood_inventory[blood_group] = int(total_units)
     
     # Get recent donations (last 5)
     recent_donations = DonationHistory.objects.all().order_by('-created_at')[:5]
@@ -179,6 +198,7 @@ def create_emergency_request(request):
                 
                 # Create new emergency request in database for this hospital only
                 emergency_request = EmergencyRequest.objects.create(
+                    hospital=admin_hospital,
                     blood_group_needed=blood_group,
                     units_needed=int(units_needed),
                     hospital_name=admin_hospital.name,
@@ -831,19 +851,26 @@ def cancel_donation_request(request, request_id):
 @login_required
 
 def manage_emergencies(request):
-    """Manage emergency requests"""
-    emergencies = EmergencyRequest.objects.order_by('-urgency_level', '-created_at')
+    """Manage emergency requests - collaborative system where all hospitals can see and help each other"""
+    # Get admin's hospital for tracking who helps
+    admin_hospital = request.user.hospital
     
-    # Emergency response is handled by separate view functions: respond_to_emergency_admin and resolve_emergency
-    # This section removed to prevent duplicate functionality and errors
+    # All hospitals see all emergencies (collaborative system)
+    emergencies = EmergencyRequest.objects.select_related('hospital').prefetch_related('responses__donor').order_by('-urgency_level', '-created_at')
+    
+    # Add flag to identify own vs other hospital emergencies
+    for emergency in emergencies:
+        emergency.is_own_hospital = (emergency.hospital == admin_hospital)
+    
+    # Emergency response is handled by separate view functions: resolve_emergency
     
     # Filter by status if provided
     status_filter = request.GET.get('status', '')
     if status_filter:
         emergencies = emergencies.filter(status=status_filter)
     
-    # Get all emergencies for different tabs
-    all_emergencies = EmergencyRequest.objects.order_by('-urgency_level', '-created_at')
+    # Get all emergencies for different tabs (respecting hospital filter)
+    all_emergencies = emergencies.order_by('-urgency_level', '-created_at')
     active_emergencies_list = all_emergencies.filter(status='active')
     fulfilled_emergencies_list = all_emergencies.filter(status='fulfilled')
     expired_emergencies_list = all_emergencies.filter(status='expired')
@@ -1550,104 +1577,93 @@ BLOOD GROUP DISTRIBUTION:
 
 @login_required
 
-def respond_to_emergency_admin(request, emergency_id):
-    """Admin responds to an emergency request"""
-    if request.method == 'POST':
-        try:
-            emergency = get_object_or_404(EmergencyRequest, id=emergency_id)
-            
-            # Validate response
-            if emergency.status == 'fulfilled':
-                messages.warning(request, f'Cannot respond to fulfilled emergency at {emergency.hospital_name}.')
-            elif emergency.status == 'expired':
-                messages.warning(request, f'Cannot respond to expired emergency at {emergency.hospital_name}.')
-            else:
-                # Keep status as active, track response in notes
-                admin_name = request.user.get_full_name() or request.user.username
-                timestamp = timezone.now().strftime('%Y-%m-%d %H:%M')
-                
-                # Check if already responded
-                if f"Admin {admin_name} responded" in (emergency.notes or ''):
-                    messages.info(request, f'You have already responded to the emergency at {emergency.hospital_name}.')
-                    return redirect('admin_panel:manage_emergencies')
-                
-                if emergency.notes:
-                    emergency.notes = f"{emergency.notes}\n\nResponse: Admin {admin_name} responded on {timestamp}"
-                else:
-                    emergency.notes = f"Response: Admin {admin_name} responded on {timestamp}"
-                
-                emergency.save()
-                
-                # Notify admins
-                try:
-                    NotificationService.create_system_notification(
-                        title=f'Emergency Response Initiated',
-                        message=f'Admin {admin_name} is now handling the emergency at {emergency.hospital_name}',
-                        notification_type='info',
-                        target_audience='admins'
-                    )
-                except Exception as e:
-                    print(f"Notification error: {e}")
-                
-                messages.success(request, f'✅ You have responded to the emergency request at {emergency.hospital_name}. Your response has been recorded.')
-            
-            return redirect('admin_panel:manage_emergencies')
-            
-        except Exception as e:
-            messages.error(request, f'Error responding to emergency: {str(e)}')
-            return redirect('admin_panel:manage_emergencies')
-    
-    messages.error(request, 'Invalid request method.')
-    return redirect('admin_panel:manage_emergencies')
-
-
 @login_required
 
 def resolve_emergency(request, emergency_id):
-    """Mark an emergency request as resolved"""
+    """Mark an emergency request as resolved - ONLY the hospital that created it can resolve"""
+    try:
+        admin_hospital = request.user.hospital
+        # Only allow the hospital that created the emergency to resolve it
+        emergency = get_object_or_404(EmergencyRequest, id=emergency_id, hospital=admin_hospital)
+    except EmergencyRequest.DoesNotExist:
+        messages.error(request, 'You can only resolve emergencies created by your hospital.')
+        return redirect('admin_panel:manage_emergencies')
+    
     if request.method == 'POST':
         try:
-            emergency = get_object_or_404(EmergencyRequest, id=emergency_id)
-            
             # Validate resolution
             if emergency.status == 'fulfilled':
-                messages.info(request, f'Emergency at {emergency.hospital_name} is already marked as resolved.')
+                messages.info(request, f'Emergency is already resolved.')
+                return redirect('admin_panel:manage_emergencies')
             elif emergency.status == 'expired':
-                messages.warning(request, f'Cannot resolve expired emergency at {emergency.hospital_name}.')
+                messages.warning(request, f'Cannot resolve expired emergency.')
+                return redirect('admin_panel:manage_emergencies')
+            
+            # Get resolution details from form
+            units_fulfilled = request.POST.get('units_fulfilled', emergency.units_needed)
+            donor_name = request.POST.get('donor_name', '').strip()
+            donor_contact = request.POST.get('donor_contact', '').strip()
+            resolution_notes = request.POST.get('resolution_notes', '').strip()
+            
+            # Get admin info
+            admin_name = request.user.get_full_name() or request.user.username
+            timestamp = timezone.now().strftime('%Y-%m-%d %H:%M')
+            
+            # Mark as fulfilled
+            emergency.status = 'fulfilled'
+            
+            # Build resolution note
+            resolution_note = f"✅ RESOLVED by {admin_hospital.name}\n"
+            resolution_note += f"Resolved by: Admin {admin_name}\n"
+            resolution_note += f"Units fulfilled: {units_fulfilled}\n"
+            resolution_note += f"Date: {timestamp}\n"
+            
+            if donor_name:
+                resolution_note += f"Donor: {donor_name}\n"
+            if donor_contact:
+                resolution_note += f"Donor Contact: {donor_contact}\n"
+            if resolution_notes:
+                resolution_note += f"Notes: {resolution_notes}\n"
+            
+            if emergency.notes:
+                emergency.notes = f"{emergency.notes}\n\n{resolution_note}"
             else:
-                # Resolve active emergencies
-                units_fulfilled = request.POST.get('units_fulfilled', emergency.units_needed)
-                emergency.status = 'fulfilled'
-                admin_name = request.user.get_full_name() or request.user.username
-                timestamp = timezone.now().strftime('%Y-%m-%d %H:%M')
-                
-                resolution_note = f"Resolution: {units_fulfilled} units fulfilled by Admin {admin_name} on {timestamp}"
-                
-                if emergency.notes:
-                    emergency.notes = f"{emergency.notes}\n\n{resolution_note}"
-                else:
-                    emergency.notes = resolution_note
-                
-                emergency.save()
-                
-                # Notify admins
+                emergency.notes = resolution_note
+            
+            emergency.save()
+            
+            # Notify donors who responded
+            from utils.notification_service import NotificationService
+            for response in emergency.responses.all():
                 try:
-                    NotificationService.create_system_notification(
-                        title=f'Emergency Resolved Successfully',
-                        message=f'Emergency at {emergency.hospital_name} for {emergency.blood_group_needed} blood has been resolved. {units_fulfilled} units fulfilled.',
-                        notification_type='success',
-                        target_audience='admins'
+                    NotificationService.create_notification(
+                        user=response.donor.user,
+                        notification_type='emergency_resolved',
+                        title='Emergency Resolved',
+                        message=f'The emergency request from {emergency.hospital_name} has been resolved. Thank you for your response!',
+                        related_object=emergency
                     )
                 except Exception as e:
                     print(f"Notification error: {e}")
-                
-                messages.success(request, f'✅ Emergency request at {emergency.hospital_name} has been marked as resolved successfully! Thank you for your prompt action.')
             
+            messages.success(request, f'✅ Emergency resolved successfully!')
             return redirect('admin_panel:manage_emergencies')
             
         except Exception as e:
             messages.error(request, f'Error resolving emergency: {str(e)}')
             return redirect('admin_panel:manage_emergencies')
+    
+    # GET request - show resolution form
+    # Get all donors for dropdown selection
+    from donor.models import Donor
+    all_donors = Donor.objects.select_related('user').filter(user__is_active=True).order_by('user__first_name')
+    
+    context = {
+        'emergency': emergency,
+        'is_helping_other_hospital': False,  # Always own hospital now
+        'all_donors': all_donors,
+    }
+    return render(request, 'admin_panel/resolve_emergency.html', context)
     
     messages.error(request, 'Invalid request method.')
     return redirect('admin_panel:manage_emergencies')

@@ -243,6 +243,21 @@ class HealthMetricsForm(forms.Form):
         label='Blood Pressure - Diastolic (bottom number)'
     )
 
+    hemoglobin_level = forms.DecimalField(
+        max_digits=4,
+        decimal_places=1,
+        min_value=8.0,
+        max_value=20.0,
+        required=False,
+        widget=forms.NumberInput(attrs={
+            'class': 'form-control',
+            'placeholder': 'e.g., 13.5',
+            'step': '0.1'
+        }),
+        label='Hemoglobin Level (g/dL)',
+        help_text='Normal range: 12.5-18.0 g/dL. Leave blank if not tested.'
+    )
+
     resting_heart_rate = forms.IntegerField(
         min_value=40,
         max_value=150,

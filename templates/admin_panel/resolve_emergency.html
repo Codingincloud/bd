@@ -1,0 +1,435 @@
+{% extends "admin_panel/base_admin.html" %}
+{% load static %}
+
+{% block title %}Resolve Emergency - BDIMS Admin{% endblock %}
+
+{% block extra_css %}
+<style>
+    :root {
+        --color-primary: #2563eb;
+        --color-success: #16a34a;
+        --color-danger: #dc2626;
+        --color-warning: #f59e0b;
+        --color-info: #0891b2;
+        --color-gray-50: #f9fafb;
+        --color-gray-100: #f3f4f6;
+        --color-gray-200: #e5e7eb;
+        --color-gray-300: #d1d5db;
+        --color-gray-500: #6b7280;
+        --color-gray-700: #374151;
+        --color-gray-800: #1f2937;
+        --color-gray-900: #111827;
+    }
+
+    .resolve-container {
+        max-width: 800px;
+        margin: 2rem auto;
+        background: white;
+        border-radius: 12px;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        overflow: hidden;
+    }
+
+    .resolve-header {
+        background: linear-gradient(135deg, var(--color-success), var(--color-primary));
+        color: white;
+        padding: 2rem;
+        text-align: center;
+    }
+
+    .resolve-header h1 {
+        margin: 0;
+        font-size: 1.75rem;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.75rem;
+    }
+
+    .resolve-body {
+        padding: 2rem;
+    }
+
+    .emergency-summary {
+        background: var(--color-gray-50);
+        border-left: 4px solid var(--color-danger);
+        padding: 1.5rem;
+        margin-bottom: 2rem;
+        border-radius: 8px;
+    }
+
+    .emergency-summary h3 {
+        margin: 0 0 1rem 0;
+        color: var(--color-gray-800);
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .summary-grid {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 1rem;
+    }
+
+    .summary-item {
+        display: flex;
+        flex-direction: column;
+        gap: 0.25rem;
+    }
+
+    .summary-label {
+        font-size: 0.875rem;
+        color: var(--color-gray-500);
+        font-weight: 600;
+        text-transform: uppercase;
+    }
+
+    .summary-value {
+        color: var(--color-gray-800);
+        font-weight: 600;
+        font-size: 1rem;
+    }
+
+    .form-group {
+        margin-bottom: 1.5rem;
+    }
+
+    .form-label {
+        display: block;
+        margin-bottom: 0.5rem;
+        color: var(--color-gray-700);
+        font-weight: 600;
+        font-size: 0.95rem;
+    }
+
+    .form-label.required::after {
+        content: " *";
+        color: var(--color-danger);
+    }
+
+    .form-input, .form-textarea {
+        width: 100%;
+        padding: 0.75rem;
+        border: 2px solid var(--color-gray-300);
+        border-radius: 8px;
+        font-size: 1rem;
+        transition: all 0.2s;
+    }
+
+    .form-input:focus, .form-textarea:focus {
+        outline: none;
+        border-color: var(--color-primary);
+        box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+    }
+
+    .form-textarea {
+        resize: vertical;
+        min-height: 100px;
+    }
+
+    .form-help {
+        font-size: 0.875rem;
+        color: var(--color-gray-500);
+        margin-top: 0.25rem;
+    }
+
+    .collaboration-notice {
+        background: var(--color-warning);
+        color: white;
+        padding: 1rem 1.5rem;
+        border-radius: 8px;
+        margin-bottom: 1.5rem;
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+    }
+
+    .collaboration-notice i {
+        font-size: 1.5rem;
+    }
+
+    .donor-responses {
+        background: var(--color-info);
+        color: white;
+        padding: 1rem 1.5rem;
+        border-radius: 8px;
+        margin-bottom: 1.5rem;
+    }
+
+    .donor-responses h4 {
+        margin: 0 0 0.75rem 0;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .donor-list {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+    }
+
+    .donor-item {
+        background: rgba(255, 255, 255, 0.2);
+        padding: 0.75rem;
+        border-radius: 6px;
+        margin-bottom: 0.5rem;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .btn-group {
+        display: flex;
+        gap: 1rem;
+        margin-top: 2rem;
+        padding-top: 2rem;
+        border-top: 2px solid var(--color-gray-200);
+    }
+
+    .btn {
+        padding: 0.875rem 2rem;
+        border: none;
+        border-radius: 8px;
+        font-weight: 600;
+        font-size: 1rem;
+        cursor: pointer;
+        transition: all 0.2s;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        text-decoration: none;
+    }
+
+    .btn-primary {
+        background: var(--color-success);
+        color: white;
+        flex: 1;
+    }
+
+    .btn-primary:hover {
+        background: #15803d;
+        transform: translateY(-1px);
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    }
+
+    .btn-secondary {
+        background: var(--color-gray-300);
+        color: var(--color-gray-700);
+    }
+
+    .btn-secondary:hover {
+        background: var(--color-gray-400);
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="resolve-container">
+    <div class="resolve-header">
+        <h1>
+            <i class="fas fa-check-circle"></i>
+            Resolve Emergency Request
+        </h1>
+    </div>
+
+    <div class="resolve-body">
+        <!-- Emergency Summary -->
+        <div class="emergency-summary">
+            <h3>
+                <i class="fas fa-hospital"></i>
+                {{ emergency.hospital_name }}
+            </h3>
+            <div class="summary-grid">
+                <div class="summary-item">
+                    <span class="summary-label">Blood Group</span>
+                    <span class="summary-value" style="color: var(--color-danger);">{{ emergency.blood_group_needed }}</span>
+                </div>
+                <div class="summary-item">
+                    <span class="summary-label">Units Needed</span>
+                    <span class="summary-value">{{ emergency.units_needed }}</span>
+                </div>
+                <div class="summary-item">
+                    <span class="summary-label">Required By</span>
+                    <span class="summary-value">{{ emergency.required_by|date:"M d, Y H:i" }}</span>
+                </div>
+                <div class="summary-item">
+                    <span class="summary-label">Urgency</span>
+                    <span class="summary-value" style="text-transform: uppercase;">{{ emergency.get_urgency_level_display }}</span>
+                </div>
+                <div class="summary-item">
+                    <span class="summary-label">Contact</span>
+                    <span class="summary-value">{{ emergency.contact_person }}</span>
+                </div>
+                <div class="summary-item">
+                    <span class="summary-label">Phone</span>
+                    <span class="summary-value">{{ emergency.contact_phone }}</span>
+                </div>
+            </div>
+        </div>
+
+        {% if is_helping_other_hospital %}
+        <div class="collaboration-notice">
+            <i class="fas fa-handshake"></i>
+            <div>
+                <strong>Hospital Collaboration</strong><br>
+                <span style="font-size: 0.9rem;">You are helping {{ emergency.hospital_name }} fulfill their emergency request.</span>
+            </div>
+        </div>
+        {% endif %}
+
+        {% if emergency.responses.all %}
+        <div class="donor-responses">
+            <h4>
+                <i class="fas fa-users"></i>
+                {{ emergency.responses.count }} Donor{{ emergency.responses.count|pluralize }} Responded
+            </h4>
+            <ul class="donor-list">
+                {% for response in emergency.responses.all %}
+                <li class="donor-item">
+                    <span>
+                        <strong>{{ response.donor.full_name }}</strong> - {{ response.donor.blood_group }}
+                    </span>
+                    <a href="tel:{{ response.donor.phone_number }}" style="color: white;">
+                        <i class="fas fa-phone"></i> {{ response.donor.phone_number }}
+                    </a>
+                </li>
+                {% endfor %}
+            </ul>
+        </div>
+        {% endif %}
+
+        <!-- Resolution Form -->
+        <form method="post" id="resolveForm">
+            {% csrf_token %}
+
+            <div class="form-group">
+                <label for="units_fulfilled" class="form-label required">Units Fulfilled</label>
+                <input 
+                    type="number" 
+                    id="units_fulfilled" 
+                    name="units_fulfilled" 
+                    class="form-input"
+                    value="{{ emergency.units_needed }}"
+                    min="1"
+                    required
+                >
+                <div class="form-help">How many units were fulfilled?</div>
+            </div>
+
+            <div class="form-group">
+                <label for="donor_select" class="form-label">Select Donor</label>
+                <select 
+                    id="donor_select" 
+                    name="donor_select" 
+                    class="form-input"
+                    onchange="updateDonorFields()"
+                >
+                    <option value="">-- Select donor who fulfilled the request --</option>
+                    
+                    {% if emergency.responses.all %}
+                    <optgroup label="✓ Donors Who Responded">
+                        {% for response in emergency.responses.all %}
+                        <option 
+                            value="response_{{ response.id }}"
+                            data-name="{{ response.donor.name }}"
+                            data-contact="{{ response.donor.phone_number }}"
+                        >
+                            {{ response.donor.name }} - {{ response.donor.blood_group }} ({{ response.donor.phone_number }})
+                        </option>
+                        {% endfor %}
+                    </optgroup>
+                    {% endif %}
+                    
+                    <optgroup label="All Registered Donors">
+                        {% for donor in all_donors %}
+                        <option 
+                            value="donor_{{ donor.id }}"
+                            data-name="{{ donor.name }}"
+                            data-contact="{{ donor.phone_number }}"
+                        >
+                            {{ donor.name }} - {{ donor.blood_group }} ({{ donor.phone_number }})
+                        </option>
+                        {% endfor %}
+                    </optgroup>
+                </select>
+                <div class="form-help">Select the donor who fulfilled the request (responders listed first)</div>
+                
+                <!-- Hidden fields to store selected donor info -->
+                <input type="hidden" id="donor_name" name="donor_name">
+                <input type="hidden" id="donor_contact" name="donor_contact">
+            </div>
+
+            <div class="form-group">
+                <label for="resolution_notes" class="form-label">Additional Notes</label>
+                <textarea 
+                    id="resolution_notes" 
+                    name="resolution_notes" 
+                    class="form-textarea"
+                    placeholder="Any additional details about the resolution..."
+                ></textarea>
+                <div class="form-help">Optional: Add any relevant information about how the emergency was resolved</div>
+            </div>
+
+            <div class="btn-group">
+                <a href="{% url 'admin_panel:manage_emergencies' %}" class="btn btn-secondary">
+                    <i class="fas fa-times"></i>
+                    Cancel
+                </a>
+                <button type="submit" class="btn btn-primary">
+                    <i class="fas fa-check-circle"></i>
+                    Mark as Resolved
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+    // Function to update hidden fields when donor is selected
+    function updateDonorFields() {
+        const select = document.getElementById('donor_select');
+        const selectedOption = select.options[select.selectedIndex];
+        
+        if (selectedOption.value) {
+            document.getElementById('donor_name').value = selectedOption.getAttribute('data-name');
+            document.getElementById('donor_contact').value = selectedOption.getAttribute('data-contact');
+        } else {
+            document.getElementById('donor_name').value = '';
+            document.getElementById('donor_contact').value = '';
+        }
+    }
+
+    // Auto-select if there's only one response
+    document.addEventListener('DOMContentLoaded', function() {
+        const select = document.getElementById('donor_select');
+        const optgroups = select.querySelectorAll('optgroup');
+        
+        // If there's a "Donors Who Responded" group with only one option, auto-select it
+        if (optgroups.length > 0) {
+            const respondersGroup = optgroups[0];
+            const responderOptions = respondersGroup.querySelectorAll('option');
+            if (responderOptions.length === 1) {
+                responderOptions[0].selected = true;
+                updateDonorFields();
+            }
+        }
+    });
+
+    // Confirmation before submit
+    document.getElementById('resolveForm').addEventListener('submit', function(e) {
+        const units = document.getElementById('units_fulfilled').value;
+        const donorName = document.getElementById('donor_name').value;
+        
+        let message = `Are you sure you want to mark this emergency as resolved?\n\nUnits fulfilled: ${units}`;
+        if (donorName) {
+            message += `\nDonor: ${donorName}`;
+        }
+        
+        if (!confirm(message)) {
+            e.preventDefault();
+        }
+    });
+</script>
+{% endblock %}

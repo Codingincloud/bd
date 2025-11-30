@@ -232,19 +232,6 @@
             </div>
         </div>
 
-        <!-- Blood Group Distribution Chart -->
-        <div class="dashboard-section fade-in-up" style="margin-bottom: var(--space-8);">
-            <div class="section-header" style="background: white; padding: var(--space-4); border-radius: var(--radius-lg) var(--radius-lg) 0 0; border-bottom: 2px solid var(--color-gray-100);">
-                <h3 style="display: flex; align-items: center; gap: var(--space-2); color: var(--color-gray-800); font-size: var(--text-xl); font-weight: 600; margin: 0;">
-                    <i class="fas fa-chart-pie" style="color: var(--admin-primary-600);"></i>
-                    Blood Group Distribution
-                </h3>
-            </div>
-            <div class="chart-container" style="background: white; padding: var(--space-6); border-radius: 0 0 var(--radius-lg) var(--radius-lg); box-shadow: var(--shadow-md);">
-                <canvas id="bloodGroupChart" style="max-height: 350px;"></canvas>
-            </div>
-        </div>
-
         <!-- Quick Actions -->
         <div class="quick-actions fade-in-up">
     <a href="{% url 'admin_panel:donor_tracking' %}" class="action-card">
@@ -361,92 +348,10 @@
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
     
     <script>
-        // Blood Group Distribution Chart
-        const ctx = document.getElementById('bloodGroupChart');
-        
-        // Blood group data from backend
-        const bloodGroupLabels = [
-            {% for label in blood_group_labels %}'{{ label }}'{% if not forloop.last %}, {% endif %}{% endfor %}
-        ];
-        
-        const bloodGroupCounts = [
-            {% for count in blood_group_counts %}{{ count }}{% if not forloop.last %}, {% endif %}{% endfor %}
-        ];
-        
-        new Chart(ctx, {
-            type: 'doughnut',
-            data: {
-                labels: bloodGroupLabels,
-                datasets: [{
-                    label: 'Donors',
-                    data: bloodGroupCounts,
-                    backgroundColor: [
-                        '#2563eb', // A+ - Blue
-                        '#60a5fa', // A- - Light Blue
-                        '#16a34a', // B+ - Green
-                        '#4ade80', // B- - Light Green
-                        '#dc2626', // AB+ - Red
-                        '#f87171', // AB- - Light Red
-                        '#ea580c', // O+ - Orange
-                        '#fb923c'  // O- - Light Orange
-                    ],
-                    borderColor: '#ffffff',
-                    borderWidth: 3,
-                    hoverOffset: 10
-                }]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: true,
-                plugins: {
-                    legend: {
-                        display: true,
-                        position: 'right',
-                        labels: {
-                            font: {
-                                size: 14,
-                                weight: 600
-                            },
-                            color: '#374151',
-                            padding: 15,
-                            generateLabels: function(chart) {
-                                const data = chart.data;
-                                return data.labels.map((label, i) => {
-                                    const value = data.datasets[0].data[i];
-                                    return {
-                                        text: `${label}: ${value} donor${value !== 1 ? 's' : ''}`,
-                                        fillStyle: data.datasets[0].backgroundColor[i],
-                                        hidden: false,
-                                        index: i
-                                    };
-                                });
-                            }
-                        }
-                    },
-                    tooltip: {
-                        backgroundColor: 'rgba(0, 0, 0, 0.8)',
-                        padding: 12,
-                        titleFont: {
-                            size: 14,
-                            weight: 'bold'
-                        },
-                        bodyFont: {
-                            size: 13
-                        },
-                        callbacks: {
+        // Dashboard animations and interactions
+        document.addEventListener('DOMContentLoaded', function() {
                             label: function(context) {
                                 const total = context.dataset.data.reduce((a, b) => a + b, 0);
-                                const percentage = total > 0 ? ((context.parsed / total) * 100).toFixed(1) : 0;
-                                return `${context.label}: ${context.parsed} donor${context.parsed !== 1 ? 's' : ''} (${percentage}%)`;
-                            }
-                        }
-                    }
-                }
-            }
-        });
-        
-        // Add smooth animations
-        document.addEventListener('DOMContentLoaded', function() {
             const elements = document.querySelectorAll('.fade-in-up');
             elements.forEach((element, index) => {
                 element.style.animationDelay = `${index * 0.1}s`;

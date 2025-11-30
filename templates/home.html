@@ -489,12 +489,12 @@
                 </div>
                 <div class="hero-stats">
                     <div class="stat-item">
-                        <span class="stat-number">1000+</span>
+                        <span class="stat-number">{{ total_donors|default:"10" }}+</span>
                         <span class="stat-label">Active Donors</span>
                     </div>
                     <div class="stat-item">
-                        <span class="stat-number">5000+</span>
-                        <span class="stat-label">Lives Saved</span>
+                        <span class="stat-number">{{ total_hospitals|default:"10" }}</span>
+                        <span class="stat-label">Partner Hospitals</span>
                     </div>
                     <div class="stat-item">
                         <span class="stat-number">24/7</span>
@@ -558,6 +558,40 @@
                     <h3>Impact Tracking</h3>
                     <p>See the direct impact of your donations and celebrate your contributions to saving lives in your community.</p>
                 </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Blood Group Distribution Section -->
+    <section class="blood-distribution-section" style="padding: 4rem 0; background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);">
+        <div class="section-container">
+            <div class="section-header">
+                <h2 class="section-title">Blood Group Distribution</h2>
+                <p class="section-subtitle">Current donor availability across all blood groups</p>
+            </div>
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 1.5rem; margin-top: 3rem;">
+                {% for blood_group, data in blood_groups_data.items %}
+                <div style="background: white; padding: 2rem; border-radius: 12px; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); text-align: center; transition: transform 0.3s; border-top: 4px solid #dc2626;">
+                    <div style="font-size: 3rem; font-weight: bold; color: #dc2626; margin-bottom: 0.5rem;">
+                        {{ blood_group }}
+                    </div>
+                    <div style="display: flex; justify-content: space-around; margin-top: 1.5rem;">
+                        <div>
+                            <div style="font-size: 2rem; font-weight: bold; color: #2563eb;">{{ data.donors }}</div>
+                            <div style="font-size: 0.875rem; color: #6b7280; text-transform: uppercase; font-weight: 600;">Donors</div>
+                        </div>
+                        <div>
+                            <div style="font-size: 2rem; font-weight: bold; color: #16a34a;">{{ data.inventory }}</div>
+                            <div style="font-size: 0.875rem; color: #6b7280; text-transform: uppercase; font-weight: 600;">Units</div>
+                        </div>
+                    </div>
+                </div>
+                {% empty %}
+                <div style="grid-column: 1 / -1; text-align: center; padding: 3rem; color: #6b7280;">
+                    <i class="fas fa-tint" style="font-size: 4rem; margin-bottom: 1rem; opacity: 0.5;"></i>
+                    <p style="font-size: 1.25rem; margin: 0;">No blood group data available yet</p>
+                </div>
+                {% endfor %}
             </div>
         </div>
     </section>

@@ -31,6 +31,6 @@ urlpatterns = [
     path('donation/schedule/', views.schedule_donation, name='schedule_donation'),
     path('donation/history/', views.donation_history, name='donation_history'),
     path('emergency-requests/', views.emergency_requests, name='emergency_requests'),
-    # path('emergencies/<int:emergency_id>/respond/', views.respond_to_emergency, name='respond_to_emergency'),  # Removed - simplified to direct actions
+    path('emergencies/<int:emergency_id>/respond/', views.respond_to_emergency, name='respond_to_emergency'),
     path('request/cancel/<int:request_id>/', views.cancel_request, name='cancel_request'),
 ]
